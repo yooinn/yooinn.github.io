@@ -1,0 +1,1453 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>C:/Users/Administrator/Documents/Gridea/output</id>
+    <title>Jiank</title>
+    <updated>2019-07-25T15:43:33.578Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="C:/Users/Administrator/Documents/Gridea/output"/>
+    <link rel="self" href="C:/Users/Administrator/Documents/Gridea/output/atom.xml"/>
+    <subtitle>温故而知新</subtitle>
+    <logo>C:/Users/Administrator/Documents/Gridea/output/images/avatar.png</logo>
+    <icon>C:/Users/Administrator/Documents/Gridea/output/favicon.ico</icon>
+    <rights>All rights reserved 2019, Jiank</rights>
+    <entry>
+        <title type="html"><![CDATA[装饰器]]></title>
+        <id>C:/Users/Administrator/Documents/Gridea/output/post/zhuang-shi-qi/index.html</id>
+        <link href="C:/Users/Administrator/Documents/Gridea/output/post/zhuang-shi-qi/index.html">
+        </link>
+        <updated>2019-07-16T15:35:35.000Z</updated>
+        <content type="html"><![CDATA[<pre><code class="language-python">def Singleton(cls):
+    _instance = {}
+    def _singleton(*args, **kargs):
+        if cls not in _instance:
+            _instance[cls] = cls(*args, **kargs)
+        return _instance[cls]
+    return _singleton
+@Singleton
+class A(object):
+    a = 1
+    def __init__(self, x=0):
+        self.x = x
+a1 = A(20)
+a2 = A(3)
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[基本数据类型和运算]]></title>
+        <id>C:/Users/Administrator/Documents/Gridea/output/post/ji-ben-shu-ju-lei-xing-he-yun-suan/index.html</id>
+        <link href="C:/Users/Administrator/Documents/Gridea/output/post/ji-ben-shu-ju-lei-xing-he-yun-suan/index.html">
+        </link>
+        <updated>2019-06-25T09:09:23.000Z</updated>
+        <content type="html"><![CDATA[<p>5.2.1 基本数据类型和运算<br>
+基本数据类型</p>
+<p>Python中最基本的数据类型包括整型，浮点数，布尔值和字符串。类型是不需要声明的，比如：</p>
+<pre><code>a = 1       # 整数
+b = 1.2     # 浮点数
+c = True    # 布尔类型
+d = &quot;False&quot; # 字符串
+e = None    # NoneType
+</code></pre>
+<p>其中#是行内注释的意思。最后一个None是NoneType，注意不是0，在Python中利用type函数可以查看一个变量的类型：</p>
+<pre><code>
+type(a)     # &lt;type 'int'&gt;
+type(b)     # &lt;type 'float'&gt;
+type(c)     # &lt;type 'bool'&gt;
+type(d)     # &lt;type 'str'&gt;
+type(e)     # &lt;type 'NoneType'&gt;
+</code></pre>
+<p>注释中是执行type()函数后的输出结果，可以看到None是单独的一种类型NoneType。在很多API中，如果执行失败就会返回None。</p>
+<p>变量和引用</p>
+<p>Python中基本变量的赋值一般建立的是个引用，比如下面的语句：</p>
+<pre><code>a = 1
+b = a
+c = 1
+</code></pre>
+<p>a赋值为1后，b=a执行时并不会将a的值复制一遍，然后赋给b，而是简单地为a所指的值，也就是1建立了一个引用，相当于a和b都是指向包含1这个值的这块内存的指针。所以c=1执行的也是个引用建立，这三个变量其实是三个引用，指向同一个值。这个逻辑虽然简单，不过也还是常常容易弄混，这没关系，Python内置了id函数，可以返回一个对象的地址，用id函数可以让我们知道每个变量指向的是不是同一个值：</p>
+<pre><code>
+id(a)   # 35556792L
+id(b)   # 35556792L
+id(c)   # 35556792L
+</code></pre>
+<p>注释中表示的仍是执行后的结果。如果这时候我们接下面两个语句：</p>
+<pre><code>
+b = 2   # b的引用到新的一个变量上
+id(b)   # 35556768L
+可以看到b引用到了另一个变量上。
+</code></pre>
+<p><strong>运算符</strong></p>
+<p>Python中的数值的基本运算和C差不多，字符串的运算更方便，下面是常见的例子：</p>
+<pre><code>
+a = 2
+b = 2.3         
+c = 3
+a + b           # 2 + 2.3 = 4.3
+c – a           # 3 - 2 = 1
+a / b           # 整数除以浮点数，运算以浮点数为准，2 / 2.3 = 0.8695652173913044
+a / c           # Python2中，整数除法，向下取整 2 / 3 = 0
+a ** c          # a的c次方，结果为8
+a += 1          # Python中没有i++的用法，自增用+=
+c -= 3          # c变成0了
+d = 'Hello'     
+d + ' world!'   # 相当于字符串拼接，结果为'Hello world!'
+d += ' &quot;world&quot;!'# 相当于把字符串接在当前字符串尾，d变为'Hello &quot;world&quot;!'
+e = r'\n\t\\'   
+print(e)        # '\\n\\t\\\\'
+</code></pre>
+<p>需要提一下的几点：1）字符串用双引号和单引号都可以，区别主要是单引号字符串中如果出现单引号字符则需要用转义符，双引号也是一样，所以在单引号字符串中使用双引号，或者双引号字符串中使用单引号就会比较方便。另外三个双引号或者三个单引号围起来的也是字符串，因为换行方便，更多用于文档。2）Python2中两个数值相除会根据数值类型判断是否整数除法，Python3中则都按照浮点数。想要在Python2种也执行Python3中的除法只要执行下面语句：</p>
+<pre><code>
+from __future__ import division     # 使用Python3中的除法
+1 / 2                                   # 0.5
+3）字符串前加r表示字符串内容严格按照输入的样子，好处是不用转义符了，非常方便。
+
+Python中的布尔值和逻辑的运算非常直接，下面是例子：
+
+a = True
+b = False
+a and b     # False
+a or b      # True
+not a       # False
+</code></pre>
+<p>基本上就是英语，操作符优先级之类的和其他语言类似。Python中也有位操作：</p>
+<pre><code>
+~8      # 按位翻转，1000 --&gt; -(1000+1)
+8 &gt;&gt; 3  # 右移3位，1000 --&gt; 0001
+1 &lt;&lt; 3  # 左移3位，0001 --&gt; 1000
+5 &amp; 2   # 按位与，101 &amp; 010 = 000
+5 | 2   # 按位或，101 | 010 = 111
+4 ^ 1   # 按位异或，100 ^ 001 = 101
+==, !=和is
+</code></pre>
+<p>判断是否相等或者不等的语法和C也一样，另外在Python中也常常见到is操作符，这两者的区别在于==和!=比较引用指向的内存中的内容，而is判断两个变量是否指向一个地址，看下面的代码例子：</p>
+<pre><code>
+a = 1
+b = 1.0
+c = 1
+a == b  # True，值相等
+a is b  # False，指向的不是一个对象，这个语句等效于 id(a) == id(b)
+a is c  # True，指向的都是整型值1
+所以一定要分清要比较的对象应该用那种方式，对于一些特殊的情况，比如None，本着Pythonic的原则，最好用is None。
+</code></pre>
+<p>注意关键字</p>
+<p>Python中，万物皆对象。不过这并不是这里要探讨的话题，想说的是一定要注意关键字，因为所有东西都是对象，所以一个简简单单的赋值操作就可以把系统内置的函数给变成一个普通变量，来看下边例子：</p>
+<pre><code>
+id(type)                            # 506070640L
+type = 1                            # type成了指向1的变量
+id(type)                            # 35556792L
+id = 2                              # id成了指向2的变量
+from __future__ import print_function
+print = 3                           # print成了指向3的变量
+注意print是个很特殊的存在，在Python3中是按照函数用，在Python2中却是个命令式的语句，最早print的用法其实是下边这样：
+
+print &quot;Hello world!&quot;
+</code></pre>
+<p>这么用主要是受到ABC语法的影响，但这个用法并不Pythonic，后来加入了print函数，为了兼容允许两种用法并存。所以单纯给print赋值是不灵的，在Python2中使用Python3中的一些特性都是用from <strong>future</strong> import来实现。</p>
+<p>模块导入</p>
+<p>因为提到了对象名覆盖和import，所以简单讲一下。import是利用Python中各种强大库的基础，比如要计算cos(π)的值，可以有下面4种方式：</p>
+<h1 id="直接导入python的内置基础数学库">直接导入Python的内置基础数学库</h1>
+<p>import math<br>
+print(math.cos(math.pi))</p>
+<h1 id="从math中导入cos函数和pi变量">从math中导入cos函数和pi变量</h1>
+<p>from math import cos, pi<br>
+print(cos(pi))</p>
+<h1 id="如果是个模块在导入的时候可以起个别名避免名字冲突或是方便懒得打字的人使用">如果是个模块，在导入的时候可以起个别名，避免名字冲突或是方便懒得打字的人使用</h1>
+<p>import math as m<br>
+print(m.cos(m.pi))</p>
+<h1 id="从math中导入所有东西">从math中导入所有东西</h1>
+<p>from math import *<br>
+print(cos(pi))<br>
+一般来说最后一种方式不是很推荐，因为不知道import导入的名字里是否和现有对象名已经有冲突，很可能会不知不觉覆盖了现有的对象。</p>
+<p>5.2.2 容器<br>
+列表</p>
+<p>Python中的容器是异常好用且异常有用的结构。这节主要介绍列表（list），元组（tuple），字典（dict）和集合（set）。这些结构和其他语言中的类似结构并无本质不同，来看例子了解下使用：</p>
+<pre><code>
+a = [1, 2, 3, 4]
+b = [1]
+c = [1]
+d = b
+e = [1, &quot;Hello world!&quot;, c, False]
+print(id(b), id(c))                 # (194100040L, 194100552L)
+print(id(b), id(d))                 # (194100040L, 194100040L)
+print(b == c)                       # True
+f = list(&quot;abcd&quot;)
+print(f)                            # ['a', 'b', 'c', 'd']
+g = [0]*3 + [1]*4 + [2]*2	    # [0, 0, 0, 1, 1, 1, 1, 2, 2]
+因为变量其实是个引用，所以对列表而言也没什么不同，所以列表对类型没什么限制。也正因为如此，和变量不同的是，即使用相同的语句赋值，列表的地址也是不同的，在这个例子中体现在id(b)和id(c)不相等，而内容相等。列表也可以用list()初始化，输入参数需要是一个可以遍历的结构，其中每一个元素会作为列表的一项。“*”操作符对于列表而言是复制，最后一个语句用这种办法生成了分段的列表。
+</code></pre>
+<p>列表的基本操作有访问，增加，删除，和拼接：</p>
+<pre><code>a.pop()             # 把最后一个值4从列表中移除并作为pop的返回值
+a.append(5)         # 末尾插入值，[1, 2, 3, 5]
+a.index(2)          # 找到第一个2所在的位置，也就是1
+a[2]                # 取下标，也就是位置在2的值，也就是第三个值3
+a += [4, 3, 2]      # 拼接，[1, 2, 3, 5, 4, 3, 2]
+a.insert(1, 0)      # 在下标为1处插入元素0，[1, 0, 2, 3, 5, 4, 3, 2]
+a.remove(2)         # 移除第一个2，[1, 0, 3, 5, 4, 3, 2]
+a.reverse()         # 倒序，a变为[2, 3, 4, 5, 3, 0, 1]
+a[3] = 9            # 指定下标处赋值，[2, 3, 4, 9, 3, 0, 1]
+b = a[2:5]          # 取下标2开始到5之前的子序列，[4, 9, 3]
+c = a[2:-2]         # 下标也可以倒着数，方便算不过来的人，[4, 9, 3]
+d = a[2:]           # 取下标2开始到结尾的子序列，[4, 9, 3, 0, 1]
+e = a[:5]           # 取开始到下标5之前的子序列，[2, 3, 4, 9, 3]
+f = a[:]            # 取从开头到最后的整个子序列，相当于值拷贝，[2, 3, 4, 9, 3, 0, 1]
+a[2:-2] = [1, 2, 3] # 赋值也可以按照一段来，[2, 3, 1, 2, 3, 0, 1]
+g = a[::-1]	    # 也是倒序，通过slicing实现并赋值，效率略低于reverse()
+a.sort()
+print(a)            # 列表内排序，a变为[0, 1, 1, 2, 2, 3, 3]
+因为列表是有顺序的，所以和顺序相关的操作是列表中最常见的，首先我们来打乱一个列表的顺序，然后再对这个列表排序：
+
+import random
+a = range(10)                 # 生成一个列表，从0开始+1递增到9
+print(a)                       # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+random.shuffle(a)             # shuffle函数可以对可遍历且可变结构打乱顺序
+print(a)                       # [4, 3, 8, 9, 0, 6, 2, 7, 5, 1]
+b = sorted(a)               
+print(b)                       # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+c = sorted(a, reverse=True)
+print(c)                       # [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+元组
+</code></pre>
+<p>元组和列表有很多相似的地方，最大的区别在于不可变，还有如果初始化只包含一个元素的tuple和列表不一样，因为语法必须明确，所以必须在元素后加上逗号。另外直接用逗号分隔多个元素赋值默认是个tuple，这在函数多返回值的时候很好用：</p>
+<pre><code>
+a = (1, 2)
+b = tuple(['3', 4]) # 也可以从列表初始化
+c = (5,)
+print(c)            # (5,)
+d = (6)
+print(d)            # 6
+e = 3, 4, 5
+print(e)            # (3, 4, 5)
+</code></pre>
+<p>集合</p>
+<p>集合是一种很有用的数学操作，比如列表去重，或是理清两组数据之间的关系，集合的操作符和位操作符有交集，注意不要弄混：</p>
+<pre><code>
+A = set([1, 2, 3, 4])
+B = {3, 4, 5, 6}
+C = set([1, 1, 2, 2, 2, 3, 3, 3, 3])
+print(C)        # 集合的去重效果，set([1, 2, 3])
+print(A | B)    # 求并集，set([1, 2, 3, 4, 5, 6])
+print(A &amp; B)    # 求交集，set([3, 4])
+print(A - B)    # 求差集，属于A但不属于B的，set([1, 2])
+print(B - A)    # 求差集，属于B但不属于A的，set([5, 6])
+print(A ^ B)    # 求对称差集，相当于(A-B)|(B-A)，set([1, 2, 5, 6])
+</code></pre>
+<p>字典</p>
+<p>字典是一种非常常见的“键-值”(key-value)映射结构，键无重复，一个键不能对应多个值，不过多个键可以指向一个值。还是通过例子来了解，构建一个名字-&gt;年龄的字典，并执行一些常见操作：</p>
+<pre><code>
+a = {'Tom': 8, 'Jerry': 7}
+print(a['Tom'])             # 8
+b = dict(Tom=8, Jerry=7)    # 一种字符串作为键更方便的初始化方式
+print(b['Tom'])             # 8
+if 'Jerry' in a:            # 判断'Jerry'是否在keys里面
+    print(a['Jerry'])        # 7
+print(a.get('Spike'))       # None，通过get获得值，即使键不存在也不会报异常
+a['Spike'] = 10
+a['Tyke'] = 3
+a.update({'Tuffy': 2, 'Mammy Two Shoes': 42})
+print(a.values())   # dict_values([8, 2, 3, 7, 10, 42])
+print(a.pop('Mammy Two Shoes'))     # 移除'Mammy Two Shoes'的键值对，并返回42
+print(a.keys())     # dict_keys(['Tom', 'Tuffy', 'Tyke', 'Jerry', 'Spike']) 
+</code></pre>
+<p>注意到初始化字典和集合很像，的确如此，集合就像是没有值只有键的字典。既然有了人名到年龄的映射，也许你立马想到是否可以给字典排序？在Python3.6之前，这个问题是错误的，字典是一种映射关系，没有顺序。当然了，如果要把(键, 值)的这种对进行排序，是没有问题的，前提是先把字典转化成可排序的结构，items()或者iteritems()可以做到这件事，接上段代码继续：</p>
+<pre><code>
+b = a.items()
+print(b)  # [('Tuffy', 2), ('Spike', 10), ('Tom', 8), ('Tyke', 3), ('Jerry', 7)]
+from operator import itemgetter
+c = sorted(a.items(), key=itemgetter(1))
+print(c)  # [('Tuffy', 2), ('Tyke', 3), ('Jerry', 7), ('Tom', 8), ('Spike', 10)]
+d = sorted(a.iteritems(), key=itemgetter(1))
+print(d)  # [('Tuffy', 2), ('Tyke', 3), ('Jerry', 7), ('Tom', 8), ('Spike', 10)]
+e = sorted(a)
+print(e)  # 只对键排序，['Jerry', 'Spike', 'Tom', 'Tuffy', 'Tyke']
+</code></pre>
+<p>items()可以把字典中的键值对转化成一个列表，其中每个元素是一个tuple，tuple的第一个元素是键，第二个元素是值。变量c是按照值排序，所以需要一个操作符itemgetter，去位置为1的元素作为排序参考，如果直接对字典排序，则其实相当于只是对键排序。字典被当作一个普通的可遍历结构使用时，都相当于遍历字典的键。如果觉得字典没有顺序不方便，可以考虑使用OrderedDict，使用方式如下：</p>
+<pre><code>
+from collections import OrderedDict
+a = {1: 2, 3: 4, 5: 6, 7: 8, 9: 10}
+b = OrderedDict({1: 2, 3: 4, 5: 6, 7: 8, 9: 10})
+print(a)    # {1: 2, 3: 4, 9: 10, 5: 6, 7: 8}
+print(b)    # OrderedDict([(1, 2), (3, 4), (9, 10), (5, 6), (7, 8)])
+</code></pre>
+<p>这样初始化时的顺序就保留了，除了有序的特性以外，用法上和字典没有区别。2016年9月，Guido宣布在Python3.6中，字典将默认有序，这样就不用纠结了。另外需要注意的一点是字典是通过哈希表实现的，所以键必须是可哈希的， list不能被哈希，所以也不能作为字典的键，而tuple就可以。</p>
+<p>因为上上段代码中用到了iteritems()，所以这里顺带提一下迭代器（iterator），迭代器相当于一个函数，每次调用都返回下一个元素，从遍历的角度来看就和列表没有区别了。iteritems()就是一个迭代器，所以效果一样，区别是迭代器占用更少内存，因为不需要一上来就生成整个列表。一般来说，如果只需要遍历一次，用迭代器是更好的选择，若是要多次频繁从一个可遍历结构中取值，且内存够，则直接生成整个列表会更好。当然，用迭代器生成一个完整列表并不麻烦，所以有个趋势是把迭代器作为默认的可遍历方式，比如前面我们使用过用来生成等差数列列表的range()，在Python2中对应的迭代器形式是xrange()。在Python3中，range()就不再产生一个列表了，而是作为迭代器，xrange()直接没了。</p>
+<p>5.2.3 分支和循环<br>
+从这节开始，代码就未必适合在Python终端中输入了，选个顺手的编辑器或者IDE。作者良心推荐PyCharm，虽然慢，但好用，社区版免费：</p>
+<p>PyCharm</p>
+<p>for循环</p>
+<p>上面提到的4种容器类型都是可遍历的，所以该讲讲用来遍历的for循环了。for循环的语法也是简单的英语：</p>
+<pre><code>
+a = ['This', 'is', 'a', 'list', '!']
+b = ['This', 'is', 'a', 'tuple', '!']
+c = {'This': 'is', 'an': 'unordered', 'dict': '!'}
+</code></pre>
+<h1 id="依次输出this-is-a-list">依次输出：'This', 'is', 'a', 'list', '!'</h1>
+<pre><code>for x in a:
+    print(x)
+</code></pre>
+<h1 id="依次输出this-is-a-tuple">依次输出：'This', 'is', 'a', 'tuple', '!'</h1>
+<pre><code>for x in b:
+    print(x)
+</code></pre>
+<h1 id="键的遍历-不依次输出this-dict-an">键的遍历。不依次输出：'This', 'dict', 'an'</h1>
+<pre><code>for key in c:
+    print(key)
+</code></pre>
+<h1 id="依次输出0到9">依次输出0到9</h1>
+<pre><code>for i in range(10):
+    print(i)
+</code></pre>
+<p>注意到每个for循环中，print都有缩进，这是Python中一个让人爱恨交织的特点：强行缩进来表明成块的代码。这样做的好处是代码十分清晰工整，还有助于防止写出过长的函数或者过深的嵌套，坏处是有时候不知为什么tab和空格就一起出现了，又或是多重if-else不知怎得就没对齐，还是挺麻烦的。</p>
+<p>回到for循环上，这种把每个元素拿出来的遍历方式叫做for_each风格，熟悉Java的话就不会陌生，C++11中也开始支持这种for循环方式。不过如果还是需要下标呢？比如遍历一个list的时候，希望把对应下标也打印出来，这时可以用enumerate：</p>
+<pre><code>names = [&quot;Rick&quot;, &quot;Daryl&quot;, &quot;Glenn&quot;]
+</code></pre>
+<h1 id="依次输出下标和名字">依次输出下标和名字</h1>
+<pre><code>for i, name in enumerate(names):
+    print(i, name)
+</code></pre>
+<p>需要注意的是，通过取下标遍历当然是可行的，比如用len()函数获得列表长度，然后用range()/xrange()函数获得下标，但是并不推荐这样做：</p>
+<p><code>words = [&quot;This&quot;, &quot;is&quot;, &quot;not&quot;, &quot;recommended&quot;]</code></p>
+<h1 id="not-pythonic">not pythonic :(</h1>
+<pre><code>for i in xrange(len(words)):
+    print(words[i])
+</code></pre>
+<p>在使用for循环时，有时会遇到这样一种场景：我们需要对遍历的每个元素进行某种判断，如果符合这种判断的情况没有发生，则执行一个操作。举个例子某神秘部门要审核一个字符串列表，如果没有发现不和谐的字眼，则将内容放心通过，一种解决办法是下面这样：</p>
+<pre><code>
+wusuowei = [&quot;I&quot;, &quot;don't&quot;, &quot;give&quot;, &quot;a&quot;, &quot;shit&quot;]  # 无所谓
+
+hexie = True                                    # 默认和谐社会
+for x in wusuowei:
+    if x == &quot;f**k&quot;:
+        print(&quot;What the f**k!&quot;)                 # 发现了不该出现的东西，WTF！
+        hexie = False                           # 不和谐了
+        break                                   # 赶紧停下！不能再唱了
+
+if hexie:                                       # 未发现不和谐元素！
+    print(&quot;Harmonious society!&quot;)                # 和谐社会！
+</code></pre>
+<p>这样需要设置一个标记是否发现不和谐因素的状态变量hexie，循环结束后再根据这个变量判断内容是否可以放心通过。一种更简洁不过有些小众的做法是直接和else一起，如果for循环中的if块内的语句没有被触发，则通过else执行指定操作：</p>
+<pre><code>
+wusuowei = [&quot;I&quot;, &quot;don't&quot;, &quot;give&quot;, &quot;a&quot;, &quot;shit&quot;]
+
+for x in wusuowei:
+    if x == &quot;f**k&quot;:
+        print(&quot;What the f**k!&quot;)
+        hexie = False
+        break
+else:                            # for循环中if内语句未被触发
+    print(&quot;Harmonious society!&quot;) # 和谐社会！
+这样不需要一个标记是否和谐的状态变量，语句简洁了很多。
+</code></pre>
+<h1 id="if和分支结构">if和分支结构</h1>
+<p>上一个例子中已经出现if语句了，所以这部分讲讲if。Python的条件控制主要是三个关键字：if-elif-else，其中elif就是else if的意思。还是看例子：</p>
+<pre><code>
+pets =['dog', 'cat', 'droid', 'fly']
+
+for pet in pets:
+    if pet == 'dog':        # 狗粮
+        food = 'steak'      # 牛排
+    elif pet == 'cat':      # 猫粮
+        food = 'milk'       # 牛奶
+    elif pet == 'droid':    # 机器人
+        food = 'oil'        # 机油
+    elif pet == 'fly':      # 苍蝇
+        food = 'sh*t'       # 
+    else:
+        pass
+    print(food)
+</code></pre>
+<p>需要提一下的是pass，这就是个空语句，什么也不做，占位用。Python并没有switch-case的语法，等效的用法要么是像上面一样用if-elif-else的组合，要么可以考虑字典：</p>
+<pre><code>
+pets = ['dog', 'cat', 'droid', 'fly']
+food_for_pet = {
+    'dog': 'steak', 
+    'cat': 'milk', 
+    'droid': 'oil', 
+    'fly': 'sh*t'
+}
+
+for pet in pets:
+    food = food_for_pet[pet] if pet in food_for_pet else None
+    print(food)
+</code></pre>
+<p>这里还用到了一个if-else常见的行内应用，就是代替三元操作符，如果键在字典中，则food取字典的对应值，否则为None。</p>
+<p>if表达式中的小技巧</p>
+<p>通过链式比较让语句简洁：</p>
+<pre><code>
+if -1 &lt; x &lt; 1:  # 相较于 if x &gt; -1 and x &lt; 1:
+    print('The absolute value of x is &lt; 1')
+判断一个值是不是等于多个可能性中的一个：
+
+if x in ['piano', 'violin', 'drum']:    # 相较于 if x == 'piano' or x == 'violin' or x =='drum':
+    print(&quot;It's an instrument!&quot;)
+</code></pre>
+<p>Python中的对象都会关联一个真值，所以在if表达式中判断是否为False或者是否为空的时候，是无需写出明确的表达式的：</p>
+<pre><code>
+a = True
+if a:		# 判断是否为真，相较于 a is True
+    print('a is True')
+
+if 'sky':	# 判断是否空字符串，相较于 len('sky') &gt; 0
+    print('birds')
+	
+if '':		# 判断是否空字符串，同上
+    print('Nothing!')
+
+if {}:		# 判断是否空的容器(字典)，相较于len({}) &gt; 0
+    print('Nothing!')
+隐式表达式为False的是如下状况：
+
+- None
+
+- False
+
+- 数值0
+
+- 空的容器或序列（字符串也是一种序列）
+
+- 用户自定义类中，如果定义了__len__()或者__nonzero__()，并且被调用后返回0或者False
+
+</code></pre>
+<h1 id="while循环">while循环</h1>
+<p>while的就是循环和if的综合体，是一种单纯的基于条件的循环，本身没有遍历的意思，这是和for_each的本质差别，这种区别比起C/C++中要明确得多，用法如下：</p>
+<pre><code>
+i = 0
+while i &lt; 100:  # 笑100遍
+    print(&quot;ha&quot;)
+
+while True:     # 一直笑
+    print(&quot;ha&quot;)
+</code></pre>
+<p>5.2.4 函数、生成器和类<br>
+还是从几个例子看起：</p>
+<pre><code>
+def say_hello():
+    print('Hello!')
+
+def greetings(x='Good morning!'):
+    print(x)
+
+say_hello()                 		# Hello!
+greetings()                 		# Good morning!
+greetings(&quot;What's up!&quot;)     		# What's up!
+a = greetings()             		# 返回值是None
+
+def create_a_list(x, y=2, z=3):	# 默认参数项必须放后面
+    return [x, y, z]
+
+b = create_a_list(1)        		# [1, 2, 3]
+c = create_a_list(3, 3)     		# [3, 3, 3]
+d = create_a_list(6, 7, 8)  	        # [6, 7, 8]
+
+def traverse_args(*args):
+    for arg in args:
+        print(arg)
+
+traverse_args(1, 2, 3)              # 依次打印1, 2, 3
+traverse_args('A', 'B', 'C', 'D')   # 依次打印A, B, C, D
+
+def traverse_kargs(**kwargs):
+    for k, v in kwargs.items():
+        print(k, v)
+
+traverse_kargs(x=3, y=4, z=5)       # 依次打印('x', 3), ('y', 4), ('z', 5)
+traverse_kargs(fighter1='Fedor', fighter2='Randleman')
+
+def foo(x, y, *args, **kwargs):
+    print(x, y)
+    print(args)
+    print(kwargs)
+</code></pre>
+<h1 id="第一个pring输出1-2">第一个pring输出(1, 2)</h1>
+<h1 id="第二个print输出3-4-5">第二个print输出(3, 4, 5)</h1>
+<h1 id="第三个print输出a-3-b-bar">第三个print输出{'a': 3, 'b': 'bar'}</h1>
+<p>foo(1, 2, 3, 4, 5, a=6, b='bar')<br>
+其实和很多语言差不多，括号里面定义参数，参数可以有默认值，且默认值不能在无默认值参数之前。Python中的返回值用return定义，如果没有定义返回值，默认返回值是None。参数的定义可以非常灵活，可以有定义好的固定参数，也可以有可变长的参数(args: arguments)和关键字参数(kargs: keyword arguments)。如果要把这些参数都混用，则固定参数在最前，关键字参数在最后。</p>
+<p>Python中万物皆对象，所以一些情况下函数也可以当成一个变量似的使用。比如前面小节中提到的用字典代替switch-case的用法，有的时候我们要执行的不是通过条件判断得到对应的变量，而是执行某个动作，比如有个小机器人在坐标(0, 0)处，我们用不同的动作控制小机器人移动：</p>
+<pre><code>
+moves = ['up', 'left', 'down', 'right']
+
+coord = [0, 0]
+
+for move in moves:
+    if move == 'up':        # 向上，纵坐标+1
+        coord[1] += 1
+    elif move == 'down':    # 向下，纵坐标-1
+        coord[1] -= 1
+    elif move == 'left':    # 向左，横坐标-1
+        coord[0] -= 1
+    elif move == 'right':   # 向右，横坐标+1
+        coord[0] += 1
+    else:
+        pass
+    print(coord)            # 打印当前位置坐标
+</code></pre>
+<p>不同条件下对应的是对坐标这个列表中的值的操作，单纯的从字典取值就办不到了，所以就把函数作为字典的值，然后用这个得到的值执行相应动作：</p>
+<pre><code>
+moves = ['up', 'left', 'down', 'right']
+
+def move_up(x):         # 定义向上的操作
+    x[1] += 1
+
+def move_down(x):       # 定义向下的操作
+    x[1] -= 1
+
+def move_left(x):       # 定义向左的操作
+    x[0] -= 1
+
+def move_right(x):      # 定义向右的操作
+    x[0] += 1
+</code></pre>
+<h1 id="动作和执行的函数关联起来函数作为键对应的值">动作和执行的函数关联起来，函数作为键对应的值</h1>
+<pre><code>actions = {
+    'up': move_up,
+    'down': move_down,
+    'left': move_left,
+    'right': move_right
+}
+
+coord = [0, 0]
+
+for move in moves:
+    actions[move](coord)
+    print(coord)
+</code></pre>
+<p>把函数作为值取到后，直接加一括号就能使了，这样做之后起码在循环部分看上去很简洁。有点C里边函数指针的意思，只不过更简单。其实这种用法在之前讲排序的时候我们已经见过了，就是operator中的itemgetter。itemgetter(1)得到的是一个可调用对象(callable object)，和返回下标为1的元素的函数用起来是一样的：</p>
+<pre><code>
+def get_val_at_pos_1(x):
+    return x[1]
+
+heros = [
+    ('Superman', 99),
+    ('Batman', 100),
+    ('Joker', 85)
+]
+
+sorted_pairs0 = sorted(heros, key=get_val_at_pos_1)
+sorted_pairs1 = sorted(heros, key=lambda x: x[1])
+
+print(sorted_pairs0)
+print(sorted_pairs1)
+</code></pre>
+<p>在这个例子中我们用到了一种特殊的函数：lambda表达式。Lambda表达式在Python中是一种匿名函数，lambda关键字后面跟输入参数，然后冒号后面是返回值（的表达式），比如上边例子中就是一个取下标1元素的函数。当然，还是那句话，万物皆对象，给lambda表达式取名字也是一点问题没有的：</p>
+<pre><code>some_ops = lambda x, y: x + y + x*y + x**y
+some_ops(2, 3)  # 2 + 3 + 2*3 + 2^3 = 19
+</code></pre>
+<p>生成器（Generator）</p>
+<p>生成器是迭代器的一种，形式上看和函数很像，只是把return换成了yield，在每次调用的时候，都会执行到yield并返回值，同时将当前状态保存，等待下次执行到yield再继续：</p>
+<h1 id="从10倒数到0">从10倒数到0</h1>
+<pre><code>def countdown(x):
+    while x &gt;= 0:
+        yield x
+        x -= 1
+
+for i in countdown(10):
+    print(i)
+</code></pre>
+<h1 id="打印小于100的斐波那契数">打印小于100的斐波那契数</h1>
+<pre><code>def fibonacci(n):
+    a = 0
+    b = 1
+    while b &lt; n:
+        yield b
+        a, b = b, a + b
+
+for x in fibonacci(100):
+    print(x)
+</code></pre>
+<p>生成器和所有可迭代结构一样，可以通过next()函数返回下一个值，如果迭代结束了则抛出StopIteration异常：</p>
+<pre><code>
+a = fibonacci(3)
+print(next(a))  # 1
+print(next(a))  # 1
+print(next(a))  # 2
+print(next(a))  # 抛出StopIteration异常
+Python3.3以上可以允许yield和return同时使用，return的是异常的说明信息：
+</code></pre>
+<h1 id="python33以上可以return返回异常的说明">Python3.3以上可以return返回异常的说明</h1>
+<pre><code>def another_fibonacci(n):
+    a = 0
+    b = 1
+    while b &lt; n:
+        yield b
+        a, b = b, a + b
+    return &quot;No more ...&quot;
+
+a = another_fibonacci(3)
+print(next(a))  # 1
+print(next(a))  # 1
+print(next(a))  # 2
+print(next(a))  # 抛出StopIteration异常并打印No more消息
+类（Class）
+</code></pre>
+<p>Python中的类的概念和其他语言相比没什么不同，比较特殊的是protected和private在Python中是没有明确限制的，一个惯例是用单下划线开头的表示protected，用双下划线开头的表示private：</p>
+<pre><code>class A:
+    &quot;&quot;&quot;Class A&quot;&quot;&quot;
+    def __init__(self, x, y, name):
+        self.x = x
+        self.y = y
+        self._name = name
+
+    def introduce(self):
+        print(self._name)
+
+    def greeting(self):
+        print(&quot;What's up!&quot;)
+
+    def __l2norm(self):
+        return self.x**2 + self.y**2
+
+    def cal_l2norm(self):
+        return self.__l2norm()
+
+a = A(11, 11, 'Leonardo')
+print(A.__doc__)        	# &quot;Class A&quot;
+a.introduce()           	# &quot;Leonardo&quot;
+a.greeting()            	# &quot;What's up!&quot;
+print(a._name)          	# 可以正常访问
+print(a.cal_l2norm())   # 输出11*11+11*11=242
+print(a._A__l2norm())   # 仍然可以访问，只是名字不一样
+print(a.__l2norm())     	# 报错: 'A' object has no attribute '__l2norm'
+</code></pre>
+<p>类的初始化使用的是__init__(self,)，所有成员变量都是self的，所以以self.开头。可以看到，单下划线开头的变量是可以直接访问的，而双下划线开头的变量则触发了Python中一种叫做name mangling的机制，其实就是名字变了下，仍然可以通过前边加上“_类名”的方式访问。也就是说Python中变量的访问权限都是靠自觉的。类定义中紧跟着类名字下一行的字符串叫做docstring，可以写一些用于描述类的介绍，如果有定义则通过“类名.<strong>doc</strong>”访问。这种前后都加双下划线访问的是特殊的变量/方法，除了__doc__和__init__还有很多，这里就不展开讲了。</p>
+<p>Python中的继承也非常简单，最基本的继承方式就是定义类的时候把父类往括号里一放就行了：</p>
+<pre><code>class B(A):
+    &quot;&quot;&quot;Class B inheritenced from A&quot;&quot;&quot;
+    def greeting(self):
+        print(&quot;How's going!&quot;)
+
+b = B(12, 12, 'Flaubert')
+b.introduce()   # Flaubert
+b.greeting()    # How's going!
+print(b._name())        # Flaubert
+print(b._A__l2norm())   # “私有”方法，必须通过_A__l2norm访问
+</code></pre>
+<h1 id="525-map-reduce和filter">5.2.5 map, reduce和filter</h1>
+<p>map可以用于对可遍历结构的每个元素执行同样的操作，批量操作：</p>
+<pre><code>map(lambda x: x**2, [1, 2, 3, 4])                 # [1, 4, 9, 16]
+
+map(lambda x, y: x + y, [1, 2, 3], [5, 6, 7])   # [6, 8, 10]
+reduce则是对可遍历结构的元素按顺序进行两个输入参数的操作，并且每次的结果保存作为下次操作的第一个输入参数，还没有遍历的元素作为第二个输入参数。这样的结果就是把一串可遍历的值，减少（reduce）成一个对象：
+
+reduce(lambda x, y: x + y, [1, 2, 3, 4])    # ((1+2)+3)+4=10
+filter顾名思义，根据条件对可遍历结构进行筛选：
+
+filter(lambda x: x % 2, [1, 2, 3, 4, 5])    # 筛选奇数，[1, 3, 5]
+需要注意的是，对于filter和map，在Python2中返回结果是列表，Python3中是生成器。
+
+</code></pre>
+<h1 id="526-列表生成list-comprehension">5.2.6 列表生成（list comprehension）</h1>
+<p>列表生成是Python2.0中加入的一种语法，可以非常方便地用来生成列表和迭代器，比如上节中map的两个例子和filter的一个例子可以用列表生成重写为：</p>
+<pre><code>
+[x**2 for x in [1, 2, 3, 4]]                      # [1, 4, 9 16]
+
+[sum(x) for x in zip([1, 2, 3], [5, 6, 7])] # [6, 8, 10]
+
+[x for x in [1, 2, 3, 4, 5] if x % 2]       # [1, 3, 5]
+zip()函数可以把多个列表关联起来，这个例子中，
+```通过zip()可以按顺序同时输出两个列表对应位置的元素对。有一点需要注意的是，zip()不会自动帮助判断两个列表是否长度一样，所以最终的结果会以短的列表为准，想要以长的列表为准的话可以考虑itertools模块中的izip_longest()。如果要生成迭代器只需要把方括号换成括号，生成字典也非常容易：
+</code></pre>
+<p>iter_odd = (x for x in [1, 2, 3, 4, 5] if x % 2)</p>
+<p>print(type(iter_odd))                       # &lt;type 'generator'&gt;</p>
+<p>square_dict = {x: x**2 for x in range(5)}   # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}<br>
+至于列表生成和map/filter应该优先用哪种，这个问题很难回答，不过Python创始人Guido似乎不喜欢map/filter/reduce，他曾在表示过一些从函数式编程里拿来的特性是个错误。</p>
+<pre><code>
+5.2.7 字符串
+Python中字符串相关的处理都非常方便，来看例子：
+
+a = 'Life is short, you need Python'
+a.lower()              	# 'life is short, you need Python'
+a.upper()               	# 'LIFE IS SHORT, YOU NEED PYTHON'
+a.count('i')            	# 2
+a.find('e')             	# 从左向右查找'e'，3
+a.rfind('need')         	# 从右向左查找'need'，19
+a.replace('you', 'I')   # 'Life is short, I need Python'
+tokens = a.split()    	# ['Life', 'is', 'short,', 'you', 'need', 'Python']
+b = ' '.join(tokens)	# 用指定分隔符按顺序把字符串列表组合成新字符串
+c = a + '\n'            	# 加了换行符，注意+用法是字符串作为序列的用法
+c.rstrip()              	# 右侧去除换行符
+[x for x in a]          	# 遍历每个字符并生成由所有字符按顺序构成的列表
+'Python' in a   			# True
+Python2.6中引入了format进行字符串格式化，相比在字符串中用%的类似C的方式，更加强大方便：
+
+a = 'I’m like a {} chasing {}.'
+# 按顺序格式化字符串，'I’m like a dog chasing cars.'
+a.format('dog', 'cars')
+
+# 在大括号中指定参数所在位置
+b = 'I prefer {1} {0} to {2} {0}'
+b.format('food', 'Chinese', 'American')
+
+# &gt;代表右对齐，&gt;前是要填充的字符，依次输出：
+# 000001
+# 000019
+# 000256
+for i in [1, 19, 256]:
+    print('The index is {:0&gt;6d}'.format(i))
+
+# &lt;代表左对齐，依次输出：
+# *---------
+# ****------
+# *******---
+for x in ['*', '****', '*******']:
+    progress_bar = '{:-&lt;10}'.format(x)
+    print(progress_bar)
+
+for x in [0.0001, 1e17, 3e-18]:
+    print('{:.6f}'.format(x))   # 按照小数点后6位的浮点数格式
+    print('{:.1e}'.format(x))   # 按照小数点后1位的科学记数法格式
+    print ('{:g}'.format(x))    # 系统自动选择最合适的格式
+
+template = '{name} is {age} years old.'
+c = template.format(name='Tom', age=8)) # Tom is 8 years old.
+d = template.format(age=7, name='Jerry')# Jerry is 7 years old.
+format在生成字符串和文档的时候非常有用，更多更详细的用法可以参考Python官网：
+
+7.1. string - Common string operations - Python 2.7.13 documentation
+
+5.2.8 文件操作和pickle
+在Python中，推荐用上下文管理器（with-as）来打开文件，IO资源的管理更加安全，而且不用老惦记着给文件执行close()函数。还是举例子来说明，考虑有个文件name_age.txt，里面存储着名字和年龄的关系，格式如下：
+
+Tom,8
+Jerry,7
+Tyke,3
+...
+读取文件内容并全部显示：
+
+with open('name_age.txt', 'r') as f: 	# 打开文件，读取模式
+    lines = f.readlines()              	# 一次读取所有行
+    for line in lines:                  	# 按行格式化并显示信息
+        name, age = line.rstrip().split(',')
+        print('{} is {} years old.'.format(name, age))
+open()的第一个参数是文件名，第二个参数是模式。文件的模式一般有四种，读取(r)，写入(w)，追加(a)和读写(r+)。如果希望按照二进制数据读取，则将文件模式和b一起使用（wb, r+b…）。
+
+再考虑一个场景，要读取文件内容，并把年龄和名字的顺序交换存成新文件age_name.txt，这时可以同时打开两个文件：
+
+with open('name_age.txt', 'r') as fread, open('age_name.txt', 'w') as fwrite:
+    line = fread.readline()
+    while line:
+        name, age = line.rstrip().split(',')
+        fwrite.write('{},{}\n'.format(age, name))
+        line = fread.readline()
+有的时候我们进行文件操作是希望把对象进行序列化，那么可以考虑用pickle模块：
+
+import pickle
+
+lines = [
+    &quot;I'm like a dog chasing cars.&quot;,
+    &quot;I wouldn't know what to do if I caught one...&quot;,
+    &quot;I'd just do things.&quot;
+]
+
+with open('lines.pkl', 'wb') as f: 	# 序列化并保存成文件
+    pickle.dump(lines, f)
+
+with open('lines.pkl', 'rb') as f: 	# 从文件读取并反序列化
+    lines_back = pickle.load(f)
+
+print(lines_back)                   	# 和lines一样
+注意到，序列化的时候就得使用b模式了。Python2中有个效率更高的pickle叫cPickle，用法和pickle一样，在Python3中就只有一个pickle。
+
+5.2.9 异常
+相比起其他一些语言，在Python中我们可以更大胆地使用异常，因为异常在Python中是非常常见的存在，比如下面这种简单的遍历：
+
+a = ['Why', 'so', 'serious', '?']
+
+for x in a:
+    print(x)
+当用for进行遍历时，会对要遍历的对象调用iter()。这需要给对象创建一个迭代器用来依次返回对象中的内容。为了能成功调用iter()，该对象要么得支持迭代协议(定义__iter__())，要么得支持序列协议(定义__getitem__())。当遍历结束时，__iter__()或者__getitem__()都需要抛出一个异常。__iter__()会抛出StopIteration，而__getitem__()会抛出IndexError，于是遍历就会停止。
+
+在深度学习中，尤其是数据准备阶段，常常遇到IO操作。这时候遇到异常的可能性很高，采用异常处理可以保证数据处理的过程不被中断，并对有异常的情况进行记录或其他动作：
+</code></pre>
+<p>for filepath in filelist:   # filelist中是文件路径的列表<br>
+try:<br>
+with open(filepath, 'r') as f:<br>
+# 执行数据处理的相关工作</p>
+<pre><code>    print('{} is processed!'.format(filepath))
+except IOError:
+    print('{} with IOError!'.format(filepath))
+    # 异常的相应处理
+</code></pre>
+<pre><code>5.2.10 多进程（multiprocessing）
+深度学习中对数据高效处理常常会需要并行，这时多进程就派上了用场。考虑这样一个场景，在数据准备阶段，有很多文件需要运行一定的预处理，正好有台多核服务器，我们希望把这些文件分成32份，并行处理：
+
+from multiprocessing import Process#, freeze_support
+
+def process_data(filelist):
+   for filepath in filelist:
+       print('Processing {} ...'.format(filepath))
+       # 处理数据
+       ...
+
+if __name__ == '__main__':
+   # 如果是在Windows下，还需要加上freeze_support()
+   #freeze_support()
+   
+   # full_list包含了要处理的全部文件列表
+   ...
+
+   n_total = len(full_list) # 一个远大于32的数
+   n_processes = 32
+
+   # 每段子列表的平均长度
+   length = float(n_total) / float(n_processes)
+   
+   # 计算下标，尽可能均匀地划分输入文件列表
+   indices = [int(round(i*length)) for i in range(n_processes+1)]
+   
+   # 生成每个进程要处理的子文件列表
+   sublists = [full_list[indices[i]:indices[i+1]] for i in range(n_processes)]
+   
+   # 生成进程
+   processes = [Process(target=process_data, args=(x,)) for x in sublists]
+
+   # 并行处理
+   for p in processes:
+       p.start()
+
+   for p in processes:
+       p.join()
+其中if __name__ == '__main__'用来标明在import时不包含，但是作为文件执行时运行的语句块。为什么不用多线程呢？简单说就是Python中线程的并发无法有效利用多核，如果有兴趣的读者可以从下面这个链接看起：
+
+GlobalInterpreterLock - Python Wiki
+
+5.2.11 os模块
+深度学习中的数据多是文件，所以数据处理阶段和文件相关的操作就非常重要。除了文件IO，Python中一些操作系统的相关功能也能够非常方便地帮助数据处理。想象一下我们有一个文件夹叫做data，下边有3个子文件夹叫做cat，dog和bat，里面分别是猫，狗和蝙蝠的照片。为了训练一个三分类模型，我们先要生成一个文件，里面每一行是文件的路径和对应的标签。定义cat是0，dog是1，bat是2，则可以通过如下脚本：
+
+import os
+
+# 定义文件夹名称和标签的对应关系
+label_map = {
+   'cat': 0,
+   'dog': 1,
+   'bat': 2
+}
+
+with open('data.txt', 'w') as f:
+
+   # 遍历所有文件，root为当前文件夹，dirs是所有子文件夹名，files是所有文件名
+   for root, dirs, files in os.walk('data'):
+       for filename in files:
+           filepath = os.sep.join([root, filename])   	# 获得文件完整路径
+           dirname = root.split(os.sep)[-1]            	# 获取当前文件夹名称
+           label = label_map[dirname]                  	# 得到标签
+           line = '{},{}\n'.format(filepath, label)
+           f.write(line)
+其中，os.sep是当前操作系统的路径分隔符，在Unix/Linux中是'/'，Windows中是'\\'。有的时候我们已经有了所有的文件在一个文件夹data下，希望获取所有文件的名称，则可以用os.listdir():
+
+filenames = os.listdir('data')
+os也提供了诸如拷贝，移动和修改文件名等操作。同时因为大部分深度学习框架最常见的都是在Unix/Linux下使用，并且Unix/Linux的shell已经非常强大（比Windows好用太多），所以只需要用字符串格式化等方式生成shell命令的字符串，然后通过os.system()就能方便实现很多功能，有时比os，还有Python中另一个操作系统相关模块shutil还要方便：
+
+import os, shutil
+
+filepath0 = 'data/bat/IMG_000001.jpg'
+filepath1 = 'data/bat/IMG_000000.jpg'
+
+# 修改文件名
+os.system('mv {} {}'.format(filepath0, filepath1))
+#os.rename(filepath0, filepath1)
+
+
+# 创建文件夹
+dirname = 'data_samples'
+os.system('mkdir -p {}'.format(dirname))
+#if not os.path.exists(dirname):
+#    os.mkdir(dirname)
+
+# 拷贝文件
+os.system('cp {} {}'.format(filepath1, dirname))
+#shutil.copy(filepath1, dirname)</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[练习题目]]></title>
+        <id>C:/Users/Administrator/Documents/Gridea/output/post/lian-xi-ti-mu/index.html</id>
+        <link href="C:/Users/Administrator/Documents/Gridea/output/post/lian-xi-ti-mu/index.html">
+        </link>
+        <updated>2019-06-14T12:52:18.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="练习">练习：</h1>
+<h1 id="2输入一个学生的三科成绩3个整数">2.输入一个学生的三科成绩（3个整数：</h1>
+<h1 id="打印出最高分-最低分-平局分是多少">打印出最高分、最低分、平局分是多少</h1>
+<h1 id="aintinput请输入他的英语成绩">a=int(input(&quot;请输入他的英语成绩:&quot;))</h1>
+<h1 id="bintinput请输入他的语文成绩">b=int(input(&quot;请输入他的语文成绩&quot;))</h1>
+<h1 id="cintinput请输入他的数学成绩">c=int(input(&quot;请输入他的数学成绩&quot;))</h1>
+<h1 id="if-101-a-0-and-101-b-0-and-101-c-0">if 101 &gt; a &gt; 0 and 101 &gt; b &gt; 0 and 101 &gt; c &gt; 0:</h1>
+<h1 id="if-a-b-and-a-c">if a &gt; b and a &gt; c:</h1>
+<h1 id="printtop英语-a">print(&quot;top:英语:&quot;, a)</h1>
+<h1 id="elif-b-c-and-b-a">elif b &gt; c and b &gt; a:</h1>
+<h1 id="printtop语文-b">print(&quot;top:语文:&quot;, b)</h1>
+<h1 id="elif-c-a-and-c-b">elif c &gt; a and c &gt; b:</h1>
+<h1 id="printtop数学-c">print(&quot;top:数学:&quot;, c)</h1>
+<h1 id="printz">print(z)</h1>
+<h1 id=""></h1>
+<h1 id="-2"></h1>
+<h1 id="if-a-b-and-a-c-2">if a &lt; b and a &lt; c:</h1>
+<h1 id="printlow-英语-a">print(&quot;low: 英语:&quot;, a)</h1>
+<h1 id="elif-b-c-and-b-a-2">elif b &lt; c and b &lt; a:</h1>
+<h1 id="printlow-语文-b">print(&quot;low: 语文:&quot;, b)</h1>
+<h1 id="elif-c-a-and-c-b-2">elif c &lt; a and c &lt; b:</h1>
+<h1 id="printlow-数学-c">print(&quot;low: 数学:&quot;, c)</h1>
+<h1 id="-3"></h1>
+<h1 id="print平均-a-b-c3">print(&quot;平均:&quot;, (a + b + c)/3)</h1>
+<h1 id="else">else:</h1>
+<h1 id="printnotis-mark">print(&quot;not'is mark&quot;)</h1>
+<p>#数值可以转换为字符串，但字符串不一定可以转换为数值</p>
+<h1 id="a552">a=&quot;5.5+2&quot;</h1>
+<h1 id="printevala">print(eval(a))</h1>
+<h1 id="utf-8字符转换">utf-8字符转换</h1>
+<h1 id="printchr97">print(chr(97))</h1>
+<p>#查字符串的表</p>
+<h1 id="printordaordz">print(ord(&quot;a&quot;),ord(&quot;z&quot;))</h1>
+<h1 id="for-i-in-range97123">for i in range(97,123):</h1>
+<h1 id="printchriend">print(chr(i),end=&quot; &quot;)</h1>
+<p>'''<br>
+输入和输出<br>
+'''</p>
+<h1 id="aevalinput请输入一个整数">a=eval(input(&quot;请输入一个整数 ：&quot;))</h1>
+<h1 id="printtypea-输入的类型都会打印为字符串"># print(type(a)) #输入的类型都会打印为字符串</h1>
+<h1 id="printtypea">print(type(a))</h1>
+<p>#输出 :格式化输出( 针对字符串)%s,%d,%f,%%</p>
+<h1 id="name张三">name=&quot;张三&quot;</h1>
+<h1 id="age18">age=18</h1>
+<h1 id="height185">height=1.85</h1>
+<h1 id="xuehao5">xuehao=5</h1>
+<h1 id="socre5">socre=5</h1>
+<h1 id="print我的名字叫s今年d岁身高2f米学号是05d成绩是年级前dnameageheightxuehaosocre">print(&quot;我的名字叫%s,今年%d岁,身高%.2f米,学号是%05d,成绩是年级前%d%%&quot;%(name,age,height,xuehao,socre))</h1>
+<h1 id="input">input()</h1>
+<h1 id="print">print()</h1>
+<h1 id="d1-name-b-price-100">d1 = {'name': 'b', 'price': 100}</h1>
+<h1 id="d2-name-z-price-666">d2 = {'name': 'z', 'price': 666}</h1>
+<h1 id="d3-name-c-price-1">d3 = {'name': 'c', 'price': 1}</h1>
+<h1 id="l1-d1-d2-d3">l1 = [d1, d2, d3]</h1>
+<h1 id="a-maxl1-keylambda-x-xname">a = max(l1, key=lambda x: x['name'])</h1>
+<h1 id="printa">print(a)</h1>
+<h1 id="b-maxl1-keylambda-x-xprice">b = max(l1, key=lambda x: x['price'])</h1>
+<h1 id="printb">print(b)</h1>
+<h1 id="买票进火车站">买票进火车站</h1>
+<h1 id="需求">需求:</h1>
+<h1 id="1定义一个-has_ticket-车票表示是否有车票定义一个-knife_legth-刀的长度">(1)定义一个 has_ticket 车票，表示是否有车票，定义一个 knife_legth 刀的长度，</h1>
+<h1 id="2检查火车票是否满足否则不让上火车">(2)检查火车票，是否满足，否则不让上火车</h1>
+<h1 id="3检查行李箱是否有违法品如果刀子长度超过-20cm-不让上火车">(3)检查行李箱，是否有违法品，如果刀子长度超过 20cm 不让上火车</h1>
+<h1 id="import-random">import random</h1>
+<h1 id="has_ticketintinput车票">has_ticket=int(input(&quot;车票:&quot;))</h1>
+<h1 id="knife_lengthintinput刀子长度"># knife_length=int(input(&quot;刀子长度:&quot;))</h1>
+<h1 id="knife_lengthrandomrandint140">knife_length=random.randint(1,40)</h1>
+<h1 id="-4"></h1>
+<h1 id="if-has_tickethas_ticket">if has_ticket==has_ticket:</h1>
+<h1 id="-5"></h1>
+<h1 id="if-has_tickethas_ticket-and-knife_length20">if has_ticket==has_ticket and knife_length&lt;=20:</h1>
+<h1 id="print感谢你搭乘本次列车">print(&quot;感谢你搭乘本次列车&quot;)</h1>
+<h1 id="else-2">else:</h1>
+<h1 id="print带有违禁品不能上火车">print(&quot;带有违禁品不能上火车&quot;)</h1>
+<h1 id="else-3">else:</h1>
+<h1 id="print没有车票不能上火车">print(&quot;没有车票不能上火车&quot;)</h1>
+<p>#讲解</p>
+<h1 id="has_ticket-intinput请输入车票">has_ticket = int(input(&quot;请输入车票&quot;))</h1>
+<h1 id="knife_legth18">knife_legth=18</h1>
+<h1 id="if-has_ticket1">if has_ticket==1:</h1>
+<h1 id="if-knife_legth20">if knife_legth&lt;=20:</h1>
+<h1 id="print可以上火车">print(&quot;可以上火车&quot;)</h1>
+<h1 id="else-4">else:</h1>
+<h1 id="print刀具太长不能上火车">print(&quot;刀具太长不能上火车&quot;)</h1>
+<h1 id="else-5">else:</h1>
+<h1 id="print没有车票先去买票">print(&quot;没有车票,先去买票&quot;)</h1>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[sql日常2]]></title>
+        <id>C:/Users/Administrator/Documents/Gridea/output/post/sql-ri-chang-2/index.html</id>
+        <link href="C:/Users/Administrator/Documents/Gridea/output/post/sql-ri-chang-2/index.html">
+        </link>
+        <updated>2019-06-12T09:37:33.000Z</updated>
+        <content type="html"><![CDATA[<blockquote>
+<p>1,简单查询语句<br>
+从一张表查询数据<br>
+2 复杂查询语句</p>
+</blockquote>
+<pre><code>&gt; 	多表联查（列横向叠加）
+&gt; 	内连接。左连接。右连接。全连接。自连接。非等值连接
+&gt;   复合查询（查询结果上下 叠加）
+&gt;   子查询（关联子查询，非关联子查询）
+</code></pre>
+<blockquote>
+<p>3 select 数据 from table where.. group by ..having..order by</p>
+</blockquote>
+<pre><code>&gt;   +,-,*,/,and,or,not,&lt;,&gt;,&lt;=,&gt;=,&lt;&gt;,!=,
+&gt;   is null,is not null,
+&gt;   in 
+&gt;  between..and not between..and  范围查询
+&gt;  like 模糊查询
+</code></pre>
+<blockquote>
+<p>#查看表中的行数据<br>
+<code>&gt; select * from stu;</code><br>
+查询stu表中性别为女体重超过60公斤的<br>
+<code>&gt; select * from stu where sex='女' and weight&gt;60;</code><br>
+查询stu表中分数在500-600之间的男生学生的所有信息<br>
+<code>&gt; select * from stu where (cno='1'or cno='2') and sex='男'and height&gt;=190;</code><br>
+3.查询stu表中1班或者2班,身高超过190的学生的所有信息</p>
+</blockquote>
+<pre><code>&gt; select * from stu where (cno='1'or cno='2') and sex='男'and height&gt;=190;
+&gt; select * from stu where cno in (1,2) and  height&gt;=190;
+</code></pre>
+<blockquote>
+<p>查询练习<br>
+1.查询stu表中性别为女 体重超过69公斤的学生的所有信息<br>
+2.<br>
+3.查询stu表中3班学生中分数在400-505.5之间的女生<br>
+select * from stu where sex='女' and cno='3'score between 400 and 505.5;<br>
+4.查询stu表中没有分班的女生<br>
+select * from stu where sex='女' and cno is null;<br>
+查询stu表中有分班的女生<br>
+select * from stu where sex='女' and cno is not null;<br>
+6查询stu表中体重低于40公斤且身高低于1.65米的学生,<br>
+列出其姓名。身高。体重。总分。以及总分占750分的百分比</p>
+<p>select sname,score,weight,height from stu where weight&lt;40 and height&lt;1.65;<br>
+sname height  weight score</p>
+<p>select sname,weight,height,score,round(score/750*100,1) from stu where height&lt;40 and  height/100&lt;1.65;</p>
+<p>7.查询stu表中姓名第二个字是'侯'或者第一个字是'张'且名字只有两个字的学生<br>
+select * from stu where sname like'<em>侯%' or sname like '张</em>';</p>
+<p>常用数值函数:round(num,n) 四舍五入num 数值 ，n保留小数</p>
+<p>查询stu表中1990年出生的学生<br>
+select sname,birth from stu;<br>
+select sname from stu where year(birth)=08;<br>
+year获取年份<br>
+month获取月份<br>
+查询stu表中8月份出生的学生</p>
+</blockquote>
+<pre><code>&gt; select sname from stu where month(birth)=08;
+&gt; select sname,birth,month(birth) from stu where month(birth)=08;
+&gt; 	select	datediff(date1,date2) 计算两个日期之间的天数
+&gt; 	select  curdate 获取当前日期
+</code></pre>
+<pre><code>&gt; 查询stu表中学生的姓名,生日，年龄(保留两位小数),只显示小于20岁的学生. 
+&gt; datediff(year,birth)/365 from stu ;
+&gt; select sname,birth,round(datediff(curdate(),birth)/365,2) from stu  where round(datediff(curdate(),birth)/365,2)&lt;20;
+&gt; select datediff(year,'1984-2-16',getdate())
+&gt; select curdate();
+&gt; select datediff(curdate(),'2019-6-1');
+</code></pre>
+<blockquote>
+<p>条件判断函数if if(expr,v1,v2) expr是条件 ，满足走v1,否则走v2<br>
+如果学生分数大于520分,为优秀生，否则为一般生<br>
+，从stu表中查找,显示考分和类型(优秀生,一般生)</p>
+<p>select sname,score,if(score&gt;520,'优秀生','一般生')from stu;</p>
+<p>case 多重条件判断，比if跟灵活<br>
+case when expr1 then v1 when expr2 then v2 else vn end<br>
+#700分以上是优秀，600分以上是良好，520分以上中等，否则较差<br>
+显示姓名，分数，类型<br>
+select sname,score,(case score&gt;=700 then '优秀' when case &gt;=600 then '良好' when score&gt;=520 then '中等' else '较差' end) from stu;</p>
+<p>聚合函数 max(最大),min(最小),sum(总和),avg(平均),count(数)<br>
+#找出学生中最高的身高，最轻的体重，平均分数，学生总数<br>
+select max(height)最大,min(weight),sum(score),avg(score),count(sno) from stu;</p>
+<p>distinct 查询除指定的1个或多个字段的不重复记录<br>
+select distinct * from stu;</p>
+<p>查询stu表中不重复的 班号 和性别<br>
+select distinct (cno)班号,(sex)性别 from stu;<br>
+#排序<br>
+order by增序asc, desc降序<br>
+select sname,sex,birth,height,weight from stu order(asc)<br>
+按照stu表按照体重增序列出学生信息<br>
+select * from stu  order by  weight desc;<br>
+展示以分班学员信息,按照班号增序，在按照分数降序<br>
+select * from stu where cno is not null order by cno asc,score desc;<br>
+select * from stu where cno is not null order by 8 asc,7 desc;</p>
+<p>#limit 限制显示几条信息<br>
+#查询stu表显示分数最高的三名学生信息<br>
+select * from stu order by score desc limit 3;</p>
+<p>group by 分组<br>
+按照班号分组</p>
+</blockquote>
+<pre><code>&gt; select cno from stu group by cno;
+&gt; select sname,cno from stu group by cno,sname;
+</code></pre>
+<blockquote>
+<p>按照班号分组,统计每个班的平均身高，平均体重，人数，最高分，不包括未分班的同学max()</p>
+</blockquote>
+<pre><code>&gt; select cno,count(*),avg(height),avg(weight),max(score) from stu where cno is not null group by cno;
+</code></pre>
+<blockquote>
+<p>#查询stu表按照班号分组,在按照性别分组，列出班号，性别，<br>
+统计每个班的男女平均身高,平均体重,人数，最高分，不包括未分班同学<br>
+结果先按照班号排序，再按照男女排序.<br>
+max(最大),min(最小),sum(总和),avg(平均),count(数)<br>
+<code>&gt; select cno,sex,avg(height),avg(weight),count(*),max(score) from stu where cno is not null group by cno,sex order by cno,sex;</code><br>
+按照学生出生年月份分组，统计每个年份的人数，最高分，最低分，按照年份排序<br>
+select year(birth),count(*),max(score),min(score) from stu  group by year(birth) order by year(birth);</p>
+<p>having对group by 产生的结果进行过滤， 也可以对聚合函数进行过滤<br>
+按照学生出生年月份分组，统计每个年份的人数，最高分，最低分，按照年份排序,并从结果中找出人数超出2个<br>
+并且最高分超过600分的年份<br>
+select year(birth),count(<em>),max(score),min(score) from stu  group by year(birth) having count(</em>)&gt;2 and max(score)&gt;600 order by year(birth);</p>
+<p>#找出已分班学生中,那些平均身高超过175.列出班号和人数<br>
+select cno,count(<em>) from stu where cno is not null group by cno having avg(height)&gt;175;<br>
+#找出以分班学生中，那些班学生每个人身高超过165，列出班号和人数<br>
+select cno,count(</em>) from stu where cno is not null group by cno having min(height)&gt;165;</p>
+<p>约束:非空约束 not null ,<br>
+主键约束primary ，唯一约束unique key(auto increment),unsigned正数</p>
+<p>create table a(id int primary key,age int not null default 18,phone int unique );</p>
+<p>insert into a values(1,12,123);<br>
+insert into a values(2,12,124);<br>
+create table b(id int primary key auto_increment,age int not null default 18,phone int unique );<br>
+insert into b values(1,12,123);<br>
+insert into b(age,phone) values(12,124);</p>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[用命令创建MySQL数据库]]></title>
+        <id>C:/Users/Administrator/Documents/Gridea/output/post/yong-ming-ling-chuang-jian-mysql-shu-ju-ku/index.html</id>
+        <link href="C:/Users/Administrator/Documents/Gridea/output/post/yong-ming-ling-chuang-jian-mysql-shu-ju-ku/index.html">
+        </link>
+        <updated>2019-06-11T12:12:47.000Z</updated>
+        <content type="html"><![CDATA[<p><strong>一、连接MYSQL</strong></p>
+<blockquote>
+<p>格式： mysql -h主机地址 -u用户名 -p用户密码</p>
+</blockquote>
+<hr>
+<h1 id="1-连接到本机上的mysql">1、 连接到本机上的MYSQL</h1>
+<pre><code>首先打开DOS窗口，然后进入目录mysql\\bin，再键入命令mysql -u root -p，回车后提示你输密码.注意用户名前可以有空格也可以没有空格，但是密码前必须没有空格，否则让你重新输入密码.
+如果刚安装好MYSQL，超级用户root是没有密码的，故直接回车即可进入到MYSQL中了，MYSQL的提示符是： mysql&gt;
+</code></pre>
+<h1 id="2-连接到远程主机上的mysql">2、连接到远程主机上的MYSQL。</h1>
+<pre><code>假设远程主机的IP为：110.110.110.110，用户名为root,密码为abcd123。则键入以下命 令：
+
+mysql -h110.110.110.110 -u root -p 123;(注:u与root之间可以不用加空格，其它也一样)
+
+3、 退出MYSQL命令： exit (回车)
+</code></pre>
+<h1 id="二-修改密码">二、修改密码</h1>
+<pre><code>格式：mysqladmin -u用户名 -p旧密码 password 新密码。 例如
+
+　1、 给root加个密码ab12。首先在DOS下进入目录mysql\\bin，然后键入以下命令
+
+　mysqladmin -u root -password ab12
+
+ 　　2、 再将root的密码改为djg345。
+
+ 　　mysqladmin -u root -p ab12 password \\``
+</code></pre>
+<h1 id="三-创建数据库">三、创建数据库</h1>
+<pre><code>　　1、 CREATE DATABASE 数据库名;
+
+　　2、 GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER ON 数据库名.\* TO 数据库名@localhost IDENTIFIED BY '密码';
+
+　　3、 SET PASSWORD FOR
+
+　　'数据库名'@'localhost' = OLD_PASSWORD('密码');
+
+　　依次执行3个命令完成数据库创建。注意：中文 “密码”和“数据库”是户自己需要设置的。
+
+
+</code></pre>
+<hr>
+<hr>
+<h1 id="现在介绍一些常用的mysql命令"><code>现在介绍一些常用的MYSQL命令</code></h1>
+<hr>
+<pre><code> 一个消解器
+
+　　一、操作技巧
+
+　　1、如果你打命令时，回车后发现忘记加分号，你无须重打一遍命令，只要打个分号回车就可以了。
+
+　　也就是说你可以把一个完整的命令分成几行来打，完后用分号作结束标志就OK。
+
+　　2、你可以使用光标上下键调出以前的命令。
+
+　　二、常用命令
+
+　　1、显示当前数据库服务器中的数据库列表：
+
+　　mysql&gt; SHOW DATABASES;
+
+　　2、建立数据库：
+
+　　mysql&gt; CREATE DATABASE 库名;
+
+　　mysql&gt; CREATE DATABASE IF NOT EXISTS mydb default charset utf8 COLLATE utf8general_ci;
+
+　　3、建立数据表：
+
+　　mysql&gt; USE 库名;
+
+　　mysql&gt; CREATE TABLE 表名 (字段名 VARCHAR(20), 字段名 CHAR(1));
+
+　　4、删除数据库：
+
+　　mysql&gt; DROP DATABASE 库名;
+
+　　5、删除数据表：
+
+　　mysql&gt; DROP TABLE 表名;
+
+　　6、将表中记录清空：
+
+　　mysql&gt; DELETE FROM 表名;
+
+　　7、往表中插入记录：
+
+　　mysql&gt; INSERT INTO 表名 VALUES (&quot;hyq&quot;,&quot;M&quot;);
+
+　　8、更新表中数据：
+
+　　mysql-&gt; UPDATE 表名 SET 字段名1='a',字段名2='b' WHERE 字段名3='c';
+
+　　9、用文本方式将数据装入数据表中：
+
+　　mysql&gt; LOAD DATA LOCAL INFILE &quot;D:/mysql.txt&quot; INTO TABLE 表名;
+
+　　10、导入.sql文件命令：
+
+　　mysql&gt; USE 数据库名;
+
+　　mysql&gt; SOURCE d:/mysql.sql;
+
+　　11、命令行修改root密码：
+
+　　mysql&gt; UPDATE mysql.user SET password=PASSWORD('新密码') WHERE User='root';
+
+　　mysql&gt; FLUSH PRIVILEGES;
+
+　　三、一个建库和建表以及插入数据的实例
+
+　　drop database if exists school; //如果存在sudu则删除
+
+　　create database sudu; //建立库sudu
+
+　　use school; //打开库sudu
+
+　　create table teacher //建立表TEACHER
+
+　　(
+
+　　id int(3) auto_increment not null primary key,
+
+　　name char(10) not null,
+
+　　address varchar(50) default '深圳',
+
+　　year date
+
+　　); //建表结束
+
+　　//以下为插入字段
+
+　　insert into teacher values('','allen','飞数科技1','2005-10-10');
+
+　　insert into teacher values('','jack','飞数科技2','2005-12-23');如果你在mysql提示符键入上面的命令也可以，但不方便调试。
+
+　　(1)你可以将以上命令原样写入一个文本文件中，假设为sudu.sql，然后复制到c:\\下，并在DOS状态进入目录\\mysql\\bin，然后键入以下命令：
+
+　　mysql -uroot -p密码 \\ source c:\\sudu.sql; 也可以将sudu.sql文件导入数据库中。
+
+　　四、将文本数据转到数据库中
+
+　　1、文本数据应符合的格式：字段数据之间用tab键隔开，null值用\\n来代替.例：
+
+　　3 rose 飞数科技1 1976-10-10
+
+　　4 mike 飞数科技2 1975-12-23
+
+　　假设你把这两组数据存为速度sudu.txt文件，放在c盘根目录下。
+
+　　2、数据传入命令 load data local infile &quot;c:\\sudu.txt&quot; into table 表名;
+
+　　注意：你最好将文件复制到\\mysql\\bin目录下，并且要先用use命令打表所在的库。
+
+　　五、备份数据库：(命令在DOS的\\mysql\\bin目录下执行)
+
+　　1.导出整个数据库
+
+　　导出文件默认是存在mysql\\bin目录下
+
+　　mysqldump -u 用户名 -p 数据库名 &gt; 导出的文件名
+
+　　mysqldump -u username -p123456 databasename &gt; outfile_name.sql
+
+　　2.导出一个表
+
+　　mysqldump -u 用户名 -p 数据库名 表名&gt; 导出的文件名
+
+　　mysqldump -u username -p databasename tablename &gt; outfilename.sql
+
+　　3.导出一个数据库结构
+
+　　mysqldump -u username -p -d --add-drop-table databasename &gt; outfile_name.sql
+
+　　\-d 没有数据 --add-drop-table 在每个create语句之前增加一个drop table
+
+　　4.带语言参数导出
+
+　　mysqldump -uroot -p --default-character-set=latin1 --set-charset=gbk --skip-opt databasename &gt; outfilename.sql
+　
+
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[mysql数据库笔记]]></title>
+        <id>C:/Users/Administrator/Documents/Gridea/output/post/mysql-shu-ju-ku/index.html</id>
+        <link href="C:/Users/Administrator/Documents/Gridea/output/post/mysql-shu-ju-ku/index.html">
+        </link>
+        <updated>2019-06-11T06:43:06.000Z</updated>
+        <content type="html"><![CDATA[<p><em>mysql数据库</em></p>
+<blockquote>
+<p>msylq常用命令：</p>
+</blockquote>
+<pre><code>&gt; 查看数据库：show databases;
+&gt; 
+&gt; 选择数据库：use 数据库名称;
+&gt; 
+&gt; mysql程序在哪里：status;
+&gt; 
+&gt; 查看mysql版本:select version();
+&gt; 
+&gt; 查看当前用户：select user();
+&gt; 
+&gt; 查看当前时间：select now();
+&gt; 
+&gt; 查看数据库中的表：show tables;  #show tables from mysql;
+&gt; 
+&gt; 查看数据库名称：select database();
+&gt; 
+&gt; 查看数据库中表的结构：desc 表名;
+&gt; 
+&gt; 查看数据库中表的行：select 内容 from 表名;
+&gt; 
+</code></pre>
+<blockquote>
+<p>#创建数据库：</p>
+</blockquote>
+<pre><code>&gt; CREATE DATABASE 库名;
+&gt; create database 加上你要创建的数据库名称：
+</code></pre>
+<blockquote>
+<p>#删除数据库<br>
+<code>&gt; drop database 数据库名称：</code></p>
+<p>#语句分类：DDL数据定义语句，DML数据操纵语句，DQL语句，数据库查询语句</p>
+</blockquote>
+<pre><code>&gt; #数据类型：1.数值（身高，体重，工资），int整数，decimal小数
+&gt; 	   2.字符（姓名，公司名称），定长字符char(),不定长字符varchar()
+&gt; 	   3.时间（生日，订单日期）,date,默认格式：'YYYY-MM-DD',datetime,'YYYY-MM-DD-HH:MM:SS'
+&gt; 	   4.二进制（照片，音频）
+&gt; 
+</code></pre>
+<blockquote>
+<p>#创建student表  use 你要使用的表;</p>
+</blockquote>
+<pre><code>&gt; create table stu(sno int,sname varchar(20),sex char(1),birth date,height decimal(4,1),weight 
+&gt; 
+&gt; decimal(4,1),score decimal(4,1),cno int);
+&gt; 
+&gt; create table cno(cno int,cname varchar(20),teacher varchar(20));
+&gt; 
+&gt; create table bmi(id int,bname varchar(20),lval decimal(4,2),hval decimal(4,2),sex char(1));
+&gt; show tables;
+</code></pre>
+<blockquote>
+<p>#插入数据（增加 insert into）</p>
+</blockquote>
+<pre><code>&gt; insert into stu(sno,sname,sex,birth,height,weight,score,cno) values(17,'吕布','男','1992-12- 08','192.0','92.0','352.0',NULL);
+&gt; insert into stu(sno,sname,sex,birth,height,weight,score,cno) values(18,'袁绍','女','1990-04- 25','175.0','55.6','511.0',NULL);
+&gt; insert into stu(sno,sname,sex,birth,height,weight,score,cno) values(19,'诸葛亮','男','1998- 11-12','186.5','75.5','721.5','NULL');
+</code></pre>
+<blockquote>
+<p>#查看表中的行数据</p>
+</blockquote>
+<pre><code>&gt; select * from stu;
+&gt; 
+&gt; insert into bmi values(1,'过轻','0.00','19.99','男');
+&gt; insert into bmi values(2,'适中','20.00','24.99','男');
+&gt; insert into bmi values(3,'过重','25.00','29.99','男');
+&gt; insert into bmi values(4,'肥胖','30.00','35.00','男');
+&gt; insert into bmi values(5,'过轻','0.00','18.99','女');
+&gt; insert into bmi values(6,'适中','19.00','23.99','女');
+&gt; insert into bmi values(7,'过重','24.00','28.99','女');
+&gt; insert into bmi values(8,'肥胖','29.00','34.00','女');
+&gt; insert into class values(1,'1班','曹操');
+&gt; insert into class values(2,'2班','刘备');
+&gt; insert into class values(3,'3班','孙权');
+&gt; insert into class values(4,'4班','刘协');
+</code></pre>
+<blockquote>
+<p>#同时插入多条数据<br>
+<code>&gt; insert into stu values(4,'关羽','男','1993-4-5'),(5,'张飞','男','1992-8-4');</code></p>
+<p>#修改数据（update..set）</p>
+</blockquote>
+<pre><code>&gt; update stu set cno=NULL where sname='吕布';
+&gt; update stu set sno=17 where sname='吕布';
+&gt; 许褚 关羽 张飞 赵云  马超 黄忠 周瑜 大桥 小乔  张昭 太史慈 吕布
+&gt; 
+</code></pre>
+<blockquote>
+<p>#删除数据（delete from）<br>
+delete from student where sno=1;<br>
+#删除表   drop table student;<br>
+#删除表中所有数据  delete from student;</p>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[第一天学习笔记]]></title>
+        <id>C:/Users/Administrator/Documents/Gridea/output/post/第一天学习笔记/index.html</id>
+        <link href="C:/Users/Administrator/Documents/Gridea/output/post/第一天学习笔记/index.html">
+        </link>
+        <updated>2019-06-11T02:11:00.000Z</updated>
+        <content type="html"><![CDATA[<p>if 语句<br>
+Python中if语句的一般形式如下所示：</p>
+<pre><code>
+if condition_1:
+    statement_block_1
+elif condition_2:
+    statement_block_2
+else:
+    statement_block_3
+</code></pre>
+<p>如果 &quot;condition_1&quot; 为 True 将执行 &quot;statement_block_1&quot; 块语句<br>
+如果 &quot;condition_1&quot; 为False，将判断 &quot;condition_2&quot;<br>
+如果&quot;condition_2&quot; 为 True 将执行 &quot;statement_block_2&quot; 块语句<br>
+如果 &quot;condition_2&quot; 为False，将执行&quot;statement_block_3&quot;块语句<br>
+Python 中用 elif 代替了 else if，所以if语句的关键字为：if – elif – else。</p>
+<p>节假日 if 判定</p>
+<pre><code>jjr=input(&quot;请输入一个节假日&quot;)
+if jjr== &quot;元宵节&quot;:
+    print(&quot;吃元宵&quot;)
+elif jjr==&quot;春节&quot;:
+    print(&quot;发红包&quot;)
+elif jjr==&quot;中秋&quot;:
+    print(&quot;吃月饼&quot;)
+else:
+    print(&quot;放三天假&quot;)
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Hello Gridea]]></title>
+        <id>C:/Users/Administrator/Documents/Gridea/output/post/hello-gridea/index.html</id>
+        <link href="C:/Users/Administrator/Documents/Gridea/output/post/hello-gridea/index.html">
+        </link>
+        <updated>2018-12-11T16:00:00.000Z</updated>
+        <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
+✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
+✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
+<!-- more -->
+<p><a href="https://github.com/getgridea/gridea">Github</a><br>
+<a href="http://hvenotes.fehey.com/">Gridea 主页</a><br>
+<a href="http://fehey.com/">示例网站</a></p>
+<h2 id="特性">特性👇</h2>
+<p>📝  你可以使用最酷的 <strong>Markdown</strong> 语法，进行快速创作</p>
+<p>🌉  你可以给文章配上精美的封面图和在文章任意位置插入图片</p>
+<p>🏷️  你可以对文章进行标签分组</p>
+<p>📋  你可以自定义菜单，甚至可以创建外部链接菜单</p>
+<p>💻  你可以在 <strong>𝖶𝗂𝗇𝖽𝗈𝗐𝗌</strong> 或 <strong>𝖬𝖺𝖼𝖮𝖲</strong> 设备上使用此客户端</p>
+<p>🌎  你可以使用 <strong>𝖦𝗂𝗍𝗁𝗎𝖻 𝖯𝖺𝗀𝖾𝗌</strong> 或 <strong>Coding Pages</strong> 向世界展示，未来将支持更多平台</p>
+<p>💬  你可以进行简单的配置，接入 <a href="https://github.com/gitalk/gitalk">Gitalk</a> 或 <a href="https://github.com/SukkaW/DisqusJS">DisqusJS</a> 评论系统</p>
+<p>🇬🇧  你可以使用<strong>中文简体</strong>或<strong>英语</strong></p>
+<p>🌁  你可以任意使用应用内默认主题或任意第三方主题，强大的主题自定义能力</p>
+<p>🖥  你可以自定义源文件夹，利用 OneDrive、百度网盘、iCloud、Dropbox 等进行多设备同步</p>
+<p>🌱 当然 <strong>Gridea</strong> 还很年轻，有很多不足，但请相信，它会不停向前🏃</p>
+<p>未来，它一定会成为你离不开的伙伴</p>
+<p>尽情发挥你的才华吧！</p>
+<p>😘 Enjoy~</p>
+]]></content>
+    </entry>
+</feed>
