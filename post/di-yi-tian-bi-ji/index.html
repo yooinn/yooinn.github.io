@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        
+  <head>
+      
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>Jiank</title>
@@ -29,9 +29,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
 <link crossorigin="anonymous" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" href="https://lib.baomitu.com/font-awesome/5.8.1/css/all.min.css" rel="stylesheet">
 
-    </head>
-    <body>
-    
+  </head>
+  <body>
+  
 <div id="fh5co-offcanvas">
     <a href="#!" class="fh5co-close-offcanvas js-fh5co-close-offcanvas">
         <span><i class="icon-cross3"></i> <span>Close</span></span>
@@ -139,48 +139,119 @@
 </header>
 
 
-    <div class="container-fluid" style="height: 620px;">
-        <div class="row fh5co-post-entry">
+<!--  <a href="#" class="fh5co-post-prev"><span>👈 Prev</span></a>-->
+<!--  <a href="#" class="fh5co-post-next"><span>Next 👉</span></a>-->
 
-            
-                <article class="col-lg-3 col-md-3 col-sm-3 col-xs-12 col-xxs-12 animate-box">
-                    <h2 class="fh5co-article-title">
-                        <i class="fa fa-tag" style="opacity: .6; font-size: 19px;"></i>
-                        <a href="https://yooinn.github.io//tag/QRAqbdG_m">django</a>
-                    </h2>
-                </article>
-            
-                <article class="col-lg-3 col-md-3 col-sm-3 col-xs-12 col-xxs-12 animate-box">
-                    <h2 class="fh5co-article-title">
-                        <i class="fa fa-tag" style="opacity: .6; font-size: 19px;"></i>
-                        <a href="https://yooinn.github.io//tag/tXH4POF09">python</a>
-                    </h2>
-                </article>
-            
-                <article class="col-lg-3 col-md-3 col-sm-3 col-xs-12 col-xxs-12 animate-box">
-                    <h2 class="fh5co-article-title">
-                        <i class="fa fa-tag" style="opacity: .6; font-size: 19px;"></i>
-                        <a href="https://yooinn.github.io//tag/QakZrWwK7">mysql</a>
-                    </h2>
-                </article>
-            
-                <article class="col-lg-3 col-md-3 col-sm-3 col-xs-12 col-xxs-12 animate-box">
-                    <h2 class="fh5co-article-title">
-                        <i class="fa fa-tag" style="opacity: .6; font-size: 19px;"></i>
-                        <a href="https://yooinn.github.io//tag/gridea">Gridea</a>
-                    </h2>
-                </article>
-            
-            <div class="clearfix visible-lg-block visible-md-block visible-sm-block visible-xs-block"></div>
+  <div class="container-fluid">
+      <div class="row fh5co-post-entry single-entry">
+          <article class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-12 col-xs-offset-0">
+              <figure class="animate-box">
+                  
+              </figure>
+              <span class="fh5co-meta animate-box">
+                  
+                      <div class="tag-container">
+                          
+                              <a href="https://yooinn.github.io//tag/QRAqbdG_m" class="tag">django, </a>
+                          
+                      </div>
+                  
+              </span>
+              <h2 class="fh5co-article-title animate-box">第一天笔记</h2>
+              <span class="fh5co-meta fh5co-date animate-box">2019-08-12</span>
 
-        </div>
+              <div class="col-lg-12 col-lg-offset-0 col-md-12 col-md-offset-0 col-sm-12 col-sm-offset-0 col-xs-12 col-xs-offset-0 text-left content-article">
+                  <div class="row">
+                      <div class="col-md-12 animate-box post-content">
+                          <p> <h1 id="第一天操作">第一天操作</h1>
+<pre><code>pip freeze 查看库
+pip list
+配置提高pip的速度
+创建文件c:\users\Administrator\pip\pip.ini，写入
+[global]
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+</code></pre>
+<!-- more -->
+<pre><code>conda常用命令  xx=任意
+1、查看所有环境：conda info --envs
+2、新建虚拟环境：conda create -n xxx python=3.5.2
+3、删除虚拟环境：conda remove -n xxx --all
+4、激活虚拟环境：activate xxx  me=[activate mydjango]
+5、退出虚拟环境：deactivate
+</code></pre>
+<h1 id="conda的使用">conda的使用:</h1>
+<pre><code>1、先创造虚拟环境
+格式conda create -n [任意名字] [方法:比如python=3.5.2 ,指定python版本]
+conda create -n wode python=3.5.2
+2、进入虚拟环境
+格式:activeta xxx[任意名字]
+activeta wodecreate
+3、cmd命令行界面任意文件夹下创建项目
+格式:django-admin startproject xxx[任意名字]
+django-admin startproject Blog
+4、设置静态内容和访问导向
+在你创建的项目文件夹下的子文件夹-&gt;[和项目文件同名]
+下面创建一个[任意名字的py文件]
+如: hello.py
+输入如下代码
+from django.http import HttpResponse #响应内容模块
+from datetime import datetime #时间模块
 
-        
+def helloweb(request):
+    #内容
+    return &quot;你好web&quot;
+
+#建立导向or指向
+在项目文件夹下找到并打开urls.py文件
+开头写导入。上面建立的静态内容【模块】
+from Blog.hello import helloweb
+然后找到urlpatterns=[]
+原有内容不动他，在他下面输入
+
+格式:path(&quot;这个是别人要访问内容时输入的名字&quot;,模块里的函数名),
+path(&quot;helloweb&quot;,helloweb),
+</code></pre>
+<h1 id="5-驱动服务端">5、驱动服务端</h1>
+<pre><code>格式:python manage.py runserver id:prot  0=本地127.0.0.1
+python manage.py runserver 0:8080
+</code></pre>
+<h1 id="6-访问">6、访问</h1>
+<p><code>在浏览器下输入 127.0.0.1:8080\helloweb ,访问你建立的内容</code></p>
+ </p>
+                      </div>
+                  </div>
+
+                  <div class="row">
+                      <div class="col-md-12 animate-box">
+                          
+                              <div class="next-post">
+                                  <div class="next">下一篇</div>
+                                  <a href="https://yooinn.github.io//post/zhuang-shi-qi">
+                                      <h3 class="post-title">
+                                          装饰器
+                                      </h3>
+                                  </a>
+                              </div>
+                          
+                      </div>
+                  </div>
+
+                  <div class="row">
+                      <div class="col-md-12 animate-box">
+                          
+                      </div>
+                  </div>
+              </div>
+
+          </article>
+      </div>
+  </div>
+
+    
 <footer id="fh5co-footer">
   <p>Powered by <a href="https://yooinn.github.io/" target="_blank">Gridea</a></p>
 </footer>
 
-    </div>
 
     
 <!-- jQuery -->
@@ -203,5 +274,5 @@
 
 
 
-    </body>
+  </body>
 </html>
