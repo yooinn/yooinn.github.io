@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>http://yooinn.github.io/</id>
+    <id>https://yooinn.github.io/</id>
     <title>Jiank</title>
-    <updated>2019-08-13T02:09:37.421Z</updated>
+    <updated>2019-08-13T02:23:32.494Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="http://yooinn.github.io/"/>
-    <link rel="self" href="http://yooinn.github.io//atom.xml"/>
+    <link rel="alternate" href="https://yooinn.github.io/"/>
+    <link rel="self" href="https://yooinn.github.io//atom.xml"/>
     <subtitle>温故而知新</subtitle>
-    <logo>http://yooinn.github.io//images/avatar.png</logo>
-    <icon>http://yooinn.github.io//favicon.ico</icon>
+    <logo>https://yooinn.github.io//images/avatar.png</logo>
+    <icon>https://yooinn.github.io//favicon.ico</icon>
     <rights>All rights reserved 2019, Jiank</rights>
     <entry>
         <title type="html"><![CDATA[第一天笔记]]></title>
-        <id>http://yooinn.github.io//post/di-yi-tian-bi-ji</id>
-        <link href="http://yooinn.github.io//post/di-yi-tian-bi-ji">
+        <id>https://yooinn.github.io//post/di-yi-tian-bi-ji</id>
+        <link href="https://yooinn.github.io//post/di-yi-tian-bi-ji">
         </link>
         <updated>2019-08-12T13:05:57.000Z</updated>
         <summary type="html"><![CDATA[<h1 id="第一天操作">第一天操作</h1>
@@ -83,8 +83,8 @@ python manage.py runserver 0:8080
     </entry>
     <entry>
         <title type="html"><![CDATA[装饰器]]></title>
-        <id>http://yooinn.github.io//post/zhuang-shi-qi</id>
-        <link href="http://yooinn.github.io//post/zhuang-shi-qi">
+        <id>https://yooinn.github.io//post/zhuang-shi-qi</id>
+        <link href="https://yooinn.github.io//post/zhuang-shi-qi">
         </link>
         <updated>2019-07-16T15:35:35.000Z</updated>
         <content type="html"><![CDATA[<pre><code class="language-python">def Singleton(cls):
@@ -106,8 +106,8 @@ a2 = A(3)
     </entry>
     <entry>
         <title type="html"><![CDATA[基本数据类型和运算]]></title>
-        <id>http://yooinn.github.io//post/ji-ben-shu-ju-lei-xing-he-yun-suan</id>
-        <link href="http://yooinn.github.io//post/ji-ben-shu-ju-lei-xing-he-yun-suan">
+        <id>https://yooinn.github.io//post/ji-ben-shu-ju-lei-xing-he-yun-suan</id>
+        <link href="https://yooinn.github.io//post/ji-ben-shu-ju-lei-xing-he-yun-suan">
         </link>
         <updated>2019-06-25T09:09:23.000Z</updated>
         <content type="html"><![CDATA[<p>5.2.1 基本数据类型和运算<br>
@@ -930,8 +930,8 @@ os.system('cp {} {}'.format(filepath1, dirname))
     </entry>
     <entry>
         <title type="html"><![CDATA[练习题目]]></title>
-        <id>http://yooinn.github.io//post/lian-xi-ti-mu</id>
-        <link href="http://yooinn.github.io//post/lian-xi-ti-mu">
+        <id>https://yooinn.github.io//post/lian-xi-ti-mu</id>
+        <link href="https://yooinn.github.io//post/lian-xi-ti-mu">
         </link>
         <updated>2019-06-14T12:52:18.000Z</updated>
         <content type="html"><![CDATA[<h1 id="练习">练习：</h1>
@@ -1024,8 +1024,8 @@ os.system('cp {} {}'.format(filepath1, dirname))
     </entry>
     <entry>
         <title type="html"><![CDATA[sql日常2]]></title>
-        <id>http://yooinn.github.io//post/sql-ri-chang-2</id>
-        <link href="http://yooinn.github.io//post/sql-ri-chang-2">
+        <id>https://yooinn.github.io//post/sql-ri-chang-2</id>
+        <link href="https://yooinn.github.io//post/sql-ri-chang-2">
         </link>
         <updated>2019-06-12T09:37:33.000Z</updated>
         <content type="html"><![CDATA[<blockquote>
@@ -1164,8 +1164,8 @@ insert into b(age,phone) values(12,124);</p>
     </entry>
     <entry>
         <title type="html"><![CDATA[用命令创建MySQL数据库]]></title>
-        <id>http://yooinn.github.io//post/yong-ming-ling-chuang-jian-mysql-shu-ju-ku</id>
-        <link href="http://yooinn.github.io//post/yong-ming-ling-chuang-jian-mysql-shu-ju-ku">
+        <id>https://yooinn.github.io//post/yong-ming-ling-chuang-jian-mysql-shu-ju-ku</id>
+        <link href="https://yooinn.github.io//post/yong-ming-ling-chuang-jian-mysql-shu-ju-ku">
         </link>
         <updated>2019-06-11T12:12:47.000Z</updated>
         <content type="html"><![CDATA[<p><strong>一、连接MYSQL</strong></p>
@@ -1354,8 +1354,8 @@ mysql -h110.110.110.110 -u root -p 123;(注:u与root之间可以不用加空格�
     </entry>
     <entry>
         <title type="html"><![CDATA[mysql数据库笔记]]></title>
-        <id>http://yooinn.github.io//post/mysql-shu-ju-ku</id>
-        <link href="http://yooinn.github.io//post/mysql-shu-ju-ku">
+        <id>https://yooinn.github.io//post/mysql-shu-ju-ku</id>
+        <link href="https://yooinn.github.io//post/mysql-shu-ju-ku">
         </link>
         <updated>2019-06-11T06:43:06.000Z</updated>
         <content type="html"><![CDATA[<p><em>mysql数据库</em></p>
@@ -1457,8 +1457,8 @@ delete from student where sno=1;<br>
     </entry>
     <entry>
         <title type="html"><![CDATA[第一天学习笔记]]></title>
-        <id>http://yooinn.github.io//post/第一天学习笔记</id>
-        <link href="http://yooinn.github.io//post/第一天学习笔记">
+        <id>https://yooinn.github.io//post/第一天学习笔记</id>
+        <link href="https://yooinn.github.io//post/第一天学习笔记">
         </link>
         <updated>2019-06-11T02:11:00.000Z</updated>
         <content type="html"><![CDATA[<p>if 语句<br>
@@ -1491,8 +1491,8 @@ else:
     </entry>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
-        <id>http://yooinn.github.io//post/hello-gridea</id>
-        <link href="http://yooinn.github.io//post/hello-gridea">
+        <id>https://yooinn.github.io//post/hello-gridea</id>
+        <link href="https://yooinn.github.io//post/hello-gridea">
         </link>
         <updated>2018-12-11T16:00:00.000Z</updated>
         <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
