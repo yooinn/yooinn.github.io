@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yooinn.github.io/</id>
     <title>Jiank</title>
-    <updated>2019-09-12T06:16:00.280Z</updated>
+    <updated>2019-09-12T06:28:07.109Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yooinn.github.io/"/>
     <link rel="self" href="https://yooinn.github.io//atom.xml"/>
@@ -16,80 +16,88 @@
         <link href="https://yooinn.github.io//post/django-bi-ji">
         </link>
         <updated>2019-09-06T01:29:47.000Z</updated>
-        <content type="html"><![CDATA[<p>1、查看所有环境：conda info --envs<br>
-2、新建虚拟环境：conda create -n xxx python=3.5.2<br>
-3、删除虚拟环境：conda remove -n xxx --all<br>
-4、激活虚拟环境：activate xxx  me=[activate mydjango]<br>
-5、退出虚拟环境：deactivate<br>
-6.  创建项目: django-admin startproject Blog<br>
-7、创建app<br>
-python manage.py startapp article<br>
-#创建创建管理员账户<br>
-python manage.py createsuperuser<br>
-同步三件套--<br>
-python manage.py check<br>
-python manage.py makemigrations<br>
-python manage.py migrate<br>
-函数(request)<br>
-进入shell<br>
-python manage.py shell<br>
-导入实体类<br>
-from xxx.models import *</p>
-<p>1、all(): 查询所有结果<br>
-函数名.objects.all()<br>
-MyArticle.objects.all&gt;&gt;&gt;Myarticle是实体类里面的函数<br>
-效果:查看所有<br>
-2、filter(**kwargs): 它包含了与所给筛选条件相匹配的对象<br>
-Myarticle.objects.filter(title='a')&gt;&gt;&gt;可以多个匹配对象,用逗号隔开(xxx='xx',xx='xx')<br>
-3、get(**kwargs):返回与所给筛选条件相匹配的对象，返回结果有且只有一个，如果符合筛选条件的对象超过一个或者没有都会抛出错误<br>
-返回值是单个实体对象<br>
-Myarticle.objects.get(id=1)<br>
-4、exclude(**kwargs):它包含了与所给筛选条件不匹配的对象<br>
-返回值是QuerySet,功能与filter相反</p>
-<p>MyArticle.objects.filter(type='都市')<br>
-效果:筛选出不包含'都市'的对象</p>
-<p>5、values(*field): 返回一个ValueQuerySet——一个特殊的QuerySet，<br>
-运行后得到的并不是一系列model的实例化对象，而是一个可迭代的字典序列<br>
-返回值是QuerySet<br>
-MyArticle.objects.values()<br>
-效果:以字典形式展现MyArticle对象里的所有数据<br>
-6、values_list(*field): 它与values()非常相似，它返回的是一个元组序列<br>
-返回值是QuerySet<br>
-MyArticle.objects.values_list()<br>
-效果:以元祖形式展现MyArticle对象里的所有数据<br>
-7、order_by(*field): 对查询结果排序<br>
-返回值是QuerySet<br>
-MyArticle.objects.order_by('-id')<br>
-8、reverse(): 对查询结果反向排序，请注意reverse()通常只能在具有已定义顺序的QuerySet上调用(在model类的Meta中指定ordering或调用order_by()方法)。<br>
-返回值是QuerySet<br>
-MyArticle.objects.order_by('-id').reverse<br>
-效果:以order_by按条件分组后.reverse倒着排序</p>
-<p>9、count(): 返回数据库中匹配查询(QuerySet)的对象数量。<br>
-返回数字<br>
-MyArticle.objects.filter(title='a').count()<br>
-MyArticle.objects.values().count()<br>
-效果:统计包含a的title有多少个,统计MyArticle有多少条表</p>
-<p>10、first():   返回第一条记录<br>
-返回第一个对象或者None<br>
-MyArticle.objects.filter(title='a').first()<br>
-11、last():    返回最后一条记录<br>
-返回最后一个对象或者None&gt;&gt;&gt;同上<br>
-12、exists():  如果QuerySet包含数据，就返回True，否则返回False<br>
-返回值True False<br>
-MyArticle.objects.filter(id='11').exists()<br>
-效果:如果对象存在返回True,反之False</p>
-<p>（二）双下划线使用<br>
-1、xx__lt : 小于<br>
-xx__lte : 小于等于<br>
-2、xx__gt : 大于<br>
-3、xx__in: 包含某些值<br>
-4、xx__contains(): 包含某个字符的记录<br>
-5、xx__range(): 查找范围<br>
-6、xx__startswith : 获取 以 xx开头的记录<br>
-7、xx__endswith : 获取以xx结尾的记录<br>
-8、xx__date类型字段可以根据年月日进行过滤<br>
-9、and和or==|<br>
-MyArticle.objects.filter(Q(author='老王')|Q(type='都市'))</p>
+        <content type="html"><![CDATA[<pre><code>1、查看所有环境：conda info --envs
+2、新建虚拟环境：conda create -n xxx python=3.5.2
+3、删除虚拟环境：conda remove -n xxx --all
+4、激活虚拟环境：activate xxx  me=[activate mydjango]
+5、退出虚拟环境：deactivate
+6.  创建项目: django-admin startproject Blog
+7、创建app
+python manage.py startapp article
+#创建创建管理员账户
+python manage.py createsuperuser
+同步三件套--
+python manage.py check
+python manage.py makemigrations
+python manage.py migrate
+函数(request)
+进入shell
+python manage.py shell
+导入实体类
+from xxx.models import *
+
+1、all(): 查询所有结果
+函数名.objects.all()
+MyArticle.objects.all&gt;&gt;&gt;Myarticle是实体类里面的函数
+效果:查看所有
+2、filter(**kwargs): 它包含了与所给筛选条件相匹配的对象
+Myarticle.objects.filter(title='a')&gt;&gt;&gt;可以多个匹配对象,用逗号隔开(xxx='xx',xx='xx')
+3、get(**kwargs):返回与所给筛选条件相匹配的对象，返回结果有且只有一个，如果符合筛选条件的对象超过一个或者没有都会抛出错误
+返回值是单个实体对象
+Myarticle.objects.get(id=1)
+4、exclude(**kwargs):它包含了与所给筛选条件不匹配的对象
+返回值是QuerySet,功能与filter相反
+
+MyArticle.objects.filter(type='都市')
+效果:筛选出不包含'都市'的对象
+
+5、values(*field): 返回一个ValueQuerySet——一个特殊的QuerySet，
+运行后得到的并不是一系列model的实例化对象，而是一个可迭代的字典序列
+返回值是QuerySet
+MyArticle.objects.values()
+效果:以字典形式展现MyArticle对象里的所有数据
+6、values_list(*field): 它与values()非常相似，它返回的是一个元组序列
+返回值是QuerySet
+MyArticle.objects.values_list()
+效果:以元祖形式展现MyArticle对象里的所有数据
+7、order_by(*field): 对查询结果排序
+返回值是QuerySet
+MyArticle.objects.order_by('-id')
+8、reverse(): 对查询结果反向排序，请注意reverse()通常只能在具有已定义顺序的QuerySet上调用(在model类的Meta中指定ordering或调用order_by()方法)。
+返回值是QuerySet
+MyArticle.objects.order_by('-id').reverse
+效果:以order_by按条件分组后.reverse倒着排序
+
+9、count(): 返回数据库中匹配查询(QuerySet)的对象数量。
+返回数字
+MyArticle.objects.filter(title='a').count()
+MyArticle.objects.values().count() 
+效果:统计包含a的title有多少个,统计MyArticle有多少条表
+
+10、first():   返回第一条记录
+返回第一个对象或者None
+MyArticle.objects.filter(title='a').first()
+11、last():    返回最后一条记录
+返回最后一个对象或者None&gt;&gt;&gt;同上
+12、exists():  如果QuerySet包含数据，就返回True，否则返回False
+返回值True False
+ MyArticle.objects.filter(id='11').exists()
+效果:如果对象存在返回True,反之False
+
+（二）双下划线使用
+1、xx__lt : 小于
+xx__lte : 小于等于
+2、xx__gt : 大于
+3、xx__in: 包含某些值
+4、xx__contains(): 包含某个字符的记录
+5、xx__range(): 查找范围
+6、xx__startswith : 获取 以 xx开头的记录
+7、xx__endswith : 获取以xx结尾的记录
+8、xx__date类型字段可以根据年月日进行过滤
+9、and和or==|
+MyArticle.objects.filter(Q(author='老王')|Q(type='都市'))
+
+</code></pre>
 ]]></content>
     </entry>
     <entry>
