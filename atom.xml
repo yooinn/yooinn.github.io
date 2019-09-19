@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yooinn.github.io/</id>
     <title>Jiank</title>
-    <updated>2019-09-19T08:15:52.188Z</updated>
+    <updated>2019-09-19T10:18:46.610Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yooinn.github.io/"/>
     <link rel="self" href="https://yooinn.github.io//atom.xml"/>
@@ -11,1906 +11,1144 @@
     <icon>https://yooinn.github.io//favicon.ico</icon>
     <rights>All rights reserved 2019, Jiank</rights>
     <entry>
-        <title type="html"><![CDATA[Python中线程的MQ消息队列实现以及消息队列的优点解析]]></title>
-        <id>https://yooinn.github.io//post/python-</id>
-        <link href="https://yooinn.github.io//post/python-">
+        <title type="html"><![CDATA[Python进程、线程、协程详解]]></title>
+        <id>https://yooinn.github.io//post/python-jin-cheng-xian-cheng-xie-cheng-xiang-jie</id>
+        <link href="https://yooinn.github.io//post/python-jin-cheng-xian-cheng-xie-cheng-xiang-jie">
         </link>
-        <updated>2019-09-19T08:05:23.000Z</updated>
-        <content type="html"><![CDATA[<p>消息队列(MQ,Message Queue)在消息数据传输中的保存作用为数据通信提供了保障和实时处理上的便利,这里我们就来看一下Python中线程的MQ消息队列实现以及消息队列的优点解析</p>
-<p>“消息队列”是在消息的传输过程中保存消息的容器。消息队列管理器在将消息从它的源中继到它的目标时充当中间人。队列的主要目的是提供路由并保证消息的传递；如果发送消息时接收者不可用，消息队列会保留消息，直到可以成功地传递它。相信对任何架构或应用来说，消息队列都是一个至关重要的组件，下面是十个理由:</p>
-<p>Python的消息队列示例：</p>
-<h1 id="1threadingqueue实现线程队列">1.threading+Queue实现线程队列</h1>
-<pre><code>#!/usr/bin/env python
-  
-import Queue
+        <updated>2019-09-19T10:11:37.000Z</updated>
+        <content type="html"><![CDATA[<p>进程与线程的历史<br>
+我们都知道计算机是由硬件和软件组成的。硬件中的CPU是计算机的核心，它承担计算机的所有任务。 操作系统是运行在硬件之上的软件，是计算机的管理者，它负责资源的管理和分配、任务的调度。 程序是运行在系统上的具有某种功能的软件，比如说浏览器，音乐播放器等。 每次执行程序的时候，都会完成一定的功能，比如说浏览器帮我们打开网页，为了保证其独立性，就需要一个专门的管理和控制执行程序的数据结构——进程控制块。 进程就是一个程序在一个数据集上的一次动态执行过程。 进程一般由程序、数据集、进程控制块三部分组成。我们编写的程序用来描述进程要完成哪些功能以及如何完成；数据集则是程序在执行过程中所需要使用的资源；进程控制块用来记录进程的外部特征，描述进程的执行变化过程，系统可以利用它来控制和管理进程，它是系统感知进程存在的唯一标志。</p>
+<p>在早期的操作系统里，计算机只有一个核心，进程执行程序的最小单位，任务调度采用时间片轮转的抢占式方式进行进程调度。每个进程都有各自的一块独立的内存，保证进程彼此间的内存地址空间的隔离。 随着计算机技术的发展，进程出现了很多弊端，一是进程的创建、撤销和切换的开销比较大，二是由于对称多处理机（对称多处理机（SymmetricalMulti-Processing）又叫SMP，是指在一个计算机上汇集了一组处理器(多CPU)，各CPU之间共享内存子系统以及总线结构）的出现，可以满足多个运行单位，而多进程并行开销过大。 这个时候就引入了线程的概念。 线程也叫轻量级进程，它是一个基本的CPU执行单元，也是程序执行过程中的最小单元，由线程ID、程序计数器、寄存器集合 和堆栈共同组成。线程的引入减小了程序并发执行时的开销，提高了操作系统的并发性能。 线程没有自己的系统资源，只拥有在运行时必不可少的资源。但线程可以与同属与同一进程的其他线程共享进程所拥有的其他资源。</p>
+<p>进程与线程之间的关系<br>
+线程是属于进程的，线程运行在进程空间内，同一进程所产生的线程共享同一内存空间，当进程退出时该进程所产生的线程都会被强制退出并清除。线程可与属于同一进程的其它线程共享进程所拥有的全部资源，但是其本身基本上不拥有系统资源，只拥有一点在运行中必不可少的信息(如程序计数器、一组寄存器和栈)。</p>
+<p><strong>python 线程</strong></p>
+<p>Threading用于提供线程相关的操作，线程是应用程序中工作的最小单元。</p>
+<p><strong>1、threading模块</strong><br>
+threading 模块建立在 _thread 模块之上。thread 模块以低级、原始的方式来处理和控制线程，而 threading 模块通过对 thread 进行二次封装，提供了更方便的 api 来处理线程。</p>
+<pre><code>
 import threading
 import time
-  
-queue = Queue.Queue()
-  
-class ThreadNum(threading.Thread):
- &quot;&quot;&quot;没打印一个数字等待1秒，并发打印10个数字需要多少秒？&quot;&quot;&quot;
- def __init__(self, queue):
-  threading.Thread.__init__(self)
-  self.queue = queue
-  
- def run(self):
-  whileTrue:
-   #消费者端，从队列中获取num
-   num = self.queue.get()
-   print &quot;i'm num %s&quot;%(num)
-   time.sleep(1)
-   #在完成这项工作之后，使用 queue.task_done() 函数向任务已经完成的队列发送一个信号
-   self.queue.task_done()
-  
-start = time.time()
-def main():
- #产生一个 threads pool, 并把消息传递给thread函数进行处理，这里开启10个并发
- for i in range(10):
-  t = ThreadNum(queue)
-  t.setDaemon(True)
-  t.start()
    
- #往队列中填错数据 
- for num in range(10):
-   queue.put(num)
- #wait on the queue until everything has been processed
- queue.join()
+def worker(num):
+    &quot;&quot;&quot;
+    thread worker function
+    :return:
+    &quot;&quot;&quot;
+    time.sleep(1)
+    print(&quot;The num is  %d&quot; % num)
+    return
+   
+for i in range(20):
+    t = threading.Thread(target=worker,args=(i,)，name=“t.%d” % i)
+    t.start()
+</code></pre>
+<p>上述代码创建了20个“前台”线程，然后控制器就交给了CPU，CPU根据指定算法进行调度，分片执行指令。</p>
+<p>Thread方法说明</p>
+<p>t.start() : 激活线程，</p>
+<p>t.getName() : 获取线程的名称</p>
+<p>t.setName() ： 设置线程的名称</p>
+<p>t.name : 获取或设置线程的名称</p>
+<p>t.is_alive() ： 判断线程是否为激活状态</p>
+<p>t.isAlive() ：判断线程是否为激活状态</p>
+<p>t.setDaemon() 设置为后台线程或前台线程（默认：False）;通过一个布尔值设置线程是否为守护线程，必须在执行start()方法之后才可以使用。如果是后台线程，主线程执行过程中，后台线程也在进行，主线程执行完毕后，后台线程不论成功与否，均停止；如果是前台线程，主线程执行过程中，前台线程也在进行，主线程执行完毕后，等待前台线程也执行完成后，程序停止</p>
+<p>t.isDaemon() ： 判断是否为守护线程</p>
+<p>t.ident ：获取线程的标识符。线程标识符是一个非零整数，只有在调用了start()方法之后该属性才有效，否则它只返回None。</p>
+<p>t.join() ：逐个执行每个线程，执行完毕后继续往下执行，该方法使得多线程变得无意义</p>
+<p>t.run() ：线程被cpu调度后自动执行线程对象的run方法</p>
+<p>2、线程锁threading.RLock和threading.Lock</p>
+<p>由于线程之间是进行随机调度，并且每个线程可能只执行n条执行之后，CPU接着执行其他线程。为了保证数据的准确性，引入了锁的概念。所以，可能出现如下问题：</p>
+<p>例：假设列表A的所有元素就为0，当一个线程从前向后打印列表的所有元素，另外一个线程则从后向前修改列表的元素为1,那么输出的时候，列表的元素就会一部分为0，一部分为1,这就导致了数据的不一致。锁的出现解决了这个问题。</p>
+<pre><code>import threading
+import time
+   
+globals_num = 0
+   
+lock = threading.RLock()
+   
+def Func():
+    lock.acquire()  # 获得锁
+    global globals_num
+    globals_num += 1
+    time.sleep(1)
+    print(globals_num)
+    lock.release()  # 释放锁
+   
+for i in range(10):
+    t = threading.Thread(target=Func)
+    t.start()
+</code></pre>
+<p><strong>3、threading.RLock和threading.Lock 的区别</strong><br>
+RLock允许在同一线程中被多次acquire。而Lock却不允许这种情况。 如果使用RLock，那么acquire和release必须成对出现，即调用了n次acquire，必须调用n次的release才能真正释放所占用的琐。</p>
+<pre><code>
+import threading
+lock = threading.Lock()    #Lock对象
+lock.acquire()
+lock.acquire()  #产生了死琐。
+lock.release()
+lock.release()　
+import threading
+rLock = threading.RLock()  #RLock对象
+rLock.acquire()
+rLock.acquire()    #在同一线程内，程序不会堵塞。
+rLock.release()
+rLock.release()
+</code></pre>
+<p><strong>4、threading.Event</strong></p>
+<p>python线程的事件用于主线程控制其他线程的执行，事件主要提供了三个方法 set、wait、clear。</p>
+<p>事件处理的机制：全局定义了一个“Flag”，如果“Flag”值为 False，那么当程序执行 event.wait 方法时就会阻塞，如果“Flag”值为True，那么event.wait 方法时便不再阻塞。</p>
+<p>clear：将“Flag”设置为False</p>
+<p>set：将“Flag”设置为True</p>
+<p>Event.isSet() ：判断标识位是否为Ture。</p>
+<pre><code>import threading
+   
+def do(event):
+    print('start')
+    event.wait()
+    print('execute')
+   
+event_obj = threading.Event()
+for i in range(10):
+    t = threading.Thread(target=do, args=(event_obj,))
+    t.start()
+   
+event_obj.clear()
+inp = input('input:')
+if inp == 'true':
+    event_obj.set()
+</code></pre>
+<p>当线程执行的时候，如果flag为False，则线程会阻塞，当flag为True的时候，线程不会阻塞。它提供了本地和远程的并发性。</p>
+<p><strong>5、threading.Condition</strong></p>
+<p>一个condition变量总是与某些类型的锁相联系，这个可以使用默认的情况或创建一个，当几个condition变量必须共享和同一个锁的时候，是很有用的。锁是conditon对象的一部分：没有必要分别跟踪。</p>
+<p>condition变量服从上下文管理协议：with语句块封闭之前可以获取与锁的联系。 acquire() 和 release() 会调用与锁相关联的相应的方法。</p>
+<p>其他和锁关联的方法必须被调用，wait()方法会释放锁，当另外一个线程使用 notify() or notify_all()唤醒它之前会一直阻塞。一旦被唤醒，wait()会重新获得锁并返回，</p>
+<p>Condition类实现了一个conditon变量。 这个conditiaon变量允许一个或多个线程等待，直到他们被另一个线程通知。 如果lock参数，被给定一个非空的值，，那么他必须是一个lock或者Rlock对象，它用来做底层锁。否则，会创建一个新的Rlock对象，用来做底层锁。</p>
+<p>wait(timeout=None) ： 等待通知，或者等到设定的超时时间。当调用这wait()方法时，如果调用它的线程没有得到锁，那么会抛出一个RuntimeError 异常。 wati()释放锁以后，在被调用相同条件的另一个进程用notify() or notify_all() 叫醒之前 会一直阻塞。wait() 还可以指定一个超时时间。</p>
+<p>如果有等待的线程，notify()方法会唤醒一个在等待conditon变量的线程。notify_all() 则会唤醒所有在等待conditon变量的线程。</p>
+<p>注意： notify()和notify_all()不会释放锁，也就是说，线程被唤醒后不会立刻返回他们的wait() 调用。除非线程调用notify()和notify_all()之后放弃了锁的所有权。</p>
+<p>在典型的设计风格里，利用condition变量用锁去通许访问一些共享状态，线程在获取到它想得到的状态前，会反复调用wait()。修改状态的线程在他们状态改变时调用 notify() or notify_all()，用这种方式，线程会尽可能的获取到想要的一个等待者状态。 例子： 生产者-消费者模型，</p>
+<pre><code>import threading
+import time
+def consumer(cond):
+    with cond:
+        print(&quot;consumer before wait&quot;)
+        cond.wait()
+        print(&quot;consumer after wait&quot;)
+   
+def producer(cond):
+    with cond:
+        print(&quot;producer before notifyAll&quot;)
+        cond.notifyAll()
+        print(&quot;producer after notifyAll&quot;)
+   
+condition = threading.Condition()
+c1 = threading.Thread(name=&quot;c1&quot;, target=consumer, args=(condition,))
+c2 = threading.Thread(name=&quot;c2&quot;, target=consumer, args=(condition,))
+   
+p = threading.Thread(name=&quot;p&quot;, target=producer, args=(condition,))
+   
+c1.start()
+time.sleep(2)
+c2.start()
+time.sleep(2)
+p.start()
+</code></pre>
+<p><strong>6、queue模块</strong></p>
+<p>Queue 就是对队列，它是线程安全的</p>
+<p>举例来说，我们去麦当劳吃饭。饭店里面有厨师职位，前台负责把厨房做好的饭卖给顾客，顾客则去前台领取做好的饭。这里的前台就相当于我们的队列。形成管道样，厨师做好饭通过前台传送给顾客，所谓单向队列</p>
+<p>这个模型也叫生产者-消费者模型。</p>
+<p>import queue</p>
+<p>q = queue.Queue(maxsize=0)  # 构造一个先进显出队列，maxsize指定队列长度，为0 时，表示队列长度无限制。</p>
+<p>q.join()    # 等到队列为kong的时候，在执行别的操作<br>
+q.qsize()   # 返回队列的大小 （不可靠）<br>
+q.empty()   # 当队列为空的时候，返回True 否则返回False （不可靠）<br>
+q.full()    # 当队列满的时候，返回True，否则返回False （不可靠）<br>
+q.put(item, block=True, timeout=None) #  将item放入Queue尾部，item必须存在，可以参数block默认为True,表示当队列满时，会等待队列给出可用位置，<br>
+　　　　　　　　　　　　　　　　　　　　　　　　 为False时为非阻塞，此时如果队列已满，会引发queue.Full 异常。 可选参数timeout，表示 会阻塞设置的时间，过后，<br>
+　　　　　　　　　　　　　　　　　　　　　　　　  如果队列无法给出放入item的位置，则引发 queue.Full 异常<br>
+q.get(block=True, timeout=None) #   移除并返回队列头部的一个值，可选参数block默认为True，表示获取值的时候，如果队列为空，则阻塞，为False时，不阻塞，<br>
+　　　　　　　　　　　　　　　　　　　　　　若此时队列为空，则引发 queue.Empty异常。 可选参数timeout，表示会阻塞设置的时候，过后，如果队列为空，则引发Empty异常。<br>
+q.put_nowait(item) #   等效于 put(item,block=False)<br>
+q.get_nowait() #    等效于 get(item,block=False)<br>
+代码如下：</p>
+<pre><code>
+#!/usr/bin/env python
+import Queue
+import threading
+message = Queue.Queue(10)
   
-main()
-print &quot;Elapsed Time: %s&quot; % (time.time() - start)
-</code></pre>
-<p>运行结果：</p>
-<pre><code>1. i'm num 0
-2. i'm num 1
-3. i'm num 2
-4. i'm num 3
-5. i'm num 4
-6. i'm num 5
-7. i'm num 6
-8. i'm num 7
-9. i'm num 8
-10. i'm num 9
-11. Elapsed Time: 1.01399993896
-</code></pre>
-<p><strong>解读：</strong></p>
-<p>具体工作步骤描述如下：</p>
-<p>1，创建一个 Queue.Queue() 的实例，然后使用数据对它进行填充。</p>
-<p>2，将经过填充数据的实例传递给线程类，后者是通过继承 threading.Thread 的方式创建的。</p>
-<p>3，生成守护线程池。</p>
-<p>4，每次从队列中取出一个项目，并使用该线程中的数据和 run 方法以执行相应的工作。</p>
-<p>5，在完成这项工作之后，使用 queue.taskdone() 函数向任务已经完成的队列发送一个信号。</p>
-<p>6，对队列执行 join 操作，实际上意味着等到队列为空，再退出主程序。</p>
-<p>在使用这个模式时需要注意一点：通过将守护线程设置为 true，程序运行完自动退出。好处是在退出之前，可以对队列执行 join 操作、或者等到队列为空。</p>
-<h1 id="2多个队列">2.多个队列</h1>
-<p>所谓多个队列，一个队列的输出可以作为另一个队列的输入</p>
-<pre><code>
-1. #!/usr/bin/env python
-2. import Queue
-3. import threading
-4. import time
-5.   
-6. queue = Queue.Queue()
-7. out_queue = Queue.Queue()
-8.   
-9. class ThreadNum(threading.Thread):
-10.   def __init__(self, queue, out_queue):
-11.     threading.Thread.__init__(self)
-12.     self.queue = queue
-13.     self.out_queue = out_queue
-14.   
-15.   def run(self):
-16.     whileTrue:
-17.       #从队列中取消息
-18.       num = self.queue.get()
-19.       bkeep = num
-20.        
-21.       #将bkeep放入队列中
-22.       self.out_queue.put(bkeep)
-23.   
-24.       #signals to queue job is done
-25.       self.queue.task_done()
-26.   
-27. class PrintLove(threading.Thread):
-28.   def __init__(self, out_queue):
-29.     threading.Thread.__init__(self)
-30.     self.out_queue = out_queue
-31.   
-32.   def run(self):
-33.     whileTrue:
-34.       #从队列中获取消息并赋值给bkeep
-35.       bkeep = self.out_queue.get()  
-36.       keke = &quot;I love &quot; + str(bkeep)
-37.       print keke,
-38.       print self.getName()
-39.       time.sleep(1)
-40.   
-41.       #signals to queue job is done
-42.       self.out_queue.task_done()
-43.   
-44. start = time.time()
-45. def main():
-46.   #populate queue with data
-47.   for num in range(10):
-48.     queue.put(num)
-49.      
-50.   #spawn a pool of threads, and pass them queue instance
-51.   for i in range(5):
-52.     t = ThreadNum(queue, out_queue)
-53.     t.setDaemon(True)
-54.     t.start()
-55.   
-56.   
-57.   for i in range(5):
-58.     pl = PrintLove(out_queue)
-59.     pl.setDaemon(True)
-60.     pl.start()
-61.   
-62.   #wait on the queue until everything has been processed
-63.   queue.join()
-64.   out_queue.join()
-65.   
-66. main()
-67. print &quot;Elapsed Time: %s&quot; % (time.time() - start)
-</code></pre>
-<p>运行结果：</p>
-<pre><code>1. I love 0 Thread-6
-2. I love 1 Thread-7
-3. I love 2 Thread-8
-4. I love 3 Thread-9
-5. I love 4 Thread-10
-6. I love 5 Thread-7
-7. I love 6 Thread-6
-8. I love 7 Thread-9
-9. I love 8 Thread-8
-10. I love 9 Thread-10
-11. Elapsed Time: 2.00300002098
-</code></pre>
-<p>解读：</p>
-<p>ThreadNum 类工作流程</p>
-<p>定义队列---&gt;继承threading----&gt;初始化queue----&gt;定义run函数---&gt;get queue中的数据----&gt;处理数据----&gt;put数据到另外一个queue--&gt;发信号告诉queue该条处理完毕</p>
-<p>main函数工作流程：</p>
-<p>---&gt;往自定义queue中扔数据</p>
-<p>---&gt;for循环确定启动的线程数----&gt;实例化ThreadNum类----&gt;启动线程并设置守护</p>
-<p>---&gt;for循环确定启动的线程数----&gt;实例化PrintLove类---&gt;启动线程并设置为守护</p>
-<p>---&gt;等待queue中的消息处理完毕后执行join。即退出主程序。</p>
-<p>了解了MQ的大概实现以后，我们来总结一下消息队列的优点：</p>
-<p><strong>1. 解耦</strong><br>
-在项目启动之初来预测将来项目会碰到什么需求，是极其困难的。消息队列在处理过程中间插入了一个隐含的、基于数据的接口层，两边的处理过程都要实现这一接口。这允许你独立的扩展或修改两边的处理过程，只要确保它们遵守同样的接口约束。</p>
-<p><strong>2. 冗余</strong><br>
-有时在处理数据的时候处理过程会失败。除非数据被持久化，否则将永远丢失。消息队列把数据进行持久化直到它们已经被完全处理，通过这一方式规避了数据丢失风险。在被许多消息队列所采用的&quot;插入-获取-删除&quot;范式中，在把一个消息从队列中删除之前，需要你的处理过程明确的指出该消息已经被处理完毕，确保你的数据被安全的保存直到你使用完毕。</p>
-<p><strong>3. 扩展性</strong><br>
-因为消息队列解耦了你的处理过程，所以增大消息入队和处理的频率是很容易的；只要另外增加处理过程即可。不需要改变代码、不需要调节参数。扩展就像调大电力按钮一样简单。</p>
-<p><strong>4. 灵活性 &amp; 峰值处理能力</strong><br>
-当你的应用上了Hacker News的首页，你将发现访问流量攀升到一个不同寻常的水平。在访问量剧增的情况下，你的应用仍然需要继续发挥作用，但是这样的突发流量并不常见；如果为 以能处理这类峰值访问为标准来投入资源随时待命无疑是巨大的浪费。使用消息队列能够使关键组件顶住增长的访问压力，而不是因为超出负荷的请求而完全崩溃。 请查看我们关于峰值处理能力的博客文章了解更多此方面的信息。</p>
-<p><strong>5. 可恢复性</strong><br>
-当体系的一部分组件失效，不会影响到整个系统。消息队列降低了进程间的耦合度，所以即使一个处理消息的进程挂掉，加入队列中的消息仍然可以在系统恢复后被处理。而这种允许重试或者延后处理请求的能力通常是造就一个略感不便的用户和一个沮丧透顶的用户之间的区别。</p>
-<p><strong>6. 送达保证</strong><br>
-消息队列提供的冗余机制保证了消息能被实际的处理，只要一个进程读取了该队列即可。在此基础上，IronMQ提供了一个&quot;只送达一次&quot;保证。无论有多少进 程在从队列中领取数据，每一个消息只能被处理一次。这之所以成为可能，是因为获取一个消息只是&quot;预定&quot;了这个消息，暂时把它移出了队列。除非客户端明确的 表示已经处理完了这个消息，否则这个消息会被放回队列中去，在一段可配置的时间之后可再次被处理。</p>
-<p>**	7.排序保证**<br>
-在许多情况下，数据处理的顺序都很重要。消息队列本来就是排序的，并且能保证数据会按照特定的顺序来处理。IronMO保证消息浆糊通过FIFO（先进先出）的顺序来处理，因此消息在队列中的位置就是从队列中检索他们的位置。</p>
-<p>**	8.缓冲**<br>
-在任何重要的系统中，都会有需要不同的处理时间的元素。例如,加载一张图片比应用过滤器花费更少的时间。消息队列通过一个缓冲层来帮助任务最高效率的执行--写入队列的处理会尽可能的快速，而不受从队列读的预备处理的约束。该缓冲有助于控制和优化数据流经过系统的速度。</p>
-<p><strong>9. 理解数据流</strong><br>
-在一个分布式系统里，要得到一个关于用户操作会用多长时间及其原因的总体印象，是个巨大的挑战。消息系列通过消息被处理的频率，来方便的辅助确定那些表现不佳的处理过程或领域，这些地方的数据流都不够优化。</p>
-<p><strong>10. 异步通信</strong><br>
-很多时候，你不想也不需要立即处理消息。消息队列提供了异步处理机制，允许你把一个消息放入队列，但并不立即处理它。你想向队列中放入多少消息就放多少，然后在你乐意的时候再去处理它们。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Centos安装python3并使用Nginx+Gunicorn+virtualenv+supervisor来部署django项目]]></title>
-        <id>https://yooinn.github.io//post/centos-an-zhuang-python3-bing-shi-yong-nginxgunicornvirtualenvsupervisor-lai-bu-shu-django-xiang-mu</id>
-        <link href="https://yooinn.github.io//post/centos-an-zhuang-python3-bing-shi-yong-nginxgunicornvirtualenvsupervisor-lai-bu-shu-django-xiang-mu">
-        </link>
-        <updated>2019-09-18T03:02:42.000Z</updated>
-        <summary type="html"><![CDATA[<p><code>Centos安装python3并使用Nginx+Gunicorn+virtualenv+supervisor来部署django项目</code></p>
-]]></summary>
-        <content type="html"><![CDATA[<p><code>Centos安装python3并使用Nginx+Gunicorn+virtualenv+supervisor来部署django项目</code></p>
-<!-- more -->
-<p>Centos7默认自带了Python2.7版本,但是因为项目需要使用Python3.x你可以按照此文的三个方法进行安装.</p>
-<p>注：本文示例安装版本为Python3.6.2源码安装。。。</p>
-<p>Centos7默认自带了Python2.7版本,但是因为项目需要使用Python3.x你可以按照此文的三个方法进行安装.</p>
-<p>注：本文示例安装版本为Python3.6.2，</p>
-<p>Python源代码编译安装<br>
-安装必要工具 yum-utils ，它的功能是管理repository及扩展包的工具 (主要是针对repository)</p>
-<p><code>$ yum install yum-utils</code><br>
-使用yum-builddep为Python3构建环境,安装缺失的软件依赖,使用下面的命令会自动处理.</p>
-<p><code>$ yum-builddep python</code><br>
-完成后下载Python3的源码包（笔者以Python3.6.2为例），Python源码包目录： https://www.python.org/ftp/python/。</p>
-<p><code>$ wget https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz</code><br>
-如果速度不够快，可以直接去官网下载，利用WinSCP等软件传到服务器上指定位置，我的存放目录是/root。</p>
-<p>最后一步，编译安装Python3，默认的安装目录是 /usr/local 如果你要改成其他目录可以在编译(make)前使用 configure 命令后面追加参数 “–prefix=/alternative/path” 来完成修改。</p>
-<pre><code>$ tar -xvJf  Python-3.6.2.tar.xz
-$ cd Python-3.6.2
-$ ./configure --prefix=/usr/local/python3
-$ make &amp;&amp; make install
-</code></pre>
-<p>最后创建软链接</p>
-<pre><code>$ ln -s /usr/local/python3/bin/python3 /usr/bin/python3
-$ ln -s /usr/local/python3/bin/pip3 /usr/bin/pip3
-</code></pre>
-<p>至此，python3的安装完成。。。下面介绍使用Nginx+Gunicorn+virtualenv+supervisor来部署django项目。</p>
-<p>安装Virtualenv<br>
-终端下输入:</p>
-<pre><code>
-$ pip install virtualenv
-virtualenv可以创建一个拥有自己安装目录的环境, 这个环境不与其他虚拟环境共享库, 能够方便的管理python版本和管理python库。 下面是创建python3的虚拟环境
+  
+def producer(i):
+    while True:
+        message.put(i)
+  
+  
+def consumer(i):
+    while True:
+        msg = message.get()
+  
+  
+for i in range(12):
+    t = threading.Thread(target=producer, args=(i,))
+    t.start()
+  
+for i in range(10):
+    t = threading.Thread(target=consumer, args=(i,))
+    t.start()
+那就自己做个线程池吧：
 
-创建ENV目录
-root@dev:~# cd ~ &amp;&amp; mkdir ENV &amp;&amp; cd ENV
-root@dev:~/ENV# ls
-创建python3虚拟环境
-[root@VM_0_10_centos Python-3.6.2]# cd ~ &amp;&amp; mkdir ENV &amp;&amp; cd ENV
-[root@VM_0_10_centos Python-3.6.2]# ls
-#创建python3虚拟环境
-[root@VM_0_10_centos ENV]# virtualenv -p /usr/bin/python3 python3
-Running virtualenv with interpreter /usr/bin/python3
-Using base prefix '/usr/local/python3'
-New python executable in /root/ENV/python3/bin/python3
-Also creating executable in /root/ENV/python3/bin/python
-Please make sure you remove any previous custom paths from your /root/.pydistutils.cfg file.
-Installing setuptools, pip, wheel...done.
-看到类似这样的输出说明虚拟环境我们已经创建成功，下面是使他生效:
-</code></pre>
-<pre><code>
-[root@VM_0_10_centos ENV]# source python3/bin/activate
-(python3) [root@VM_0_10_centos ENV]#
-</code></pre>
-<p>注意，在虚拟环境生效之后前面会有(python3)的提示，来指示现在所生效的虚拟环境名。<br>
-在创建虚拟环境的时候，如果加上--system-site-packages的话会集成系统现有的包。<br>
-这样，虚拟环境就生效了，我们就可以使用pip来安装包而不会和系统的包发生冲突。<br>
-关闭可以使用如下命令来退出现在的虚拟环境:</p>
-<pre><code>(python3) [root@VM_0_10_centos ENV]# deactivate
-[root@VM_0_10_centos ENV]#
-</code></pre>
-<p>可以看到，在退出之后前面的(python3)就会消失掉。 接下来就是安装gunicorn和django等包，直接使用pip安装即可。注意是在之前创建的<br>
-虚拟环境生效的前提下来安装。下面会介绍gunicorn。</p>
-<p>安装配置gunicorn</p>
-<pre><code>$ pip install django gunicorn
-Gunicorn (独角兽)是一个高效的Python WSGI Server,通常用它来运行 wsgi application(由我们自己编写遵循WSGI application的编写规范) 或者 wsgi framework(如Django,Paster),地位相当于Java中的Tomcat。
-
-在我们要部署的Django项目中执行如下命令来尝试运行:
-
-(python3) [root@VM_0_10_centos myblog]# gunicorn myblog.wsgi:application -b 0.0.0.0:8000
-myblog为要运行的Django项目名，如果有类似如下输出则说明成功执行:
-</code></pre>
-<p>上面的命令是一个简单的测试，为了真正在生产环境下使用Gunicorn，我们还需要增加一些配置。我们把这些配置文件写成一个bash脚本，保存为</p>
-<pre><code>bin/gunicorn_start:
-
-#!/bin/bash
-    
-NAME=&quot;myblog&quot;
-DJANGODIR=/root/test/myblog #Django project directory
-SOCKFILE=/root/test/myblog/run/gunicorn.sock # we will communicte using this unix socket
-USER=root # the user to run as
-GROUP=root # the group to run as
-NUM_WORKERS=2 # how many worker processes should Gunicorn spawn
-DJANGO_SETTINGS_MODULE=myblog.settings # which settings file should Django use
-DJANGO_WSGI_MODULE=myblog.wsgi # WSGI module name
-    
-echo &quot;Starting $NAME as `whoami`&quot;
-</code></pre>
-<h1 id="activate-the-virtual-environment">Activate the virtual environment</h1>
-<pre><code>cd $DJANGODIR
-source /root/ENV/python3/bin/activate
-export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
-export PYTHONPATH=$DJANGODIR:$PYTHONPATH
-</code></pre>
-<h1 id="create-the-run-directory-if-it-doesnt-exist">Create the run directory if it doesn't exist</h1>
-<pre><code>RUNDIR=$(dirname $SOCKFILE)
-test -d $RUNDIR || mkdir -p $RUNDIR
-</code></pre>
-<h1 id="start-your-django-unicorn">Start your Django Unicorn</h1>
-<h1 id="programs-meant-to-be-run-under-supervisor-should-not-daemonize-themselves-do-not-use-daemon">Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)</h1>
-<pre><code>#gunicorn目录(刚刚创建的虚拟环境的bin目录中)
-exec /root/ENV/python3/bin/gunicorn  ${DJANGO_WSGI_MODULE}:application \
---name $NAME \
---workers $NUM_WORKERS \
---user=$USER --group=$GROUP \
---bind=unix:$SOCKFILE \
---log-level=debug \
---log-file=-
-添加可执行权限：
-
-$ sudo chmod u+x bin/gunicorn_start 
-然后就可以尝试执行这个脚本了:
-
-$ ./bin/gunicorn_start
-如果看到类似下面对输出说明已经成功了:
-</code></pre>
-<p><img src="https://upload-images.jianshu.io/upload_images/8065217-3c31f7eb592d4d59.png" alt=""></p>
-<p>如果你在上面的过程中设置了自定义的参数的话，需要将gunicorn_start脚本中对应的参数改过来。其中，worker的数量推荐设置为2 * CPUs + 1，这样的话，在任何时候都有一半的worker在做IO.</p>
-<p>安装Supervisor<br>
-Superviosr是一个进程监管的工具。简而言之，Superviosr可以保证你的程序在服务器开机时自动启动以及程序意外终止时重新启动。通过下面的命令即可安装:</p>
-<p><code>$ yum install supervisor</code><br>
-Superviosr通过配置文件来设置被监管的程序。一般配置文件都放置在/etc/supervisor/conf.d路径下面。此处我们创建一个名为myblog.conf的配置文件，内容如下：</p>
-<pre><code>[program:myblog]
-command = /root/test/myblog/bin/django_start
-user = root
-autostart=true
-autorestart=true
-    
-redirect_stderr = true
-stdout_logfile = /root/logs/blog/robot.log
-stderr_logfile=/root/logs/blog/err.log
-</code></pre>
-<p>日志目录还需要手动创建下:</p>
-<p><code>$ mkdir -p /root/logs/blog</code><br>
-设置好上面的文件以后，我们可以通过supervisorctl工具来启用这些设置了:</p>
-<p><code>$ supervisorctl update</code><br>
-<code>$ supervisorctl reload</code><br>
-配置Nginx 为我们的Django应用创建一个配置文件/etc/nginx/sites-available/myblog.conf. 文件内容如下：</p>
-<pre><code>upstream myblog_server {
-    server unix:/root/test/myblog/run/gunicorn.sock fail_timeout=0;
-}
-    
-server {
-    
-    server_name www.fkomm.cn;
-    root /root/test/myblog;
-    
-    listen 80;
-    
-    keepalive_timeout 70;
-    #access_log /var/log/nginx/django_access.log;
-    #error_log /var/log/nginx/django_error.log;
-    
-    location /static/ {
-          expires max;
-          alias /root/test/DjangoBlogcollectedstatic/;
-    }
-    
-    location / {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    
-    
-        if (!-f $request_filename) {
-            proxy_pass http://djangoblog_server;
-            break;
-        }
-    }
-}
-使其生效:
-
-$ sudo ln -s /etc/nginx/sites-available/djangoblog.conf /etc/nginx/sites-enabled/djangoblog.conf  
-#重启nginx
-$ sudo service nginx restart  
-至此，全部完成～～</code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Django 笔记]]></title>
-        <id>https://yooinn.github.io//post/django-bi-ji</id>
-        <link href="https://yooinn.github.io//post/django-bi-ji">
-        </link>
-        <updated>2019-09-06T01:29:47.000Z</updated>
-        <content type="html"><![CDATA[<pre><code>1、查看所有环境：conda info --envs
-2、新建虚拟环境：conda create -n xxx python=3.5.2
-3、删除虚拟环境：conda remove -n xxx --all
-4、激活虚拟环境：activate xxx  me=[activate mydjango]
-5、退出虚拟环境：deactivate
-6.  创建项目: django-admin startproject Blog
-7、创建app
-python manage.py startapp article
-#创建创建管理员账户
-python manage.py createsuperuser
-同步三件套--
-python manage.py check
-python manage.py makemigrations
-python manage.py migrate
-函数(request)
-进入shell
-python manage.py shell
-导入实体类
-from xxx.models import *
-
-1、all(): 查询所有结果
-函数名.objects.all()
-MyArticle.objects.all&gt;&gt;&gt;Myarticle是实体类里面的函数
-效果:查看所有
-2、filter(**kwargs): 它包含了与所给筛选条件相匹配的对象
-Myarticle.objects.filter(title='a')&gt;&gt;&gt;可以多个匹配对象,用逗号隔开(xxx='xx',xx='xx')
-3、get(**kwargs):返回与所给筛选条件相匹配的对象，返回结果有且只有一个，如果符合筛选条件的对象超过一个或者没有都会抛出错误
-返回值是单个实体对象
-Myarticle.objects.get(id=1)
-4、exclude(**kwargs):它包含了与所给筛选条件不匹配的对象
-返回值是QuerySet,功能与filter相反
-
-MyArticle.objects.filter(type='都市')
-效果:筛选出不包含'都市'的对象
-
-5、values(*field): 返回一个ValueQuerySet——一个特殊的QuerySet，
-运行后得到的并不是一系列model的实例化对象，而是一个可迭代的字典序列
-返回值是QuerySet
-MyArticle.objects.values()
-效果:以字典形式展现MyArticle对象里的所有数据
-6、values_list(*field): 它与values()非常相似，它返回的是一个元组序列
-返回值是QuerySet
-MyArticle.objects.values_list()
-效果:以元祖形式展现MyArticle对象里的所有数据
-7、order_by(*field): 对查询结果排序
-返回值是QuerySet
-MyArticle.objects.order_by('-id')
-8、reverse(): 对查询结果反向排序，请注意reverse()通常只能在具有已定义顺序的QuerySet上调用(在model类的Meta中指定ordering或调用order_by()方法)。
-返回值是QuerySet
-MyArticle.objects.order_by('-id').reverse
-效果:以order_by按条件分组后.reverse倒着排序
-
-9、count(): 返回数据库中匹配查询(QuerySet)的对象数量。
-返回数字
-MyArticle.objects.filter(title='a').count()
-MyArticle.objects.values().count() 
-效果:统计包含a的title有多少个,统计MyArticle有多少条表
-
-10、first():   返回第一条记录
-返回第一个对象或者None
-MyArticle.objects.filter(title='a').first()
-11、last():    返回最后一条记录
-返回最后一个对象或者None&gt;&gt;&gt;同上
-12、exists():  如果QuerySet包含数据，就返回True，否则返回False
-返回值True False
- MyArticle.objects.filter(id='11').exists()
-效果:如果对象存在返回True,反之False
-
-（二）双下划线使用
-1、xx__lt : 小于
-xx__lte : 小于等于
-2、xx__gt : 大于
-3、xx__in: 包含某些值
-4、xx__contains(): 包含某个字符的记录
-5、xx__range(): 查找范围
-6、xx__startswith : 获取 以 xx开头的记录
-7、xx__endswith : 获取以xx结尾的记录
-8、xx__date类型字段可以根据年月日进行过滤
-9、and和or==|
-MyArticle.objects.filter(Q(author='老王')|Q(type='都市'))
-
-</code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[第一天笔记]]></title>
-        <id>https://yooinn.github.io//post/di-yi-tian-bi-ji</id>
-        <link href="https://yooinn.github.io//post/di-yi-tian-bi-ji">
-        </link>
-        <updated>2019-08-12T13:05:57.000Z</updated>
-        <summary type="html"><![CDATA[<h1 id="第一天操作">第一天操作</h1>
-<pre><code>pip freeze 查看库
-pip list
-配置提高pip的速度
-创建文件c:\users\Administrator\pip\pip.ini，写入
-[global]
-index-url = https://pypi.tuna.tsinghua.edu.cn/simple
-</code></pre>
-]]></summary>
-        <content type="html"><![CDATA[<h1 id="第一天操作">第一天操作</h1>
-<pre><code>pip freeze 查看库
-pip list
-配置提高pip的速度
-创建文件c:\users\Administrator\pip\pip.ini，写入
-[global]
-index-url = https://pypi.tuna.tsinghua.edu.cn/simple
-</code></pre>
-<!-- more -->
-<pre><code>conda常用命令  xx=任意
-1、查看所有环境：conda info --envs
-2、新建虚拟环境：conda create -n xxx python=3.5.2
-3、删除虚拟环境：conda remove -n xxx --all
-4、激活虚拟环境：activate xxx  me=[activate mydjango]
-5、退出虚拟环境：deactivate
-</code></pre>
-<h1 id="conda的使用">conda的使用:</h1>
-<pre><code>1、先创造虚拟环境
-格式conda create -n [任意名字] [方法:比如python=3.5.2 ,指定python版本]
-conda create -n wode python=3.5.2
-2、进入虚拟环境
-格式:activeta xxx[任意名字]
-activeta wodecreate
-3、cmd命令行界面任意文件夹下创建项目
-格式:django-admin startproject xxx[任意名字]
-django-admin startproject Blog
-4、设置静态内容和访问导向
-在你创建的项目文件夹下的子文件夹-&gt;[和项目文件同名]
-下面创建一个[任意名字的py文件]
-如: hello.py
-输入如下代码
-from django.http import HttpResponse #响应内容模块
-from datetime import datetime #时间模块
-
-def helloweb(request):
-    #内容
-    return &quot;你好web&quot;
-
-#建立导向or指向
-在项目文件夹下找到并打开urls.py文件
-开头写导入。上面建立的静态内容【模块】
-from Blog.hello import helloweb
-然后找到urlpatterns=[]
-原有内容不动他，在他下面输入
-
-格式:path(&quot;这个是别人要访问内容时输入的名字&quot;,模块里的函数名),
-path(&quot;helloweb&quot;,helloweb),
-</code></pre>
-<h1 id="5-驱动服务端">5、驱动服务端</h1>
-<pre><code>格式:python manage.py runserver id:prot  0=本地127.0.0.1
-python manage.py runserver 0:8080
-</code></pre>
-<h1 id="6-访问">6、访问</h1>
-<p><code>在浏览器下输入 127.0.0.1:8080\helloweb ,访问你建立的内容</code></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[装饰器]]></title>
-        <id>https://yooinn.github.io//post/zhuang-shi-qi</id>
-        <link href="https://yooinn.github.io//post/zhuang-shi-qi">
-        </link>
-        <updated>2019-07-16T15:35:35.000Z</updated>
-        <content type="html"><![CDATA[<pre><code class="language-python">def Singleton(cls):
-    _instance = {}
-    def _singleton(*args, **kargs):
-        if cls not in _instance:
-            _instance[cls] = cls(*args, **kargs)
-        return _instance[cls]
-    return _singleton
-@Singleton
-class A(object):
-    a = 1
-    def __init__(self, x=0):
-        self.x = x
-a1 = A(20)
-a2 = A(3)
-</code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[基本数据类型和运算]]></title>
-        <id>https://yooinn.github.io//post/ji-ben-shu-ju-lei-xing-he-yun-suan</id>
-        <link href="https://yooinn.github.io//post/ji-ben-shu-ju-lei-xing-he-yun-suan">
-        </link>
-        <updated>2019-06-25T09:09:23.000Z</updated>
-        <content type="html"><![CDATA[<p>5.2.1 基本数据类型和运算<br>
-基本数据类型</p>
-<p>Python中最基本的数据类型包括整型，浮点数，布尔值和字符串。类型是不需要声明的，比如：</p>
-<pre><code>a = 1       # 整数
-b = 1.2     # 浮点数
-c = True    # 布尔类型
-d = &quot;False&quot; # 字符串
-e = None    # NoneType
-</code></pre>
-<p>其中#是行内注释的意思。最后一个None是NoneType，注意不是0，在Python中利用type函数可以查看一个变量的类型：</p>
-<pre><code>
-type(a)     # &lt;type 'int'&gt;
-type(b)     # &lt;type 'float'&gt;
-type(c)     # &lt;type 'bool'&gt;
-type(d)     # &lt;type 'str'&gt;
-type(e)     # &lt;type 'NoneType'&gt;
-</code></pre>
-<p>注释中是执行type()函数后的输出结果，可以看到None是单独的一种类型NoneType。在很多API中，如果执行失败就会返回None。</p>
-<p>变量和引用</p>
-<p>Python中基本变量的赋值一般建立的是个引用，比如下面的语句：</p>
-<pre><code>a = 1
-b = a
-c = 1
-</code></pre>
-<p>a赋值为1后，b=a执行时并不会将a的值复制一遍，然后赋给b，而是简单地为a所指的值，也就是1建立了一个引用，相当于a和b都是指向包含1这个值的这块内存的指针。所以c=1执行的也是个引用建立，这三个变量其实是三个引用，指向同一个值。这个逻辑虽然简单，不过也还是常常容易弄混，这没关系，Python内置了id函数，可以返回一个对象的地址，用id函数可以让我们知道每个变量指向的是不是同一个值：</p>
-<pre><code>
-id(a)   # 35556792L
-id(b)   # 35556792L
-id(c)   # 35556792L
-</code></pre>
-<p>注释中表示的仍是执行后的结果。如果这时候我们接下面两个语句：</p>
-<pre><code>
-b = 2   # b的引用到新的一个变量上
-id(b)   # 35556768L
-可以看到b引用到了另一个变量上。
-</code></pre>
-<p><strong>运算符</strong></p>
-<p>Python中的数值的基本运算和C差不多，字符串的运算更方便，下面是常见的例子：</p>
-<pre><code>
-a = 2
-b = 2.3         
-c = 3
-a + b           # 2 + 2.3 = 4.3
-c – a           # 3 - 2 = 1
-a / b           # 整数除以浮点数，运算以浮点数为准，2 / 2.3 = 0.8695652173913044
-a / c           # Python2中，整数除法，向下取整 2 / 3 = 0
-a ** c          # a的c次方，结果为8
-a += 1          # Python中没有i++的用法，自增用+=
-c -= 3          # c变成0了
-d = 'Hello'     
-d + ' world!'   # 相当于字符串拼接，结果为'Hello world!'
-d += ' &quot;world&quot;!'# 相当于把字符串接在当前字符串尾，d变为'Hello &quot;world&quot;!'
-e = r'\n\t\\'   
-print(e)        # '\\n\\t\\\\'
-</code></pre>
-<p>需要提一下的几点：1）字符串用双引号和单引号都可以，区别主要是单引号字符串中如果出现单引号字符则需要用转义符，双引号也是一样，所以在单引号字符串中使用双引号，或者双引号字符串中使用单引号就会比较方便。另外三个双引号或者三个单引号围起来的也是字符串，因为换行方便，更多用于文档。2）Python2中两个数值相除会根据数值类型判断是否整数除法，Python3中则都按照浮点数。想要在Python2种也执行Python3中的除法只要执行下面语句：</p>
-<pre><code>
-from __future__ import division     # 使用Python3中的除法
-1 / 2                                   # 0.5
-3）字符串前加r表示字符串内容严格按照输入的样子，好处是不用转义符了，非常方便。
-
-Python中的布尔值和逻辑的运算非常直接，下面是例子：
-
-a = True
-b = False
-a and b     # False
-a or b      # True
-not a       # False
-</code></pre>
-<p>基本上就是英语，操作符优先级之类的和其他语言类似。Python中也有位操作：</p>
-<pre><code>
-~8      # 按位翻转，1000 --&gt; -(1000+1)
-8 &gt;&gt; 3  # 右移3位，1000 --&gt; 0001
-1 &lt;&lt; 3  # 左移3位，0001 --&gt; 1000
-5 &amp; 2   # 按位与，101 &amp; 010 = 000
-5 | 2   # 按位或，101 | 010 = 111
-4 ^ 1   # 按位异或，100 ^ 001 = 101
-==, !=和is
-</code></pre>
-<p>判断是否相等或者不等的语法和C也一样，另外在Python中也常常见到is操作符，这两者的区别在于==和!=比较引用指向的内存中的内容，而is判断两个变量是否指向一个地址，看下面的代码例子：</p>
-<pre><code>
-a = 1
-b = 1.0
-c = 1
-a == b  # True，值相等
-a is b  # False，指向的不是一个对象，这个语句等效于 id(a) == id(b)
-a is c  # True，指向的都是整型值1
-所以一定要分清要比较的对象应该用那种方式，对于一些特殊的情况，比如None，本着Pythonic的原则，最好用is None。
-</code></pre>
-<p>注意关键字</p>
-<p>Python中，万物皆对象。不过这并不是这里要探讨的话题，想说的是一定要注意关键字，因为所有东西都是对象，所以一个简简单单的赋值操作就可以把系统内置的函数给变成一个普通变量，来看下边例子：</p>
-<pre><code>
-id(type)                            # 506070640L
-type = 1                            # type成了指向1的变量
-id(type)                            # 35556792L
-id = 2                              # id成了指向2的变量
-from __future__ import print_function
-print = 3                           # print成了指向3的变量
-注意print是个很特殊的存在，在Python3中是按照函数用，在Python2中却是个命令式的语句，最早print的用法其实是下边这样：
-
-print &quot;Hello world!&quot;
-</code></pre>
-<p>这么用主要是受到ABC语法的影响，但这个用法并不Pythonic，后来加入了print函数，为了兼容允许两种用法并存。所以单纯给print赋值是不灵的，在Python2中使用Python3中的一些特性都是用from <strong>future</strong> import来实现。</p>
-<p>模块导入</p>
-<p>因为提到了对象名覆盖和import，所以简单讲一下。import是利用Python中各种强大库的基础，比如要计算cos(π)的值，可以有下面4种方式：</p>
-<h1 id="直接导入python的内置基础数学库">直接导入Python的内置基础数学库</h1>
-<p>import math<br>
-print(math.cos(math.pi))</p>
-<h1 id="从math中导入cos函数和pi变量">从math中导入cos函数和pi变量</h1>
-<p>from math import cos, pi<br>
-print(cos(pi))</p>
-<h1 id="如果是个模块在导入的时候可以起个别名避免名字冲突或是方便懒得打字的人使用">如果是个模块，在导入的时候可以起个别名，避免名字冲突或是方便懒得打字的人使用</h1>
-<p>import math as m<br>
-print(m.cos(m.pi))</p>
-<h1 id="从math中导入所有东西">从math中导入所有东西</h1>
-<p>from math import *<br>
-print(cos(pi))<br>
-一般来说最后一种方式不是很推荐，因为不知道import导入的名字里是否和现有对象名已经有冲突，很可能会不知不觉覆盖了现有的对象。</p>
-<p>5.2.2 容器<br>
-列表</p>
-<p>Python中的容器是异常好用且异常有用的结构。这节主要介绍列表（list），元组（tuple），字典（dict）和集合（set）。这些结构和其他语言中的类似结构并无本质不同，来看例子了解下使用：</p>
-<pre><code>
-a = [1, 2, 3, 4]
-b = [1]
-c = [1]
-d = b
-e = [1, &quot;Hello world!&quot;, c, False]
-print(id(b), id(c))                 # (194100040L, 194100552L)
-print(id(b), id(d))                 # (194100040L, 194100040L)
-print(b == c)                       # True
-f = list(&quot;abcd&quot;)
-print(f)                            # ['a', 'b', 'c', 'd']
-g = [0]*3 + [1]*4 + [2]*2	    # [0, 0, 0, 1, 1, 1, 1, 2, 2]
-因为变量其实是个引用，所以对列表而言也没什么不同，所以列表对类型没什么限制。也正因为如此，和变量不同的是，即使用相同的语句赋值，列表的地址也是不同的，在这个例子中体现在id(b)和id(c)不相等，而内容相等。列表也可以用list()初始化，输入参数需要是一个可以遍历的结构，其中每一个元素会作为列表的一项。“*”操作符对于列表而言是复制，最后一个语句用这种办法生成了分段的列表。
-</code></pre>
-<p>列表的基本操作有访问，增加，删除，和拼接：</p>
-<pre><code>a.pop()             # 把最后一个值4从列表中移除并作为pop的返回值
-a.append(5)         # 末尾插入值，[1, 2, 3, 5]
-a.index(2)          # 找到第一个2所在的位置，也就是1
-a[2]                # 取下标，也就是位置在2的值，也就是第三个值3
-a += [4, 3, 2]      # 拼接，[1, 2, 3, 5, 4, 3, 2]
-a.insert(1, 0)      # 在下标为1处插入元素0，[1, 0, 2, 3, 5, 4, 3, 2]
-a.remove(2)         # 移除第一个2，[1, 0, 3, 5, 4, 3, 2]
-a.reverse()         # 倒序，a变为[2, 3, 4, 5, 3, 0, 1]
-a[3] = 9            # 指定下标处赋值，[2, 3, 4, 9, 3, 0, 1]
-b = a[2:5]          # 取下标2开始到5之前的子序列，[4, 9, 3]
-c = a[2:-2]         # 下标也可以倒着数，方便算不过来的人，[4, 9, 3]
-d = a[2:]           # 取下标2开始到结尾的子序列，[4, 9, 3, 0, 1]
-e = a[:5]           # 取开始到下标5之前的子序列，[2, 3, 4, 9, 3]
-f = a[:]            # 取从开头到最后的整个子序列，相当于值拷贝，[2, 3, 4, 9, 3, 0, 1]
-a[2:-2] = [1, 2, 3] # 赋值也可以按照一段来，[2, 3, 1, 2, 3, 0, 1]
-g = a[::-1]	    # 也是倒序，通过slicing实现并赋值，效率略低于reverse()
-a.sort()
-print(a)            # 列表内排序，a变为[0, 1, 1, 2, 2, 3, 3]
-因为列表是有顺序的，所以和顺序相关的操作是列表中最常见的，首先我们来打乱一个列表的顺序，然后再对这个列表排序：
-
-import random
-a = range(10)                 # 生成一个列表，从0开始+1递增到9
-print(a)                       # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-random.shuffle(a)             # shuffle函数可以对可遍历且可变结构打乱顺序
-print(a)                       # [4, 3, 8, 9, 0, 6, 2, 7, 5, 1]
-b = sorted(a)               
-print(b)                       # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-c = sorted(a, reverse=True)
-print(c)                       # [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-元组
-</code></pre>
-<p>元组和列表有很多相似的地方，最大的区别在于不可变，还有如果初始化只包含一个元素的tuple和列表不一样，因为语法必须明确，所以必须在元素后加上逗号。另外直接用逗号分隔多个元素赋值默认是个tuple，这在函数多返回值的时候很好用：</p>
-<pre><code>
-a = (1, 2)
-b = tuple(['3', 4]) # 也可以从列表初始化
-c = (5,)
-print(c)            # (5,)
-d = (6)
-print(d)            # 6
-e = 3, 4, 5
-print(e)            # (3, 4, 5)
-</code></pre>
-<p>集合</p>
-<p>集合是一种很有用的数学操作，比如列表去重，或是理清两组数据之间的关系，集合的操作符和位操作符有交集，注意不要弄混：</p>
-<pre><code>
-A = set([1, 2, 3, 4])
-B = {3, 4, 5, 6}
-C = set([1, 1, 2, 2, 2, 3, 3, 3, 3])
-print(C)        # 集合的去重效果，set([1, 2, 3])
-print(A | B)    # 求并集，set([1, 2, 3, 4, 5, 6])
-print(A &amp; B)    # 求交集，set([3, 4])
-print(A - B)    # 求差集，属于A但不属于B的，set([1, 2])
-print(B - A)    # 求差集，属于B但不属于A的，set([5, 6])
-print(A ^ B)    # 求对称差集，相当于(A-B)|(B-A)，set([1, 2, 5, 6])
-</code></pre>
-<p>字典</p>
-<p>字典是一种非常常见的“键-值”(key-value)映射结构，键无重复，一个键不能对应多个值，不过多个键可以指向一个值。还是通过例子来了解，构建一个名字-&gt;年龄的字典，并执行一些常见操作：</p>
-<pre><code>
-a = {'Tom': 8, 'Jerry': 7}
-print(a['Tom'])             # 8
-b = dict(Tom=8, Jerry=7)    # 一种字符串作为键更方便的初始化方式
-print(b['Tom'])             # 8
-if 'Jerry' in a:            # 判断'Jerry'是否在keys里面
-    print(a['Jerry'])        # 7
-print(a.get('Spike'))       # None，通过get获得值，即使键不存在也不会报异常
-a['Spike'] = 10
-a['Tyke'] = 3
-a.update({'Tuffy': 2, 'Mammy Two Shoes': 42})
-print(a.values())   # dict_values([8, 2, 3, 7, 10, 42])
-print(a.pop('Mammy Two Shoes'))     # 移除'Mammy Two Shoes'的键值对，并返回42
-print(a.keys())     # dict_keys(['Tom', 'Tuffy', 'Tyke', 'Jerry', 'Spike']) 
-</code></pre>
-<p>注意到初始化字典和集合很像，的确如此，集合就像是没有值只有键的字典。既然有了人名到年龄的映射，也许你立马想到是否可以给字典排序？在Python3.6之前，这个问题是错误的，字典是一种映射关系，没有顺序。当然了，如果要把(键, 值)的这种对进行排序，是没有问题的，前提是先把字典转化成可排序的结构，items()或者iteritems()可以做到这件事，接上段代码继续：</p>
-<pre><code>
-b = a.items()
-print(b)  # [('Tuffy', 2), ('Spike', 10), ('Tom', 8), ('Tyke', 3), ('Jerry', 7)]
-from operator import itemgetter
-c = sorted(a.items(), key=itemgetter(1))
-print(c)  # [('Tuffy', 2), ('Tyke', 3), ('Jerry', 7), ('Tom', 8), ('Spike', 10)]
-d = sorted(a.iteritems(), key=itemgetter(1))
-print(d)  # [('Tuffy', 2), ('Tyke', 3), ('Jerry', 7), ('Tom', 8), ('Spike', 10)]
-e = sorted(a)
-print(e)  # 只对键排序，['Jerry', 'Spike', 'Tom', 'Tuffy', 'Tyke']
-</code></pre>
-<p>items()可以把字典中的键值对转化成一个列表，其中每个元素是一个tuple，tuple的第一个元素是键，第二个元素是值。变量c是按照值排序，所以需要一个操作符itemgetter，去位置为1的元素作为排序参考，如果直接对字典排序，则其实相当于只是对键排序。字典被当作一个普通的可遍历结构使用时，都相当于遍历字典的键。如果觉得字典没有顺序不方便，可以考虑使用OrderedDict，使用方式如下：</p>
-<pre><code>
-from collections import OrderedDict
-a = {1: 2, 3: 4, 5: 6, 7: 8, 9: 10}
-b = OrderedDict({1: 2, 3: 4, 5: 6, 7: 8, 9: 10})
-print(a)    # {1: 2, 3: 4, 9: 10, 5: 6, 7: 8}
-print(b)    # OrderedDict([(1, 2), (3, 4), (9, 10), (5, 6), (7, 8)])
-</code></pre>
-<p>这样初始化时的顺序就保留了，除了有序的特性以外，用法上和字典没有区别。2016年9月，Guido宣布在Python3.6中，字典将默认有序，这样就不用纠结了。另外需要注意的一点是字典是通过哈希表实现的，所以键必须是可哈希的， list不能被哈希，所以也不能作为字典的键，而tuple就可以。</p>
-<p>因为上上段代码中用到了iteritems()，所以这里顺带提一下迭代器（iterator），迭代器相当于一个函数，每次调用都返回下一个元素，从遍历的角度来看就和列表没有区别了。iteritems()就是一个迭代器，所以效果一样，区别是迭代器占用更少内存，因为不需要一上来就生成整个列表。一般来说，如果只需要遍历一次，用迭代器是更好的选择，若是要多次频繁从一个可遍历结构中取值，且内存够，则直接生成整个列表会更好。当然，用迭代器生成一个完整列表并不麻烦，所以有个趋势是把迭代器作为默认的可遍历方式，比如前面我们使用过用来生成等差数列列表的range()，在Python2中对应的迭代器形式是xrange()。在Python3中，range()就不再产生一个列表了，而是作为迭代器，xrange()直接没了。</p>
-<p>5.2.3 分支和循环<br>
-从这节开始，代码就未必适合在Python终端中输入了，选个顺手的编辑器或者IDE。作者良心推荐PyCharm，虽然慢，但好用，社区版免费：</p>
-<p>PyCharm</p>
-<p>for循环</p>
-<p>上面提到的4种容器类型都是可遍历的，所以该讲讲用来遍历的for循环了。for循环的语法也是简单的英语：</p>
-<pre><code>
-a = ['This', 'is', 'a', 'list', '!']
-b = ['This', 'is', 'a', 'tuple', '!']
-c = {'This': 'is', 'an': 'unordered', 'dict': '!'}
-</code></pre>
-<h1 id="依次输出this-is-a-list">依次输出：'This', 'is', 'a', 'list', '!'</h1>
-<pre><code>for x in a:
-    print(x)
-</code></pre>
-<h1 id="依次输出this-is-a-tuple">依次输出：'This', 'is', 'a', 'tuple', '!'</h1>
-<pre><code>for x in b:
-    print(x)
-</code></pre>
-<h1 id="键的遍历-不依次输出this-dict-an">键的遍历。不依次输出：'This', 'dict', 'an'</h1>
-<pre><code>for key in c:
-    print(key)
-</code></pre>
-<h1 id="依次输出0到9">依次输出0到9</h1>
-<pre><code>for i in range(10):
+# 简单往队列中传输线程数
+import threading
+import time
+import queue
+class Threadingpool():
+    def __init__(self,max_num = 10):
+        self.queue = queue.Queue(max_num)
+        for i in range(max_num):
+            self.queue.put(threading.Thread)
+    def getthreading(self):
+        return self.queue.get()
+    def addthreading(self):
+        self.queue.put(threading.Thread)
+def func(p,i):
+    time.sleep(1)
     print(i)
-</code></pre>
-<p>注意到每个for循环中，print都有缩进，这是Python中一个让人爱恨交织的特点：强行缩进来表明成块的代码。这样做的好处是代码十分清晰工整，还有助于防止写出过长的函数或者过深的嵌套，坏处是有时候不知为什么tab和空格就一起出现了，又或是多重if-else不知怎得就没对齐，还是挺麻烦的。</p>
-<p>回到for循环上，这种把每个元素拿出来的遍历方式叫做for_each风格，熟悉Java的话就不会陌生，C++11中也开始支持这种for循环方式。不过如果还是需要下标呢？比如遍历一个list的时候，希望把对应下标也打印出来，这时可以用enumerate：</p>
-<pre><code>names = [&quot;Rick&quot;, &quot;Daryl&quot;, &quot;Glenn&quot;]
-</code></pre>
-<h1 id="依次输出下标和名字">依次输出下标和名字</h1>
-<pre><code>for i, name in enumerate(names):
-    print(i, name)
-</code></pre>
-<p>需要注意的是，通过取下标遍历当然是可行的，比如用len()函数获得列表长度，然后用range()/xrange()函数获得下标，但是并不推荐这样做：</p>
-<p><code>words = [&quot;This&quot;, &quot;is&quot;, &quot;not&quot;, &quot;recommended&quot;]</code></p>
-<h1 id="not-pythonic">not pythonic :(</h1>
-<pre><code>for i in xrange(len(words)):
-    print(words[i])
-</code></pre>
-<p>在使用for循环时，有时会遇到这样一种场景：我们需要对遍历的每个元素进行某种判断，如果符合这种判断的情况没有发生，则执行一个操作。举个例子某神秘部门要审核一个字符串列表，如果没有发现不和谐的字眼，则将内容放心通过，一种解决办法是下面这样：</p>
-<pre><code>
-wusuowei = [&quot;I&quot;, &quot;don't&quot;, &quot;give&quot;, &quot;a&quot;, &quot;shit&quot;]  # 无所谓
+    p.addthreading()
+if __name__ == &quot;__main__&quot;:
+    p = Threadingpool()
+    for i in range(20):
+        thread = p.getthreading()
+        t = thread(target = func, args = (p,i))
+        t.start()
 
-hexie = True                                    # 默认和谐社会
-for x in wusuowei:
-    if x == &quot;f**k&quot;:
-        print(&quot;What the f**k!&quot;)                 # 发现了不该出现的东西，WTF！
-        hexie = False                           # 不和谐了
-        break                                   # 赶紧停下！不能再唱了
 
-if hexie:                                       # 未发现不和谐元素！
-    print(&quot;Harmonious society!&quot;)                # 和谐社会！
-</code></pre>
-<p>这样需要设置一个标记是否发现不和谐因素的状态变量hexie，循环结束后再根据这个变量判断内容是否可以放心通过。一种更简洁不过有些小众的做法是直接和else一起，如果for循环中的if块内的语句没有被触发，则通过else执行指定操作：</p>
-<pre><code>
-wusuowei = [&quot;I&quot;, &quot;don't&quot;, &quot;give&quot;, &quot;a&quot;, &quot;shit&quot;]
-
-for x in wusuowei:
-    if x == &quot;f**k&quot;:
-        print(&quot;What the f**k!&quot;)
-        hexie = False
-        break
-else:                            # for循环中if内语句未被触发
-    print(&quot;Harmonious society!&quot;) # 和谐社会！
-这样不需要一个标记是否和谐的状态变量，语句简洁了很多。
-</code></pre>
-<h1 id="if和分支结构">if和分支结构</h1>
-<p>上一个例子中已经出现if语句了，所以这部分讲讲if。Python的条件控制主要是三个关键字：if-elif-else，其中elif就是else if的意思。还是看例子：</p>
-<pre><code>
-pets =['dog', 'cat', 'droid', 'fly']
-
-for pet in pets:
-    if pet == 'dog':        # 狗粮
-        food = 'steak'      # 牛排
-    elif pet == 'cat':      # 猫粮
-        food = 'milk'       # 牛奶
-    elif pet == 'droid':    # 机器人
-        food = 'oil'        # 机油
-    elif pet == 'fly':      # 苍蝇
-        food = 'sh*t'       # 
-    else:
-        pass
-    print(food)
-</code></pre>
-<p>需要提一下的是pass，这就是个空语句，什么也不做，占位用。Python并没有switch-case的语法，等效的用法要么是像上面一样用if-elif-else的组合，要么可以考虑字典：</p>
-<pre><code>
-pets = ['dog', 'cat', 'droid', 'fly']
-food_for_pet = {
-    'dog': 'steak', 
-    'cat': 'milk', 
-    'droid': 'oil', 
-    'fly': 'sh*t'
-}
-
-for pet in pets:
-    food = food_for_pet[pet] if pet in food_for_pet else None
-    print(food)
-</code></pre>
-<p>这里还用到了一个if-else常见的行内应用，就是代替三元操作符，如果键在字典中，则food取字典的对应值，否则为None。</p>
-<p>if表达式中的小技巧</p>
-<p>通过链式比较让语句简洁：</p>
-<pre><code>
-if -1 &lt; x &lt; 1:  # 相较于 if x &gt; -1 and x &lt; 1:
-    print('The absolute value of x is &lt; 1')
-判断一个值是不是等于多个可能性中的一个：
-
-if x in ['piano', 'violin', 'drum']:    # 相较于 if x == 'piano' or x == 'violin' or x =='drum':
-    print(&quot;It's an instrument!&quot;)
-</code></pre>
-<p>Python中的对象都会关联一个真值，所以在if表达式中判断是否为False或者是否为空的时候，是无需写出明确的表达式的：</p>
-<pre><code>
-a = True
-if a:		# 判断是否为真，相较于 a is True
-    print('a is True')
-
-if 'sky':	# 判断是否空字符串，相较于 len('sky') &gt; 0
-    print('birds')
-	
-if '':		# 判断是否空字符串，同上
-    print('Nothing!')
-
-if {}:		# 判断是否空的容器(字典)，相较于len({}) &gt; 0
-    print('Nothing!')
-隐式表达式为False的是如下状况：
-
-- None
-
-- False
-
-- 数值0
-
-- 空的容器或序列（字符串也是一种序列）
-
-- 用户自定义类中，如果定义了__len__()或者__nonzero__()，并且被调用后返回0或者False
-
-</code></pre>
-<h1 id="while循环">while循环</h1>
-<p>while的就是循环和if的综合体，是一种单纯的基于条件的循环，本身没有遍历的意思，这是和for_each的本质差别，这种区别比起C/C++中要明确得多，用法如下：</p>
-<pre><code>
-i = 0
-while i &lt; 100:  # 笑100遍
-    print(&quot;ha&quot;)
-
-while True:     # 一直笑
-    print(&quot;ha&quot;)
-</code></pre>
-<p>5.2.4 函数、生成器和类<br>
-还是从几个例子看起：</p>
-<pre><code>
-def say_hello():
-    print('Hello!')
-
-def greetings(x='Good morning!'):
-    print(x)
-
-say_hello()                 		# Hello!
-greetings()                 		# Good morning!
-greetings(&quot;What's up!&quot;)     		# What's up!
-a = greetings()             		# 返回值是None
-
-def create_a_list(x, y=2, z=3):	# 默认参数项必须放后面
-    return [x, y, z]
-
-b = create_a_list(1)        		# [1, 2, 3]
-c = create_a_list(3, 3)     		# [3, 3, 3]
-d = create_a_list(6, 7, 8)  	        # [6, 7, 8]
-
-def traverse_args(*args):
-    for arg in args:
-        print(arg)
-
-traverse_args(1, 2, 3)              # 依次打印1, 2, 3
-traverse_args('A', 'B', 'C', 'D')   # 依次打印A, B, C, D
-
-def traverse_kargs(**kwargs):
-    for k, v in kwargs.items():
-        print(k, v)
-
-traverse_kargs(x=3, y=4, z=5)       # 依次打印('x', 3), ('y', 4), ('z', 5)
-traverse_kargs(fighter1='Fedor', fighter2='Randleman')
-
-def foo(x, y, *args, **kwargs):
-    print(x, y)
-    print(args)
-    print(kwargs)
-</code></pre>
-<h1 id="第一个pring输出1-2">第一个pring输出(1, 2)</h1>
-<h1 id="第二个print输出3-4-5">第二个print输出(3, 4, 5)</h1>
-<h1 id="第三个print输出a-3-b-bar">第三个print输出{'a': 3, 'b': 'bar'}</h1>
-<p>foo(1, 2, 3, 4, 5, a=6, b='bar')<br>
-其实和很多语言差不多，括号里面定义参数，参数可以有默认值，且默认值不能在无默认值参数之前。Python中的返回值用return定义，如果没有定义返回值，默认返回值是None。参数的定义可以非常灵活，可以有定义好的固定参数，也可以有可变长的参数(args: arguments)和关键字参数(kargs: keyword arguments)。如果要把这些参数都混用，则固定参数在最前，关键字参数在最后。</p>
-<p>Python中万物皆对象，所以一些情况下函数也可以当成一个变量似的使用。比如前面小节中提到的用字典代替switch-case的用法，有的时候我们要执行的不是通过条件判断得到对应的变量，而是执行某个动作，比如有个小机器人在坐标(0, 0)处，我们用不同的动作控制小机器人移动：</p>
-<pre><code>
-moves = ['up', 'left', 'down', 'right']
-
-coord = [0, 0]
-
-for move in moves:
-    if move == 'up':        # 向上，纵坐标+1
-        coord[1] += 1
-    elif move == 'down':    # 向下，纵坐标-1
-        coord[1] -= 1
-    elif move == 'left':    # 向左，横坐标-1
-        coord[0] -= 1
-    elif move == 'right':   # 向右，横坐标+1
-        coord[0] += 1
-    else:
-        pass
-    print(coord)            # 打印当前位置坐标
-</code></pre>
-<p>不同条件下对应的是对坐标这个列表中的值的操作，单纯的从字典取值就办不到了，所以就把函数作为字典的值，然后用这个得到的值执行相应动作：</p>
-<pre><code>
-moves = ['up', 'left', 'down', 'right']
-
-def move_up(x):         # 定义向上的操作
-    x[1] += 1
-
-def move_down(x):       # 定义向下的操作
-    x[1] -= 1
-
-def move_left(x):       # 定义向左的操作
-    x[0] -= 1
-
-def move_right(x):      # 定义向右的操作
-    x[0] += 1
-</code></pre>
-<h1 id="动作和执行的函数关联起来函数作为键对应的值">动作和执行的函数关联起来，函数作为键对应的值</h1>
-<pre><code>actions = {
-    'up': move_up,
-    'down': move_down,
-    'left': move_left,
-    'right': move_right
-}
-
-coord = [0, 0]
-
-for move in moves:
-    actions[move](coord)
-    print(coord)
-</code></pre>
-<p>把函数作为值取到后，直接加一括号就能使了，这样做之后起码在循环部分看上去很简洁。有点C里边函数指针的意思，只不过更简单。其实这种用法在之前讲排序的时候我们已经见过了，就是operator中的itemgetter。itemgetter(1)得到的是一个可调用对象(callable object)，和返回下标为1的元素的函数用起来是一样的：</p>
-<pre><code>
-def get_val_at_pos_1(x):
-    return x[1]
-
-heros = [
-    ('Superman', 99),
-    ('Batman', 100),
-    ('Joker', 85)
-]
-
-sorted_pairs0 = sorted(heros, key=get_val_at_pos_1)
-sorted_pairs1 = sorted(heros, key=lambda x: x[1])
-
-print(sorted_pairs0)
-print(sorted_pairs1)
-</code></pre>
-<p>在这个例子中我们用到了一种特殊的函数：lambda表达式。Lambda表达式在Python中是一种匿名函数，lambda关键字后面跟输入参数，然后冒号后面是返回值（的表达式），比如上边例子中就是一个取下标1元素的函数。当然，还是那句话，万物皆对象，给lambda表达式取名字也是一点问题没有的：</p>
-<pre><code>some_ops = lambda x, y: x + y + x*y + x**y
-some_ops(2, 3)  # 2 + 3 + 2*3 + 2^3 = 19
-</code></pre>
-<p>生成器（Generator）</p>
-<p>生成器是迭代器的一种，形式上看和函数很像，只是把return换成了yield，在每次调用的时候，都会执行到yield并返回值，同时将当前状态保存，等待下次执行到yield再继续：</p>
-<h1 id="从10倒数到0">从10倒数到0</h1>
-<pre><code>def countdown(x):
-    while x &gt;= 0:
-        yield x
-        x -= 1
-
-for i in countdown(10):
+#往队列中无限添加任务
+import queue
+import threading
+import contextlib
+import time
+StopEvent = object()
+class ThreadPool(object):
+    def __init__(self, max_num):
+        self.q = queue.Queue()
+        self.max_num = max_num
+        self.terminal = False
+        self.generate_list = []
+        self.free_list = []
+    def run(self, func, args, callback=None):
+        &quot;&quot;&quot;
+        线程池执行一个任务
+        :param func: 任务函数
+        :param args: 任务函数所需参数
+        :param callback: 任务执行失败或成功后执行的回调函数，回调函数有两个参数1、任务函数执行状态；2、任务函数返回值（默认为None，即：不执行回调函数）
+        :return: 如果线程池已经终止，则返回True否则None
+        &quot;&quot;&quot;
+        if len(self.free_list) == 0 and len(self.generate_list) &lt; self.max_num:
+            self.generate_thread()
+        w = (func, args, callback,)
+        self.q.put(w)
+    def generate_thread(self):
+        &quot;&quot;&quot;
+        创建一个线程
+        &quot;&quot;&quot;
+        t = threading.Thread(target=self.call)
+        t.start()
+    def call(self):
+        &quot;&quot;&quot;
+        循环去获取任务函数并执行任务函数
+        &quot;&quot;&quot;
+        current_thread = threading.currentThread
+        self.generate_list.append(current_thread)
+        event = self.q.get()  # 获取线程
+        while event != StopEvent:   # 判断获取的线程数不等于全局变量
+            func, arguments, callback = event   # 拆分元祖，获得执行函数，参数，回调函数
+            try:
+                result = func(*arguments)   # 执行函数
+                status = True
+            except Exception as e:    # 函数执行失败
+                status = False
+                result = e
+            if callback is not None:
+                try:
+                    callback(status, result)
+                except Exception as e:
+                    pass
+            # self.free_list.append(current_thread)
+            # event = self.q.get()
+            # self.free_list.remove(current_thread)
+            with self.work_state():
+                event = self.q.get()
+        else:
+            self.generate_list.remove(current_thread)
+    def close(self):
+        &quot;&quot;&quot;
+        关闭线程，给传输全局非元祖的变量来进行关闭
+        :return:
+        &quot;&quot;&quot;
+        for i in range(len(self.generate_list)):
+            self.q.put(StopEvent)
+    def terminate(self):
+        &quot;&quot;&quot;
+        突然关闭线程
+        :return:
+        &quot;&quot;&quot;
+        self.terminal = True
+        while self.generate_list:
+            self.q.put(StopEvent)
+        self.q.empty()
+    @contextlib.contextmanager
+    def work_state(self):
+        self.free_list.append(threading.currentThread)
+        try:
+            yield
+        finally:
+            self.free_list.remove(threading.currentThread)
+def work(i):
     print(i)
+    return i +1 # 返回给回调函数
+def callback(ret):
+    print(ret)
+pool = ThreadPool(10)
+for item in range(50):
+    pool.run(func=work, args=(item,),callback=callback)
+pool.terminate()
+# pool.close()
 </code></pre>
-<h1 id="打印小于100的斐波那契数">打印小于100的斐波那契数</h1>
-<pre><code>def fibonacci(n):
-    a = 0
-    b = 1
-    while b &lt; n:
-        yield b
-        a, b = b, a + b
-
-for x in fibonacci(100):
-    print(x)
-</code></pre>
-<p>生成器和所有可迭代结构一样，可以通过next()函数返回下一个值，如果迭代结束了则抛出StopIteration异常：</p>
+<p><strong>python 进程</strong><br>
+multiprocessing是python的多进程管理包，和threading.Thread类似。</p>
+<p><strong>1、multiprocessing模块</strong></p>
+<p>直接从侧面用subprocesses替换线程使用GIL的方式，由于这一点，multiprocessing模块可以让程序员在给定的机器上充分的利用CPU。在multiprocessing中，通过创建Process对象生成进程，然后调用它的start()方法，</p>
 <pre><code>
-a = fibonacci(3)
-print(next(a))  # 1
-print(next(a))  # 1
-print(next(a))  # 2
-print(next(a))  # 抛出StopIteration异常
-Python3.3以上可以允许yield和return同时使用，return的是异常的说明信息：
+from multiprocessing import Process
+  
+def func(name):
+    print('hello', name)
+  
+  
+if __name__ == &quot;__main__&quot;:
+    p = Process(target=func,args=('zhangyanlin',))
+    p.start()
+    p.join()  # 等待进程执行完毕
 </code></pre>
-<h1 id="python33以上可以return返回异常的说明">Python3.3以上可以return返回异常的说明</h1>
-<pre><code>def another_fibonacci(n):
-    a = 0
-    b = 1
-    while b &lt; n:
-        yield b
-        a, b = b, a + b
-    return &quot;No more ...&quot;
-
-a = another_fibonacci(3)
-print(next(a))  # 1
-print(next(a))  # 1
-print(next(a))  # 2
-print(next(a))  # 抛出StopIteration异常并打印No more消息
-类（Class）
+<p>在使用并发设计的时候最好尽可能的避免共享数据，尤其是在使用多进程的时候。 如果你真有需要 要共享数据， multiprocessing提供了两种方式。</p>
+<p>（1）multiprocessing，Array,Value</p>
+<p>数据可以用Value或Array存储在一个共享内存地图里，如下：</p>
+<pre><code>from multiprocessing import Array,Value,Process
+  
+def func(a,b):
+    a.value = 3.333333333333333
+    for i in range(len(b)):
+        b[i] = -b[i]
+  
+  
+if __name__ == &quot;__main__&quot;:
+    num = Value('d',0.0)
+    arr = Array('i',range(11))
+  
+  
+    c = Process(target=func,args=(num,arr))
+    d= Process(target=func,args=(num,arr))
+    c.start()
+    d.start()
+    c.join()
+    d.join()
+  
+    print(num.value)
+    for i in arr:
+        print(i)
 </code></pre>
-<p>Python中的类的概念和其他语言相比没什么不同，比较特殊的是protected和private在Python中是没有明确限制的，一个惯例是用单下划线开头的表示protected，用双下划线开头的表示private：</p>
-<pre><code>class A:
-    &quot;&quot;&quot;Class A&quot;&quot;&quot;
-    def __init__(self, x, y, name):
-        self.x = x
-        self.y = y
-        self._name = name
-
-    def introduce(self):
-        print(self._name)
-
-    def greeting(self):
-        print(&quot;What's up!&quot;)
-
-    def __l2norm(self):
-        return self.x**2 + self.y**2
-
-    def cal_l2norm(self):
-        return self.__l2norm()
-
-a = A(11, 11, 'Leonardo')
-print(A.__doc__)        	# &quot;Class A&quot;
-a.introduce()           	# &quot;Leonardo&quot;
-a.greeting()            	# &quot;What's up!&quot;
-print(a._name)          	# 可以正常访问
-print(a.cal_l2norm())   # 输出11*11+11*11=242
-print(a._A__l2norm())   # 仍然可以访问，只是名字不一样
-print(a.__l2norm())     	# 报错: 'A' object has no attribute '__l2norm'
-</code></pre>
-<p>类的初始化使用的是__init__(self,)，所有成员变量都是self的，所以以self.开头。可以看到，单下划线开头的变量是可以直接访问的，而双下划线开头的变量则触发了Python中一种叫做name mangling的机制，其实就是名字变了下，仍然可以通过前边加上“_类名”的方式访问。也就是说Python中变量的访问权限都是靠自觉的。类定义中紧跟着类名字下一行的字符串叫做docstring，可以写一些用于描述类的介绍，如果有定义则通过“类名.<strong>doc</strong>”访问。这种前后都加双下划线访问的是特殊的变量/方法，除了__doc__和__init__还有很多，这里就不展开讲了。</p>
-<p>Python中的继承也非常简单，最基本的继承方式就是定义类的时候把父类往括号里一放就行了：</p>
-<pre><code>class B(A):
-    &quot;&quot;&quot;Class B inheritenced from A&quot;&quot;&quot;
-    def greeting(self):
-        print(&quot;How's going!&quot;)
-
-b = B(12, 12, 'Flaubert')
-b.introduce()   # Flaubert
-b.greeting()    # How's going!
-print(b._name())        # Flaubert
-print(b._A__l2norm())   # “私有”方法，必须通过_A__l2norm访问
-</code></pre>
-<h1 id="525-map-reduce和filter">5.2.5 map, reduce和filter</h1>
-<p>map可以用于对可遍历结构的每个元素执行同样的操作，批量操作：</p>
-<pre><code>map(lambda x: x**2, [1, 2, 3, 4])                 # [1, 4, 9, 16]
-
-map(lambda x, y: x + y, [1, 2, 3], [5, 6, 7])   # [6, 8, 10]
-reduce则是对可遍历结构的元素按顺序进行两个输入参数的操作，并且每次的结果保存作为下次操作的第一个输入参数，还没有遍历的元素作为第二个输入参数。这样的结果就是把一串可遍历的值，减少（reduce）成一个对象：
-
-reduce(lambda x, y: x + y, [1, 2, 3, 4])    # ((1+2)+3)+4=10
-filter顾名思义，根据条件对可遍历结构进行筛选：
-
-filter(lambda x: x % 2, [1, 2, 3, 4, 5])    # 筛选奇数，[1, 3, 5]
-需要注意的是，对于filter和map，在Python2中返回结果是列表，Python3中是生成器。
-
-</code></pre>
-<h1 id="526-列表生成list-comprehension">5.2.6 列表生成（list comprehension）</h1>
-<p>列表生成是Python2.0中加入的一种语法，可以非常方便地用来生成列表和迭代器，比如上节中map的两个例子和filter的一个例子可以用列表生成重写为：</p>
+<p>输出：</p>
+<p>3.1415927<br>
+[0, -1, -2, -3, -4, -5, -6, -7, -8, -9]<br>
+创建num和arr时，“d”和“i”参数由Array模块使用的typecodes创建：“d”表示一个双精度的浮点数，“i”表示一个有符号的整数，这些共享对象将被线程安全的处理。</p>
+<p>Array(‘i’, range(10))中的‘i’参数：</p>
+<p>‘c’: ctypes.c_char　　　　 ‘u’: ctypes.c_wchar　　　　‘b’: ctypes.c_byte　　　　 ‘B’: ctypes.c_ubyte</p>
+<p>‘h’: ctypes.c_short　　　  ‘H’: ctypes.c_ushort　　  ‘i’: ctypes.c_int　　　　　 ‘I’: ctypes.c_uint</p>
+<p>‘l’: ctypes.c_long,　　　　‘L’: ctypes.c_ulong　　　　‘f’: ctypes.c_float　　　　‘d’: ctypes.c_double</p>
+<p><strong>（2）multiprocessing，Manager</strong></p>
+<p>由Manager()返回的manager提供list, dict, Namespace, Lock, RLock, Semaphore, BoundedSemaphore, Condition, Event, Barrier, Queue, Value and Array类型的支持。</p>
 <pre><code>
-[x**2 for x in [1, 2, 3, 4]]                      # [1, 4, 9 16]
-
-[sum(x) for x in zip([1, 2, 3], [5, 6, 7])] # [6, 8, 10]
-
-[x for x in [1, 2, 3, 4, 5] if x % 2]       # [1, 3, 5]
-zip()函数可以把多个列表关联起来，这个例子中，
-```通过zip()可以按顺序同时输出两个列表对应位置的元素对。有一点需要注意的是，zip()不会自动帮助判断两个列表是否长度一样，所以最终的结果会以短的列表为准，想要以长的列表为准的话可以考虑itertools模块中的izip_longest()。如果要生成迭代器只需要把方括号换成括号，生成字典也非常容易：
+from multiprocessing import Process,Manager
+def f(d,l):
+    d[&quot;name&quot;] = &quot;zhangyanlin&quot;
+    d[&quot;age&quot;] = 18
+    d[&quot;Job&quot;] = &quot;pythoner&quot;
+    l.reverse()
+  
+if __name__ == &quot;__main__&quot;:
+    with Manager() as man:
+        d = man.dict()
+        l = man.list(range(10))
+  
+        p = Process(target=f,args=(d,l))
+        p.start()
+        p.join()
+  
+        print(d)
+        print(l)
 </code></pre>
-<p>iter_odd = (x for x in [1, 2, 3, 4, 5] if x % 2)</p>
-<p>print(type(iter_odd))                       # &lt;type 'generator'&gt;</p>
-<p>square_dict = {x: x**2 for x in range(5)}   # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}<br>
-至于列表生成和map/filter应该优先用哪种，这个问题很难回答，不过Python创始人Guido似乎不喜欢map/filter/reduce，他曾在表示过一些从函数式编程里拿来的特性是个错误。</p>
+<p><strong>输出：</strong></p>
+<pre><code>{0.25: None, 1: '1', '2': 2}
+[9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+Server process manager比 shared memory 更灵活，因为它可以支持任意的对象类型。另外，一个单独的manager可以通过进程在网络上不同的计算机之间共享，不过他比shared memory要慢。
+</code></pre>
+<p><strong>2、进程池（Using a pool of workers）</strong></p>
+<p>Pool类描述了一个工作进程池，他有几种不同的方法让任务卸载工作进程。</p>
+<p>进程池内部维护一个进程序列，当使用时，则去进程池中获取一个进程，如果进程池序列中没有可供使用的进进程，那么程序就会等待，直到进程池中有可用进程为止。</p>
+<p>我们可以用Pool类创建一个进程池， 展开提交的任务给进程池。 例：</p>
+<pre><code>#apply
+from  multiprocessing import Pool
+import time
+  
+def f1(i):
+    time.sleep(0.5)
+    print(i)
+    return i + 100
+  
+if __name__ == &quot;__main__&quot;:
+    pool = Pool(5)
+    for i in range(1,31):
+        pool.apply(func=f1,args=(i,))
+  
+#apply_async
+def f1(i):
+    time.sleep(0.5)
+    print(i)
+    return i + 100
+def f2(arg):
+    print(arg)
+  
+if __name__ == &quot;__main__&quot;:
+    pool = Pool(5)
+    for i in range(1,31):
+        pool.apply_async(func=f1,args=(i,),callback=f2)
+    pool.close()
+    pool.join()
+</code></pre>
+<p>一个进程池对象可以控制工作进程池的哪些工作可以被提交，它支持超时和回调的异步结果，有一个类似map的实现。</p>
+<p>processes ：使用的工作进程的数量，如果processes是None那么使用 os.cpu_count()返回的数量。</p>
+<p>initializer： 如果initializer是None，那么每一个工作进程在开始的时候会调用initializer(*initargs)。</p>
+<p>maxtasksperchild：工作进程退出之前可以完成的任务数，完成后用一个心的工作进程来替代原进程，来让闲置的资源被释放。maxtasksperchild默认是None，意味着只要Pool存在工作进程就会一直存活。</p>
+<p>context: 用在制定工作进程启动时的上下文，一般使用 multiprocessing.Pool() 或者一个context对象的Pool()方法来创建一个池，两种方法都适当的设置了context</p>
+<p>注意：Pool对象的方法只可以被创建pool的进程所调用。</p>
+<pre><code>New in version 3.2: maxtasksperchild
+
+New in version 3.4: context
+</code></pre>
+<p><strong>进程池的方法</strong><br>
+apply(func[, args[, kwds]]) ：使用arg和kwds参数调用func函数，结果返回前会一直阻塞，由于这个原因，apply_async()更适合并发执行，另外，func函数仅被pool中的一个进程运行。</p>
+<p>apply_async(func[, args[, kwds[, callback[, error_callback]]]]) ： apply()方法的一个变体，会返回一个结果对象。如果callback被指定，那么callback可以接收一个参数然后被调用，当结果准备好回调时会调用callback，调用失败时，则用error_callback替换callback。 Callbacks应被立即完成，否则处理结果的线程会被阻塞。</p>
+<p>close() ： 阻止更多的任务提交到pool，待任务完成后，工作进程会退出。</p>
+<p>terminate() ： 不管任务是否完成，立即停止工作进程。在对pool对象进程垃圾回收的时候，会立即调用terminate()。</p>
+<p>join() : wait工作线程的退出，在调用join()前，必须调用close() or terminate()。这样是因为被终止的进程需要被父进程调用wait（join等价与wait），否则进程会成为僵尸进程。</p>
 <pre><code>
-5.2.7 字符串
-Python中字符串相关的处理都非常方便，来看例子：
+map(func, iterable[, chunksize])¶
 
-a = 'Life is short, you need Python'
-a.lower()              	# 'life is short, you need Python'
-a.upper()               	# 'LIFE IS SHORT, YOU NEED PYTHON'
-a.count('i')            	# 2
-a.find('e')             	# 从左向右查找'e'，3
-a.rfind('need')         	# 从右向左查找'need'，19
-a.replace('you', 'I')   # 'Life is short, I need Python'
-tokens = a.split()    	# ['Life', 'is', 'short,', 'you', 'need', 'Python']
-b = ' '.join(tokens)	# 用指定分隔符按顺序把字符串列表组合成新字符串
-c = a + '\n'            	# 加了换行符，注意+用法是字符串作为序列的用法
-c.rstrip()              	# 右侧去除换行符
-[x for x in a]          	# 遍历每个字符并生成由所有字符按顺序构成的列表
-'Python' in a   			# True
-Python2.6中引入了format进行字符串格式化，相比在字符串中用%的类似C的方式，更加强大方便：
+map_async(func, iterable[, chunksize[, callback[, error_callback]]])¶
 
-a = 'I’m like a {} chasing {}.'
-# 按顺序格式化字符串，'I’m like a dog chasing cars.'
-a.format('dog', 'cars')
+imap(func, iterable[, chunksize])¶
 
-# 在大括号中指定参数所在位置
-b = 'I prefer {1} {0} to {2} {0}'
-b.format('food', 'Chinese', 'American')
+imap_unordered(func, iterable[, chunksize])
 
-# &gt;代表右对齐，&gt;前是要填充的字符，依次输出：
-# 000001
-# 000019
-# 000256
-for i in [1, 19, 256]:
-    print('The index is {:0&gt;6d}'.format(i))
+starmap(func, iterable[, chunksize])¶
 
-# &lt;代表左对齐，依次输出：
-# *---------
-# ****------
-# *******---
-for x in ['*', '****', '*******']:
-    progress_bar = '{:-&lt;10}'.format(x)
-    print(progress_bar)
-
-for x in [0.0001, 1e17, 3e-18]:
-    print('{:.6f}'.format(x))   # 按照小数点后6位的浮点数格式
-    print('{:.1e}'.format(x))   # 按照小数点后1位的科学记数法格式
-    print ('{:g}'.format(x))    # 系统自动选择最合适的格式
-
-template = '{name} is {age} years old.'
-c = template.format(name='Tom', age=8)) # Tom is 8 years old.
-d = template.format(age=7, name='Jerry')# Jerry is 7 years old.
-format在生成字符串和文档的时候非常有用，更多更详细的用法可以参考Python官网：
-
-7.1. string - Common string operations - Python 2.7.13 documentation
-
-5.2.8 文件操作和pickle
-在Python中，推荐用上下文管理器（with-as）来打开文件，IO资源的管理更加安全，而且不用老惦记着给文件执行close()函数。还是举例子来说明，考虑有个文件name_age.txt，里面存储着名字和年龄的关系，格式如下：
-
-Tom,8
-Jerry,7
-Tyke,3
-...
-读取文件内容并全部显示：
-
-with open('name_age.txt', 'r') as f: 	# 打开文件，读取模式
-    lines = f.readlines()              	# 一次读取所有行
-    for line in lines:                  	# 按行格式化并显示信息
-        name, age = line.rstrip().split(',')
-        print('{} is {} years old.'.format(name, age))
-open()的第一个参数是文件名，第二个参数是模式。文件的模式一般有四种，读取(r)，写入(w)，追加(a)和读写(r+)。如果希望按照二进制数据读取，则将文件模式和b一起使用（wb, r+b…）。
-
-再考虑一个场景，要读取文件内容，并把年龄和名字的顺序交换存成新文件age_name.txt，这时可以同时打开两个文件：
-
-with open('name_age.txt', 'r') as fread, open('age_name.txt', 'w') as fwrite:
-    line = fread.readline()
-    while line:
-        name, age = line.rstrip().split(',')
-        fwrite.write('{},{}\n'.format(age, name))
-        line = fread.readline()
-有的时候我们进行文件操作是希望把对象进行序列化，那么可以考虑用pickle模块：
-
-import pickle
-
-lines = [
-    &quot;I'm like a dog chasing cars.&quot;,
-    &quot;I wouldn't know what to do if I caught one...&quot;,
-    &quot;I'd just do things.&quot;
-]
-
-with open('lines.pkl', 'wb') as f: 	# 序列化并保存成文件
-    pickle.dump(lines, f)
-
-with open('lines.pkl', 'rb') as f: 	# 从文件读取并反序列化
-    lines_back = pickle.load(f)
-
-print(lines_back)                   	# 和lines一样
-注意到，序列化的时候就得使用b模式了。Python2中有个效率更高的pickle叫cPickle，用法和pickle一样，在Python3中就只有一个pickle。
-
-5.2.9 异常
-相比起其他一些语言，在Python中我们可以更大胆地使用异常，因为异常在Python中是非常常见的存在，比如下面这种简单的遍历：
-
-a = ['Why', 'so', 'serious', '?']
-
-for x in a:
-    print(x)
-当用for进行遍历时，会对要遍历的对象调用iter()。这需要给对象创建一个迭代器用来依次返回对象中的内容。为了能成功调用iter()，该对象要么得支持迭代协议(定义__iter__())，要么得支持序列协议(定义__getitem__())。当遍历结束时，__iter__()或者__getitem__()都需要抛出一个异常。__iter__()会抛出StopIteration，而__getitem__()会抛出IndexError，于是遍历就会停止。
-
-在深度学习中，尤其是数据准备阶段，常常遇到IO操作。这时候遇到异常的可能性很高，采用异常处理可以保证数据处理的过程不被中断，并对有异常的情况进行记录或其他动作：
+starmap_async(func, iterable[, chunksize[, callback[, error_back]]])
 </code></pre>
-<p>for filepath in filelist:   # filelist中是文件路径的列表<br>
-try:<br>
-with open(filepath, 'r') as f:<br>
-# 执行数据处理的相关工作</p>
-<pre><code>    print('{} is processed!'.format(filepath))
-except IOError:
-    print('{} with IOError!'.format(filepath))
-    # 异常的相应处理
+<p><strong>python 协程</strong></p>
+<p>线程和进程的操作是由程序触发系统接口，最后的执行者是系统；协程的操作则是程序员。</p>
+<p>协程存在的意义：对于多线程应用，CPU通过切片的方式来切换线程间的执行，线程切换时需要耗时（保存状态，下次继续）。协程，则只使用一个线程，在一个线程中规定某个代码块执行顺序。</p>
+<p>协程的适用场景：当程序中存在大量不需要CPU的操作时（IO），适用于协程；</p>
+<p>event loop是协程执行的控制点， 如果你希望执行协程， 就需要用到它们。</p>
+<p><strong>event loop提供了如下的特性：</strong></p>
+<p>注册、执行、取消延时调用(异步函数)</p>
+<p>创建用于通信的client和server协议(工具)</p>
+<p>创建和别的程序通信的子进程和协议(工具)</p>
+<p>把函数调用送入线程池中</p>
+<p><strong>协程示例：</strong></p>
+<pre><code>import asyncio
+   
+async def cor1():
+    print(&quot;COR1 start&quot;)
+    await cor2()
+    print(&quot;COR1 end&quot;)
+   
+async def cor2():
+    print(&quot;COR2&quot;)
+   
+loop = asyncio.get_event_loop()
+loop.run_until_complete(cor1())
+loop.close()
 </code></pre>
-<pre><code>5.2.10 多进程（multiprocessing）
-深度学习中对数据高效处理常常会需要并行，这时多进程就派上了用场。考虑这样一个场景，在数据准备阶段，有很多文件需要运行一定的预处理，正好有台多核服务器，我们希望把这些文件分成32份，并行处理：
+<p>最后三行是重点。</p>
+<p>asyncio.get_event_loop()  : asyncio启动默认的event loop</p>
+<p>run_until_complete()  :  这个函数是阻塞执行的，知道所有的异步函数执行完成，</p>
+<p>close()  :  关闭event loop。</p>
+<p><strong>1、greenlet</strong></p>
+<pre><code>import greenlet
+def fun1():
+    print(&quot;12&quot;)
+    gr2.switch()
+    print(&quot;56&quot;)
+    gr2.switch()
+  
+def fun2():
+    print(&quot;34&quot;)
+    gr1.switch()
+    print(&quot;78&quot;)
+  
+  
+gr1 = greenlet.greenlet(fun1)
+gr2 = greenlet.greenlet(fun2)
+gr1.switch()
+</code></pre>
+<p><strong>2、gevent</strong></p>
+<p><strong>gevent属于第三方模块需要下载安装包</strong></p>
+<pre><code>pip3 install --upgrade pip3
+pip3 install gevent
 
-from multiprocessing import Process#, freeze_support
 
-def process_data(filelist):
-   for filepath in filelist:
-       print('Processing {} ...'.format(filepath))
-       # 处理数据
-       ...
-
-if __name__ == '__main__':
-   # 如果是在Windows下，还需要加上freeze_support()
-   #freeze_support()
+import gevent
+  
+def fun1():
+    print(&quot;www.baidu.com&quot;)   # 第一步
+    gevent.sleep(0)
+    print(&quot;end the baidu.com&quot;)  # 第三步
+  
+def fun2():
+    print(&quot;www.zhihu.com&quot;)   # 第二步
+    gevent.sleep(0)
+    print(&quot;end th zhihu.com&quot;)  # 第四步
+  
+gevent.joinall([
+    gevent.spawn(fun1),
+    gevent.spawn(fun2),
+])
+</code></pre>
+<p><strong>遇到IO操作自动切换：</strong></p>
+<pre><code>import gevent
+import requests
+def func(url):
+    print(&quot;get: %s&quot;%url)
+    gevent.sleep(0)
+    date =requests.get(url)
+    ret = date.text
+    print(url,len(ret))
+gevent.joinall([
+    gevent.spawn(func, 'https://www.pythontab.com/'),
+    gevent.spawn(func, 'https://www.yahoo.com/'),
+    gevent.spawn(func, 'https://github.com/'),
+])
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[django的settings中设置中文支持]]></title>
+        <id>https://yooinn.github.io//post/django-de-settings-zhong-she-zhi-zhong-wen-zhi-chi</id>
+        <link href="https://yooinn.github.io//post/django-de-settings-zhong-she-zhi-zhong-wen-zhi-chi">
+        </link>
+        <updated>2019-09-19T10:09:47.000Z</updated>
+        <content type="html"><![CDATA[<p>今天创建了个django工程，用的是目前django 1.9.6，创建工程后，settings.py中设置中文显示支持（最简单的，例如把admin界面的默认英文改成中文），定义</p>
+<pre><code>TIME_ZONE = 'Asia/Shanghai'
+LANGUAGE_CODE = 'zh-cn'
+</code></pre>
+<p>当然TIME_ZONE只是指定时区，和中文显示没有关系，这里一并修改了默认值。结果运行项目时报错了，如下：</p>
+<p>django IOError: No translation files found for default language zh-cn<br>
+即找不到zh-cn对应的本地化文件。一般而言，zh-cn编码对应的本地化文件夹为zh_CN，我去django的安装目录查找zh_CN，结果确实没有找到，在django安装目录的contrib子目录下的一系列子目录的locale文件夹中，没有zh_CN，而有zh_Hans。不知道为什么django的这个版本没有zh_CN文件夹，可能是一个bug吧。网上有人说将zh_Hans目录全部复制一份并命名为zh_CN，就可以解决这个问题，我试了下，再次运行确实可行了，在admin界面显示了中文。至于这种比较山寨的方法有没有隐患，现在还不知道，以后遇到再说吧。</p>
+<p>不过话说回来，其实还有正统的方式去生成国际化文件，如下命令：</p>
+<p><code>django-admin.py makemessages -l zh_CN</code><br>
+不过这个需要gettext组件，如果你是在windows上开发，那么你需要自己安装这个组件，</p>
+<p>在http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/下载gettext-runtime-X.zip以及gettext-tools-X.zip的最新版（注：X为版本号）并解压后，将两个bin目录可以合并后放入系统环境变量中。不过该方法我没有验证，感兴趣的可以试试。</p>
+<p>后来我又想，django之前的老版本是有zh_CN的，要说这个一个bug，估计也比较低级，按理不应该的。于是又查，发现貌似zh_Hans可能已经替代zh_CN了。Han表示汉字，s表示Simplified简体，反正我设置为LANGUAGE_CODE = 'zh-hans'也是正常显示中文。</p>
+<p>zh-cn will expired in Django1.9, the new format is zh-hans, but drf3.1.0 does not support this type of language.</p>
+<p>上面的意思是在django1.9中，zh-cn过期了，可以用zh-hans替代，不过可能有些django的第三方模块还没有跟上这个变化。</p>
+<p>总之，仁者见仁智者见智了，其实大可不必如此研究，只是突然对这个比较感兴趣所以多研究了一会。</p>
+<p>ps：网上很多地方对于LANGUAGE_CODE = 'zh-cn'有各种不同写法，包括zh_CN，zh-CN等，有的人还说只能用某某写法等，反正我是没看出来区别，我也都试了，都没发现问题。</p>
+<p>另外说个题外话，之前一直都不知道settings.py中的USE_I18N和USE_L10N是什么意思，直到看到了下面的一段话：</p>
+<p>当 Web 服务搭建好以后，可以接收来自全球不同国家用户访问。这样就要求开发人员调整软件，使之能适用于不同的语言，即国际化和本地化。国际化</p>
+<p>-- Internationalization，i 和 n 之间有 18 个字母，简称 I18N,。本地化 -- localization， l 和 n 之间有 10 个字母，简称 L10N。国际化意味着 Web</p>
+<p>产品有适用于任何地方的潜力，针对程序开发人员；本地化则是指使一个国际化的程序为了在某个特定地区使用而进行实际翻译的过程，针对翻译人员而言</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Django中如何防范CSRF跨站点请求伪造攻击]]></title>
+        <id>https://yooinn.github.io//post/django-zhong-ru-he-fang-fan-csrf-kua-zhan-dian-qing-qiu-wei-zao-gong-ji</id>
+        <link href="https://yooinn.github.io//post/django-zhong-ru-he-fang-fan-csrf-kua-zhan-dian-qing-qiu-wei-zao-gong-ji">
+        </link>
+        <updated>2019-09-19T10:05:55.000Z</updated>
+        <content type="html"><![CDATA[<p>CSRF概念<br>
+CSRF跨站点请求伪造(Cross—Site Request Forgery)。</p>
+<p>攻击者盗用了你的身份，以你的名义发送恶意请求，对服务器来说这个请求是完全合法的，但是却完成了攻击者所期望的一个操作，比如以你的名义发送邮件、发消息，盗取你的账号，添加系统管理员，甚至于购买商品、虚拟货币转账等。</p>
+<p>CSRF攻击原理以及过程<br>
+用户C打开浏览器，访问受信任网站A，输入用户名和密码请求登录网站A；</p>
+<p>2.在用户信息通过验证后，网站A产生Cookie信息并返回给浏览器，此时用户登录网站A成功，可以正常发送请求到网站A；</p>
+<p>用户未退出网站A之前，在同一浏览器中，打开一个TAB页访问网站B；</p>
+<p>网站B接收到用户请求后，返回一些攻击性代码，并发出一个请求要求访问第三方站点A；</p>
+<p>浏览器在接收到这些攻击性代码后，根据网站B的请求，在用户不知情的情况下携带Cookie信息，向网站A发出请求。网站A并不知道该请求其实是由B发起的，所以会根据用户C的Cookie信息以C的权限处理该请求，导致来自网站B的恶意代码被执行。</p>
+<p>CSRF攻击实例<br>
+受害者 Bob 在银行有一笔存款，通过对银行的网站发送请求 http://bank.example/withdraw?account=bob&amp;amount=1000000&amp;for=bob2可以使 Bob 把 1000000 的存款转到 bob2 的账号下。通常情况下，该请求发送到网站后，服务器会先验证该请求是否来自一个合法的 session，并且该 session 的用户 Bob 已经成功登陆。</p>
+<p>黑客 Mallory 自己在该银行也有账户，他知道上文中的 URL 可以把钱进行转帐操作。Mallory 可以自己发送一个请求给银行：http://bank.example/withdraw?account=bob&amp;amount=1000000&amp;for=Mallory。但是这个请求来自 Mallory 而非 Bob，他不能通过安全认证，因此该请求不会起作用。</p>
+<p>这时，Mallory 想到使用 CSRF 的攻击方式，他先自己做一个网站，在网站中放入如下代码：src=”http://bank.example/withdraw?account=bob&amp;amount=1000000&amp;for=Mallory ”，并且通过广告等诱使 Bob 来访问他的网站。当 Bob 访问该网站时，上述 url 就会从 Bob 的浏览器发向银行，而这个请求会附带 Bob 浏览器中的 cookie 一起发向银行服务器。大多数情况下，该请求会失败，因为他要求 Bob 的认证信息。但是，如果 Bob 当时恰巧刚访问他的银行后不久，他的浏览器与银行网站之间的 session 尚未过期，浏览器的 cookie 之中含有 Bob 的认证信息。这时，悲剧发生了，这个 url 请求就会得到响应，钱将从 Bob 的账号转移到 Mallory 的账号，而 Bob 当时毫不知情。等以后 Bob 发现账户钱少了，即使他去银行查询日志，他也只能发现确实有一个来自于他本人的合法请求转移了资金，没有任何被攻击的痕迹。而 Mallory 则可以拿到钱后逍遥法外。</p>
+<p>Django中如何防范CSRF<br>
+Django使用专门的中间件（CsrfMiddleware）来进行CSRF防护。具体的原理如下：</p>
+<p>1.它修改当前处理的请求，向所有的 POST 表单增添一个隐藏的表单字段，使用名称是 csrfmiddlewaretoken ，值为当前会话 ID 加上一个密钥的散列值。 如果未设置会话 ID ，该中间件将不会修改响应结果，因此对于未使用会话的请求来说性能损失是可以忽略的。</p>
+<p>2.对于所有含会话 cookie 集合的传入 POST 请求，它将检查是否存在 csrfmiddlewaretoken 及其是否正确。 如果不是的话，用户将会收到一个 403 HTTP 错误。 403 错误页面的内容是检测到了跨域请求伪装。 终止请求。</p>
+<p>该步骤确保只有源自你的站点的表单才能将数据 POST 回来。</p>
+<p>另外要说明的是，未使用会话 cookie 的 POST 请求无法受到保护，但它们也不 需要 受到保护，因为恶意网站可用任意方法来制造这种请求。为了避免转换非 HTML 请求，中间件在编辑响应结果之前对它的 Content-Type 头标进行检查。 只有标记为 text/html 或 application/xml+xhtml 的页面才会被修改。</p>
+<p>Django防范CSRF的具体操作</p>
+<ol>
+<li>将'django.middleware.csrf.CsrfViewMiddleware'添加到Django的settings.py文件中的MIDDLEWARE_CLASSES列表中（默认已经添加）。 该中间件必须在 SessionMiddleware 之后执行，因此在列表中 CsrfMiddleware 必须出现在SessionMiddleware 之前 （因为响应中间件是自后向前执行的）。 同时，它也必须在响应被压缩或解压之前对响应结果进行处理，因此CsrfMiddleware必须在GZipMiddleware之后执行。</li>
+</ol>
+<p>MIDDLEWARE_CLASSES = (<br>
+'django.middleware.common.CommonMiddleware',<br>
+'django.contrib.sessions.middleware.SessionMiddleware',<br>
+'django.middleware.csrf.CsrfViewMiddleware',<br>
+'django.contrib.auth.middleware.AuthenticationMiddleware',<br>
+'django.contrib.messages.middleware.MessageMiddleware',<br>
+# Uncomment the next line for simple clickjacking protection:<br>
+# 'django.middleware.clickjacking.XFrameOptionsMiddleware',<br>
+)</p>
+<ol start="2">
+<li>在使用到POST方法提交FORM的页面中，添加csrf_token标签，例如：</li>
+</ol>
+<form action="." method="post">{% csrf_token %}
+3. 在相应的view中，确保“django.core.context_processors.csrf” 上下文处理器被正确使用，有两种方法实现这一点，一是使用RequestContext，它内部会自动使用到“django.core.context_processors.csrf”。另一种方法是手动使用这个处理器，示例代码如下：
+<p>from django.core.context_processors import csrf<br>
+from django.shortcuts import render_to_response<br>
+def my_view(request):<br>
+c = {}<br>
+c.update(csrf(request))<br>
+# ... view code here<br>
+return render_to_response(&quot;a_template.html&quot;, c)</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Python爬虫使用代理proxy抓取网页]]></title>
+        <id>https://yooinn.github.io//post/python-pa-chong-shi-yong-dai-li-proxy-zhua-qu-wang-ye</id>
+        <link href="https://yooinn.github.io//post/python-pa-chong-shi-yong-dai-li-proxy-zhua-qu-wang-ye">
+        </link>
+        <updated>2019-09-19T10:02:47.000Z</updated>
+        <content type="html"><![CDATA[<p>代理类型（proxy）:透明代理 匿名代理 混淆代理和高匿代理. 这里写一些python爬虫使用代理的知识, 还有一个代理池的类. 方便大家应对工作中各种复杂的抓取问题。</p>
+<p><strong>urllib 模块使用代理</strong><br>
+urllib/urllib2使用代理比较麻烦, 需要先构建一个ProxyHandler的类, 随后将该类用于构建网页打开的opener的类,再在request中安装该opener.</p>
+<p>代理格式是&quot;http://127.0.0.1:80&quot;,如果要账号密码是&quot;http://user:password@127.0.0.1:80&quot;.</p>
+<pre><code>proxy=&quot;http://127.0.0.1:80&quot;
+# 创建一个ProxyHandler对象
+proxy_support=urllib.request.ProxyHandler({'http':proxy})
+# 创建一个opener对象
+opener = urllib.request.build_opener(proxy_support)
+# 给request装载opener
+urllib.request.install_opener(opener)
+# 打开一个url
+r = urllib.request.urlopen('http://youtube.com',timeout = 500)
+</code></pre>
+<p><strong>requests 模块 使用代理</strong><br>
+requests使用代理要比urllib简单多了…这里以单次代理为例. 多次的话可以用session一类构建.</p>
+<p>如果需要使用代理，你可以通过为任意请求方法提供 proxies 参数来配置单个请求:</p>
+<pre><code>import requests
+proxies = {
+  &quot;http&quot;: &quot;http://127.0.0.1:3128&quot;,
+  &quot;https&quot;: &quot;http://127.0.0.1:2080&quot;,
+}
+r=requests.get(&quot;http://youtube.com&quot;, proxies=proxies)
+print r.text
+</code></pre>
+<p>你也可以通过环境变量 HTTP_PROXY 和 HTTPS_PROXY 来配置代理。</p>
+<pre><code>
+export HTTP_PROXY=&quot;http://127.0.0.1:3128&quot;
+export HTTPS_PROXY=&quot;http://127.0.0.1:2080&quot;
+python
+&gt;&gt;&gt; import requests
+&gt;&gt;&gt; r=requests.get(&quot;http://youtube.com&quot;)
+&gt;&gt;&gt; print r.text
+</code></pre>
+<p>若你的代理需要使用HTTP Basic Auth，可以使用 http://user:password@host/ 语法:</p>
+<pre><code>proxies = {
+    &quot;http&quot;: &quot;http://user:pass@127.0.0.1:3128/&quot;,
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[使用sublime搭建python开发环境]]></title>
+        <id>https://yooinn.github.io//post/shi-yong-sublime-da-jian-python-kai-fa-huan-jing</id>
+        <link href="https://yooinn.github.io//post/shi-yong-sublime-da-jian-python-kai-fa-huan-jing">
+        </link>
+        <updated>2019-09-19T10:00:22.000Z</updated>
+        <content type="html"><![CDATA[<p>sublime Text具有漂亮的用户界面和强大的功能，例如代码缩略图，Python的插件，代码段等。还可自定义键绑定，菜单和工具栏。Sublime Text的主要功能包括：拼写检查，书签，完整的 Python API，Goto功能，即时项目切换，多选择，多窗口等等。</p>
+<p>Step1：安装python和sublime</p>
+<p>Step2：给sublime安装package control，安装参见： 官网</p>
+<p>Step3：配置安装路径</p>
+<p>方式一：配置windows的Path</p>
+<p>好处就是cmd的时候也可以运行，视为系统，用户级别的配置；</p>
+<p>方式二：配置sublime的python的sublime_build</p>
+<p>点击：Preference -&gt; Browse Packages -&gt; 在python目录下,编辑Python.sublime-build文件，添加python应用程序的路径：</p>
+<pre><code>{
+ &quot;cmd&quot;:[&quot;python.exe&quot;, &quot;-u&quot;, &quot;$file&quot;],
+ &quot;path&quot;:&quot;C:/Python27&quot;,
+ &quot;file_regex&quot;: &quot;^[ ]*File \&quot;(...*?)\&quot;, line ([0-9]*)&quot;,
+ &quot;selector&quot;: &quot;source.python&quot;
+}
+</code></pre>
+<p>至此，就可以使用ctrl ＋ b的方式直接运行当前的python代码了。</p>
+<p>step4：安装某些插件</p>
+<p>安装方式：</p>
+<p>Ctrl+Shift+P打开控制面板，找到Install Package，回车；在弹出框中输入插件名称,回车安装即可。或者按照插件的说明文档进行安装。</p>
+<p>网上推荐插件：</p>
+<p>SublimeREPL 可以用于运行和调试一些需要交互的程序。</p>
+<p>SublimeCodeIntel 可以支持代码的自动补全以及成员/方法提示等功能。</p>
+<p>SublimeLinter 是用来在写代码时做代码检查的，可以检查Python代码是否符合PEP8的要求。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Python3 加密解密技术详解]]></title>
+        <id>https://yooinn.github.io//post/python3-jia-mi-jie-mi-ji-zhu-xiang-jie</id>
+        <link href="https://yooinn.github.io//post/python3-jia-mi-jie-mi-ji-zhu-xiang-jie">
+        </link>
+        <updated>2019-09-19T09:57:22.000Z</updated>
+        <content type="html"><![CDATA[<p>Python 3 的标准库中没多少用来解决加密的，不过却有用于处理哈希的库。在这里我们会对其进行一个简单的介绍，但重点会放在两个第三方的软件包：PyCrypto 和 cryptography 上。我们将学习如何使用这两个库，来加密和解密字符串。</p>
+<p><strong>哈希</strong><br>
+如果需要用到安全哈希算法或是消息摘要算法，那么你可以使用标准库中的 hashlib 模块。这个模块包含了符合 FIPS（美国联邦信息处理标准）的安全哈希算法，包括 SHA1，SHA224，SHA256，SHA384，SHA512 以及 RSA 的 MD5 算法。Python 也支持 adler32 以及 crc32 哈希函数，不过它们在 zlib 模块中。</p>
+<p>哈希的一个最常见的用法是，存储密码的哈希值而非密码本身。当然了，使用的哈希函数需要稳健一点，否则容易被破解。另一个常见的用法是，计算一个文件的哈希值，然后将这个文件和它的哈希值分别发送。接收到文件的人可以计算文件的哈希值，检验是否与接受到的哈希值相符。如果两者相符，就说明文件在传送的过程中未经篡改。</p>
+<p><strong>让我们试着创建一个 md5 哈希：</strong></p>
+<pre><code>
+&gt;&gt;&gt; import hashlib
+&gt;&gt;&gt; md5 = hashlib.md5()
+&gt;&gt;&gt; md5.update('Python rocks!')
+Traceback (most recent call last):
+  File &quot;&lt;pyshell#5&gt;&quot;, line 1, in &lt;module&gt;
+    md5.update('Python rocks!')
+TypeError: Unicode-objects must be encoded before hashing
+&gt;&gt;&gt; md5.update(b'Python rocks!')
+&gt;&gt;&gt; md5.digest()
+b'\x14\x82\xec\x1b#d\xf6N}\x16*+[\x16\xf4w'
+</code></pre>
+<p>让我们花点时间一行一行来讲解。首先，我们导入 hashlib ，然后创建一个 md5 哈希对象的实例。接着，我们向这个实例中添加一个字符串后，却得到了报错信息。原来，计算 md5 哈希时，需要使用字节形式的字符串而非普通字符串。正确添加字符串后，我们调用它的 digest 函数来得到哈希值。如果你想要十六进制的哈希值，也可以用以下方法：</p>
+<pre><code>
+&gt;&gt;&gt; md5.hexdigest()
+'1482ec1b2364f64e7d162a2b5b16f477'
+</code></pre>
+<p>实际上，有一种精简的方法来创建哈希，下面我们看一下用这种方法创建一个 <strong>sha1 哈希：</strong></p>
+<pre><code>&gt;&gt;&gt; sha = hashlib.sha1(b'Hello Python').hexdigest()
+&gt;&gt;&gt; sha
+'422fbfbc67fe17c86642c5eaaa48f8b670cbed1b'
+</code></pre>
+<p>可以看到，我们可以同时创建一个哈希实例并且调用其 digest 函数。然后，我们打印出这个哈希值看一下。这里我使用 sha1 哈希函数作为例子，但它不是特别安全，读者可以随意尝试其他的哈希函数。</p>
+<p><strong>密钥导出</strong><br>
+Python 的标准库对密钥导出支持较弱。实际上，hashlib 函数库提供的唯一方法就是 pbkdf2_hmac 函数。它是 PKCS#5 的基于口令的第二个密钥导出函数，并使用 HMAC 作为伪随机函数。因为它支持“加盐salt”和迭代操作，你可以使用类似的方法来哈希你的密码。例如，如果你打算使用 SHA-256 加密方法，你将需要至少 16 个字节的“盐”，以及最少 100000 次的迭代操作。</p>
+<p>简单来说，“盐”就是随机的数据，被用来加入到哈希的过程中，以加大破解的难度。这基本可以保护你的密码免受字典和彩虹表rainbow table的攻击。</p>
+<p>让我们看一个简单的例子：</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>import binascii<br>
+dk = hashlib.pbkdf2_hmac(hash_name='sha256',<br>
+password=b'bad_password34',<br>
+salt=b'bad_salt',<br>
+iterations=100000)</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<blockquote>
+<p>binascii.hexlify(dk)<br>
+b'6e97bad21f6200f9087036a71e7ca9fa01a59e1d697f7e0284cd7f9b897d7c02'<br>
+这里，我们用 SHA256 对一个密码进行哈希，使用了一个糟糕的盐，但经过了 100000 次迭代操作。当然，SHA 实际上并不被推荐用来创建密码的密钥。你应该使用类似 scrypt 的算法来替代。另一个不错的选择是使用一个叫 bcrypt 的第三方库，它是被专门设计出来哈希密码的。</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p><strong><code>PyCryptodome</code></strong><br>
+PyCrypto 可能是 Python 中密码学方面最有名的第三方软件包。可惜的是，它的开发工作于 2012 年就已停止。其他人还在继续发布最新版本的 PyCrypto，如果你不介意使用第三方的二进制包，仍可以取得 Python 3.5 的相应版本。比如，我在 Github (https://github.com/sfbahr/PyCrypto-Wheels) 上找到了对应 Python 3.5 的 PyCrypto 二进制包。</p>
+<p>幸运的是，有一个该项目的分支 PyCrytodome 取代了 PyCrypto 。为了在 Linux 上安装它，你可以使用以下 pip 命令：</p>
+<p><code>pip install pycryptodome</code><br>
+在 Windows 系统上安装则稍有不同：</p>
+<p><code>pip install pycryptodomex</code><br>
+如果你遇到了问题，可能是因为你没有安装正确的依赖包（LCTT 译注：如 python-devel），或者你的 Windows 系统需要一个编译器。</p>
+<p>还值得注意的是，PyCryptodome 在 PyCrypto 最后版本的基础上有很多改进。非常值得去访问它们的主页，看看有什么新的特性。</p>
+<p>加密字符串<br>
+访问了他们的主页之后，我们可以看一些例子。在第一个例子中，我们将使用 DES 算法来加密一个字符串：</p>
+<pre><code>&gt;&gt;&gt; from Crypto.Cipher import DES
+&gt;&gt;&gt; key = 'abcdefgh'
+&gt;&gt;&gt; def pad(text):
+        while len(text) % 8 != 0:
+            text += ' '
+        return text
+&gt;&gt;&gt; des = DES.new(key, DES.MODE_ECB)
+&gt;&gt;&gt; text = 'Python rocks!'
+&gt;&gt;&gt; padded_text = pad(text)
+&gt;&gt;&gt; encrypted_text = des.encrypt(text)
+Traceback (most recent call last):
+  File &quot;&lt;pyshell#35&gt;&quot;, line 1, in &lt;module&gt;
+    encrypted_text = des.encrypt(text)
+  File &quot;C:\Programs\Python\Python35-32\lib\site-packages\Crypto\Cipher\blockalgo.py&quot;, line 244, in encrypt
+    return self._cipher.encrypt(plaintext)
+ValueError: Input strings must be a multiple of 8 in length
+&gt;&gt;&gt; encrypted_text = des.encrypt(padded_text)
+&gt;&gt;&gt; encrypted_text
+b'&gt;\xfc\x1f\x16x\x87\xb2\x93\x0e\xfcH\x02\xd59VQ'
+</code></pre>
+<p>这段代码稍有些复杂，让我们一点点来看。首先需要注意的是，DES 加密使用的密钥长度为 8 个字节，这也是我们将密钥变量设置为 8 个字符的原因。而我们需要加密的字符串的长度必须是 8 的倍数，所以我们创建了一个名为 pad 的函数，来给一个字符串末尾填充空格，直到它的长度是 8 的倍数。然后，我们创建了一个 DES 的实例，以及我们需要加密的文本。我们还创建了一个经过填充处理的文本。我们尝试着对未经填充处理的文本进行加密，啊欧，报了一个 ValueError 错误！我们需要对经过填充处理的文本进行加密，然后得到加密的字符串。（LCTT 译注：encrypt 函数的参数应为 byte 类型字符串，代码为：encrypted_text = des.encrypt(padded_text.encode('utf-8'))）</p>
+<p>知道了如何加密，还要知道如何解密：</p>
+<pre><code>&gt;&gt;&gt; des.decrypt(encrypted_text)
+b'Python rocks!   '
+</code></pre>
+<p>幸运的是，解密非常容易，我们只需要调用 des 对象的 decrypt 方法就可以得到我们原来的 byte 类型字符串了。下一个任务是学习如何用 RSA 算法加密和解密一个文件。首先，我们需要创建一些 RSA 密钥。</p>
+<p>创建 RSA 密钥<br>
+如果你希望使用 RSA 算法加密数据，那么你需要拥有访问 RAS 公钥和私钥的权限，否则你需要生成一组自己的密钥对。在这个例子中，我们将生成自己的密钥对。创建 RSA 密钥非常容易，所以我们将在 Python 解释器中完成。</p>
+<pre><code>&gt;&gt;&gt; from Crypto.PublicKey import RSA
+&gt;&gt;&gt; code = 'nooneknows'
+&gt;&gt;&gt; key = RSA.generate(2048)
+&gt;&gt;&gt; encrypted_key = key.exportKey(passphrase=code, pkcs=8, 
+        protection=&quot;scryptAndAES128-CBC&quot;)
+&gt;&gt;&gt; with open('/path_to_private_key/my_private_rsa_key.bin', 'wb') as f:
+        f.write(encrypted_key)
+&gt;&gt;&gt; with open('/path_to_public_key/my_rsa_public.pem', 'wb') as f:
+        f.write(key.publickey().exportKey())
+</code></pre>
+<p>首先我们从 Crypto.PublicKey 包中导入 RSA，然后创建一个傻傻的密码。接着我们生成 2048 位的 RSA 密钥。现在我们到了关键的部分。为了生成私钥，我们需要调用 RSA 密钥实例的 exportKey 方法，然后传入密码，使用的 PKCS 标准，以及加密方案这三个参数。之后，我们把私钥写入磁盘的文件中。</p>
+<p>接下来，我们通过 RSA 密钥实例的 publickey 方法创建我们的公钥。我们使用方法链调用 publickey 和 exportKey 方法生成公钥，同样将它写入磁盘上的文件。</p>
+<p>加密文件<br>
+有了私钥和公钥之后，我们就可以加密一些数据，并写入文件了。这里有个比较标准的例子：</p>
+<pre><code>from Crypto.PublicKey import RSA
+from Crypto.Random import get_random_bytes
+from Crypto.Cipher import AES, PKCS1_OAEP
+with open('/path/to/encrypted_data.bin', 'wb') as out_file:
+    recipient_key = RSA.import_key(
+        open('/path_to_public_key/my_rsa_public.pem').read())
+    session_key = get_random_bytes(16)
+    cipher_rsa = PKCS1_OAEP.new(recipient_key)
+    out_file.write(cipher_rsa.encrypt(session_key))
+    cipher_aes = AES.new(session_key, AES.MODE_EAX)
+    data = b'blah blah blah Python blah blah'
+    ciphertext, tag = cipher_aes.encrypt_and_digest(data)
+    out_file.write(cipher_aes.nonce)
+    out_file.write(tag)
+    out_file.write(ciphertext)
+</code></pre>
+<p>代码的前三行导入 PyCryptodome 包。然后我们打开一个文件用于写入数据。接着我们导入公钥赋给一个变量，创建一个 16 字节的会话密钥。在这个例子中，我们将使用混合加密方法，即 PKCS#1 OAEP ，也就是最优非对称加密填充。这允许我们向文件中写入任意长度的数据。接着我们创建 AES 加密，要加密的数据，然后加密数据。我们将得到加密的文本和消息认证码。最后，我们将随机数，消息认证码和加密的文本写入文件。</p>
+<p>顺便提一下，随机数通常是真随机或伪随机数，只是用来进行密码通信的。对于 AES 加密，其密钥长度最少是 16 个字节。随意用一个你喜欢的编辑器试着打开这个被加密的文件，你应该只能看到乱码。</p>
+<p>现在让我们学习如何解密我们的数据。</p>
+<pre><code>from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES, PKCS1_OAEP
+code = 'nooneknows'
+with open('/path/to/encrypted_data.bin', 'rb') as fobj:
+    private_key = RSA.import_key(
+        open('/path_to_private_key/my_rsa_key.pem').read(),
+        passphrase=code)
+    enc_session_key, nonce, tag, ciphertext = [ fobj.read(x) 
+                                                for x in (private_key.size_in_bytes(), 
+                                                16, 16, -1) ]
+    cipher_rsa = PKCS1_OAEP.new(private_key)
+    session_key = cipher_rsa.decrypt(enc_session_key)
+    cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
+    data = cipher_aes.decrypt_and_verify(ciphertext, tag)
+print(data)
+</code></pre>
+<p>如果你认真看了上一个例子，这段代码应该很容易解析。在这里，我们先以二进制模式读取我们的加密文件，然后导入私钥。注意，当你导入私钥时，需要提供一个密码，否则会出现错误。然后，我们文件中读取数据，首先是加密的会话密钥，然后是 16 字节的随机数和 16 字节的消息认证码，最后是剩下的加密的数据。</p>
+<p>接下来我们需要解密出会话密钥，重新创建 AES 密钥，然后解密出数据。</p>
+<p>你还可以用 PyCryptodome 库做更多的事。不过我们要接着讨论在 Python 中还可以用什么来满足我们加密解密的需求。</p>
+<p>cryptography 包<br>
+cryptography 的目标是成为“人类易于使用的密码学包cryptography for humans”，就像 requests 是“人类易于使用的 HTTP 库HTTP for Humans”一样。这个想法使你能够创建简单安全、易于使用的加密方案。如果有需要的话，你也可以使用一些底层的密码学基元，但这也需要你知道更多的细节，否则创建的东西将是不安全的。</p>
+<p>如果你使用的 Python 版本是 3.5, 你可以使用 pip 安装，如下：</p>
+<p>pip install cryptography<br>
+你会看到 cryptography 包还安装了一些依赖包（LCTT 译注：如 libopenssl-devel）。如果安装都顺利，我们就可以试着加密一些文本了。让我们使用 Fernet 对称加密算法，它保证了你加密的任何信息在不知道密码的情况下不能被篡改或读取。Fernet 还通过 MultiFernet 支持密钥轮换。下面让我们看一个简单的例子：</p>
+<pre><code>&gt;&gt;&gt; from cryptography.fernet import Fernet
+&gt;&gt;&gt; cipher_key = Fernet.generate_key()
+&gt;&gt;&gt; cipher_key
+b'APM1JDVgT8WDGOWBgQv6EIhvxl4vDYvUnVdg-Vjdt0o='
+&gt;&gt;&gt; cipher = Fernet(cipher_key)
+&gt;&gt;&gt; text = b'My super secret message'
+&gt;&gt;&gt; encrypted_text = cipher.encrypt(text)
+&gt;&gt;&gt; encrypted_text
+(b'gAAAAABXOnV86aeUGADA6mTe9xEL92y_m0_TlC9vcqaF6NzHqRKkjEqh4d21PInEP3C9HuiUkS9f'
+ b'6bdHsSlRiCNWbSkPuRd_62zfEv3eaZjJvLAm3omnya8=')
+&gt;&gt;&gt; decrypted_text = cipher.decrypt(encrypted_text)
+&gt;&gt;&gt; decrypted_text
+b'My super secret message'
+</code></pre>
+<p>首先我们需要导入 Fernet，然后生成一个密钥。我们输出密钥看看它是什么样儿。如你所见，它是一个随机的字节串。如果你愿意的话，可以试着多运行 generate_key 方法几次，生成的密钥会是不同的。然后我们使用这个密钥生成 Fernet 密码实例。</p>
+<p>现在我们有了用来加密和解密消息的密码。下一步是创建一个需要加密的消息，然后使用 encrypt 方法对它加密。我打印出加密的文本，然后你可以看到你再也读不懂它了。为了解密出我们的秘密消息，我们只需调用 decrypt 方法，并传入加密的文本作为参数。结果就是我们得到了消息字节串形式的纯文本。</p>
+<p>小结<br>
+这一章仅仅浅显地介绍了 PyCryptodome 和 cryptography 这两个包的使用。不过这也确实给了你一个关于如何加密解密字符串和文件的简述。请务必阅读文档，做做实验，看看还能做些什么！</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Django使用redis缓存服务器]]></title>
+        <id>https://yooinn.github.io//post/django-shi-yong-redis-huan-cun-fu-wu-qi</id>
+        <link href="https://yooinn.github.io//post/django-shi-yong-redis-huan-cun-fu-wu-qi">
+        </link>
+        <updated>2019-09-19T09:54:37.000Z</updated>
+        <content type="html"><![CDATA[<p>redis相信大家都很熟悉了，和memcached一样是一个高性能的key-value数据库，至于什么是缓存服务器，度娘都有很明白的介绍了，我在这里就不一一介绍了。</p>
+<p>那我们一般什么情况下才会使用缓存服务器呢？可不是什么情况都需要的哦，一般来说是在需要频繁对一个字段读取的时候才会需要将这个字段放入到缓存服务器上，而且由于key-value数据库一般只是放很简单的数据，所以在选择保存的对象的时候要注意选择好。</p>
+<p>下面我就来介绍如何在Django中配置使用redis数据库，首先是先安装redis了，在Ubuntu中执行下面这句命令：</p>
+<p><code>#安装Redis服务器端</code></p>
+<p><code>sudo apt-get install redis-server</code><br>
+然后为了能在Django中使用redis，还需要安装redis for Django的插件：</p>
+<p><code>pip install django-redis</code><br>
+这是一个开源的项目，github地址是https://github.com/niwibe/django-redis，感谢作者。</p>
+<p>那么现在就是在Django的settings中配置了。</p>
+<pre><code>CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.cache.RedisCache',
+        'LOCATION': '127.0.0.1:6379',
+        &quot;OPTIONS&quot;: {
+            &quot;CLIENT_CLASS&quot;: &quot;redis_cache.client.DefaultClient&quot;,
+        },
+    },
+}
+REDIS_TIMEOUT=7*24*60*60
+CUBES_REDIS_TIMEOUT=60*60
+NEVER_REDIS_TIMEOUT=365*24*60*60
+</code></pre>
+<p>其实只是需要CACHES中的那几条就可以了，后面这三句可以不需要的，只是我后面的例子里需要用到，我就在这里配置了。</p>
+<p>好了，现在连接和配置都已经完成了，那么在项目中该如何使用呢？接下来看下面这段例子吧。</p>
+<pre><code>from django.conf import settings
+from django.core.cache import cache
+#read cache user id
+def read_from_cache(self, user_name):
+    key = 'user_id_of_'+user_name
+    value = cache.get(key)
+    if value == None:
+        data = None
+    else:
+        data = json.loads(value)
+    return data
+#write cache user id
+def write_to_cache(self, user_name):
+    key = 'user_id_of_'+user_name
+    cache.set(key, json.dumps(user_name), settings.NEVER_REDIS_TIMEOUT)
+</code></pre>
+<p>通过上面的这两个方法就可以实现对redis的读取操作了，只需要将需要的字段当参数传入到方法中就好了。</p>
+<p>那么之前提到的memcached呢？其实也是一样的配置：</p>
+<pre><code>CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+</code></pre>
+<p>当然用法也是和我上面的例子是一样的了。其实对于redis这样的缓存服务器来说，配置都是很简单的，而具体的使用也不难，官网上面也有很多简单明了的例子可以供我们参考，只有一点需要注意的，那就是对于要将什么样的信息保存到redis才是我们真正需要关心的。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[利用Python延迟初始化提升性能]]></title>
+        <id>https://yooinn.github.io//post/li-yong-python-yan-chi-chu-shi-hua-ti-sheng-xing-neng</id>
+        <link href="https://yooinn.github.io//post/li-yong-python-yan-chi-chu-shi-hua-ti-sheng-xing-neng">
+        </link>
+        <updated>2019-09-19T09:50:06.000Z</updated>
+        <content type="html"><![CDATA[<p>所谓类属性的延迟计算就是将类的属性定义成一个property，只在访问的时候才会计算，而且一旦被访问后，结果将会被缓存起来，不用每次都计算。构造一个延迟计算属性的主要目的是为了提升性能</p>
+<p><strong>property</strong><br>
+在切入正题之前，我们了解下property的用法，property可以将属性的访问转变成方法的调用。</p>
+<pre><code>class Circle(object): 
+  def __init__(self, radius): 
+    self.radius = radius 
    
-   # full_list包含了要处理的全部文件列表
-   ...
-
-   n_total = len(full_list) # 一个远大于32的数
-   n_processes = 32
-
-   # 每段子列表的平均长度
-   length = float(n_total) / float(n_processes)
+  @property
+  def area(self): 
+    return 3.14 * self.radius ** 2
    
-   # 计算下标，尽可能均匀地划分输入文件列表
-   indices = [int(round(i*length)) for i in range(n_processes+1)]
-   
-   # 生成每个进程要处理的子文件列表
-   sublists = [full_list[indices[i]:indices[i+1]] for i in range(n_processes)]
-   
-   # 生成进程
-   processes = [Process(target=process_data, args=(x,)) for x in sublists]
-
-   # 并行处理
-   for p in processes:
-       p.start()
-
-   for p in processes:
-       p.join()
-其中if __name__ == '__main__'用来标明在import时不包含，但是作为文件执行时运行的语句块。为什么不用多线程呢？简单说就是Python中线程的并发无法有效利用多核，如果有兴趣的读者可以从下面这个链接看起：
-
-GlobalInterpreterLock - Python Wiki
-
-5.2.11 os模块
-深度学习中的数据多是文件，所以数据处理阶段和文件相关的操作就非常重要。除了文件IO，Python中一些操作系统的相关功能也能够非常方便地帮助数据处理。想象一下我们有一个文件夹叫做data，下边有3个子文件夹叫做cat，dog和bat，里面分别是猫，狗和蝙蝠的照片。为了训练一个三分类模型，我们先要生成一个文件，里面每一行是文件的路径和对应的标签。定义cat是0，dog是1，bat是2，则可以通过如下脚本：
-
+c = Circle(4) 
+print c.radius 
+print c.area
+</code></pre>
+<p>可以看到，area虽然是定义成一个方法的形式，但是加上@property后，可以直接执行c.area，当成属性访问。</p>
+<p>现在问题来了，每次调用c.area，都会计算一次，太浪费cpu了，怎样才能只计算一次呢?这就是lazy property<br>
+<strong>代码实现</strong></p>
+<pre><code>class LazyProperty(object):
+  def __init__(self, func):
+    self.func = func
+  def __get__(self, instance, owner):
+    if instance is None:
+      return self
+    else:
+      value = self.func(instance)
+      setattr(instance, self.func.__name__, value)
+      return value
+import math
+class Circle(object):
+  def __init__(self, radius):
+    self.radius = radius
+  @LazyProperty
+  def area(self):
+    print 'Computing area'
+    return math.pi * self.radius ** 2
+  @LazyProperty
+  def perimeter(self):
+    print 'Computing perimeter'
+    return 2 * math.pi * self.radius
+</code></pre>
+<p><strong>说明</strong><br>
+定义了一个延迟计算的装饰器类LazyProperty。Circle是用于测试的类，Circle类有是三个属性半径(radius)、面积(area)、周长(perimeter)。面积和周长的属性被LazyProperty装饰，下面来试试LazyProperty的魔法：</p>
+<pre><code>&gt;&gt;&gt; c = Circle(2)
+&gt;&gt;&gt; print c.area
+Computing area
+12.5663706144
+&gt;&gt;&gt; print c.area
+12.5663706144
+</code></pre>
+<p>在area()中每计算一次就会打印一次“Computing area”，而连续调用两次c.area后“Computing area”只被打印了一次。这得益于LazyProperty,只要调用一次后，无论后续调用多少次都不会重复计算。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[python实现高效率的排列组合算法]]></title>
+        <id>https://yooinn.github.io//post/python-shi-xian-gao-xiao-lu-de-pai-lie-zu-he-suan-fa</id>
+        <link href="https://yooinn.github.io//post/python-shi-xian-gao-xiao-lu-de-pai-lie-zu-he-suan-fa">
+        </link>
+        <updated>2019-09-19T09:46:26.000Z</updated>
+        <content type="html"><![CDATA[<p>组合算法</p>
+<p>本程序的思路是开一个数组，其下标表示1到m个数，数组元素的值为1表示其下标</p>
+<p>代表的数被选中，为0则没选中。</p>
+<p>首先初始化，将数组前n个元素置1，表示第一个组合为前n个数。</p>
+<p>然后从左到右扫描数组元素值的“10”组合，找到第一个“10”组合后将其变为</p>
+<p>“01”组合，同时将其左边的所有“1”全部移动到数组的最左端。</p>
+<p>当第一个“1”移动到数组的m-n的位置，即n个“1”全部移动到最右端时，就得</p>
+<p>到了最后一个组合。</p>
+<p>例如求5中选3的组合：</p>
+<p>1   1   1   0   0   //1,2,3</p>
+<p>1   1   0   1   0   //1,2,4</p>
+<p>1   0   1   1   0   //1,3,4</p>
+<p>0   1   1   1   0   //2,3,4</p>
+<p>1   1   0   0   1   //1,2,5</p>
+<p>1   0   1   0   1   //1,3,5</p>
+<p>0   1   1   0   1   //2,3,5</p>
+<p>1   0   0   1   1   //1,4,5</p>
+<p>0   1   0   1   1   //2,4,5</p>
+<p>0   0   1   1   1   //3,4,5</p>
+<p>使用python实现：</p>
+<pre><code>group = [1, 1, 1, 0, 0, 0]
+group_len = len(group)
+#计算次数
+ret = [group]
+ret_num = (group_len * (group_len - 1) * (group_len - 2)) / 6
+for i in xrange(ret_num - 1):
+  
+    '第一步：先把10换成01'
+    number1_loc = group.index(1)
+    number0_loc = group.index(0)
+  
+    #替换位置从第一个０的位置开始
+    location = number0_loc
+      #判断第一个０和第一个１的位置哪个在前，
+      #如果第一个０的位置小于第一个１的位置，
+      #那么替换位置从第一个１位置后面找起
+  
+    if number0_loc &lt; number1_loc:
+        location = group[number1_loc:].index(0) + number1_loc
+  
+    group[location] = 1
+    group[location - 1] = 0
+  
+    '第二步：把第一个10前面的所有１放在数组的最左边'
+    if location - 3 &gt;= 0:
+        if group[location - 3] == 1 and group[location - 2] == 1:
+            group[location - 3] = 0
+            group[location - 2] = 0
+            group[0] = 1
+            group[1] = 1
+        elif group[location - 3] == 1:
+            group[location - 3] = 0
+            group[0] = 1
+        elif group[location - 2] == 1:
+            group[location - 2] = 0
+            group[0] = 1
+  
+    print group
+    ret.append(group)
+</code></pre>
+<p>全排列算法</p>
+<p>从1到N，输出全排列，共N！条。</p>
+<p>分析：用N进制的方法吧。设一个N个单元的数组，对第一个单元做加一操作，满N进</p>
+<p>一。每加一次一就判断一下各位数组单元有无重复，有则再转回去做加一操作，没</p>
+<p>有则说明得到了一个排列方案。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[用Python实现守护进程]]></title>
+        <id>https://yooinn.github.io//post/yong-python-shi-xian-shou-hu-jin-cheng</id>
+        <link href="https://yooinn.github.io//post/yong-python-shi-xian-shou-hu-jin-cheng">
+        </link>
+        <updated>2019-09-19T08:18:09.000Z</updated>
+        <content type="html"><![CDATA[<p>Daemon场景<br>
+考虑如下场景：你编写了一个python服务程序，并且在命令行下启动，而你的命令行会话又被终端所控制，python服务成了终端程序的一个子进程。因此如果你关闭了终端，这个命令行程序也会随之关闭。</p>
+<p>要使你的python服务不受终端影响而常驻系统，就需要将它变成守护进程。</p>
+<p>守护进程就是Daemon程序，是一种在系统后台执行的程序，它独立于控制终端并且执行一些周期任务或触发事件，通常被命名为&quot;d&quot;字母结尾，如常见的httpd、syslogd、systemd和dockerd等。</p>
+<p>代码实现<br>
+python可以很简洁地实现守护进程，下面给出代码和相应注释。这份代码稳定运行在我本地电脑的一个守护进程(自制闹钟)里，暂时没出过问题。</p>
+<pre><code># coding=utf8
 import os
-
-# 定义文件夹名称和标签的对应关系
-label_map = {
-   'cat': 0,
-   'dog': 1,
-   'bat': 2
-}
-
-with open('data.txt', 'w') as f:
-
-   # 遍历所有文件，root为当前文件夹，dirs是所有子文件夹名，files是所有文件名
-   for root, dirs, files in os.walk('data'):
-       for filename in files:
-           filepath = os.sep.join([root, filename])   	# 获得文件完整路径
-           dirname = root.split(os.sep)[-1]            	# 获取当前文件夹名称
-           label = label_map[dirname]                  	# 得到标签
-           line = '{},{}\n'.format(filepath, label)
-           f.write(line)
-其中，os.sep是当前操作系统的路径分隔符，在Unix/Linux中是'/'，Windows中是'\\'。有的时候我们已经有了所有的文件在一个文件夹data下，希望获取所有文件的名称，则可以用os.listdir():
-
-filenames = os.listdir('data')
-os也提供了诸如拷贝，移动和修改文件名等操作。同时因为大部分深度学习框架最常见的都是在Unix/Linux下使用，并且Unix/Linux的shell已经非常强大（比Windows好用太多），所以只需要用字符串格式化等方式生成shell命令的字符串，然后通过os.system()就能方便实现很多功能，有时比os，还有Python中另一个操作系统相关模块shutil还要方便：
-
-import os, shutil
-
-filepath0 = 'data/bat/IMG_000001.jpg'
-filepath1 = 'data/bat/IMG_000000.jpg'
-
-# 修改文件名
-os.system('mv {} {}'.format(filepath0, filepath1))
-#os.rename(filepath0, filepath1)
-
-
-# 创建文件夹
-dirname = 'data_samples'
-os.system('mkdir -p {}'.format(dirname))
-#if not os.path.exists(dirname):
-#    os.mkdir(dirname)
-
-# 拷贝文件
-os.system('cp {} {}'.format(filepath1, dirname))
-#shutil.copy(filepath1, dirname)</code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[练习题目]]></title>
-        <id>https://yooinn.github.io//post/lian-xi-ti-mu</id>
-        <link href="https://yooinn.github.io//post/lian-xi-ti-mu">
-        </link>
-        <updated>2019-06-14T12:52:18.000Z</updated>
-        <content type="html"><![CDATA[<h1 id="练习">练习：</h1>
-<h1 id="2输入一个学生的三科成绩3个整数">2.输入一个学生的三科成绩（3个整数：</h1>
-<h1 id="打印出最高分-最低分-平局分是多少">打印出最高分、最低分、平局分是多少</h1>
-<h1 id="aintinput请输入他的英语成绩">a=int(input(&quot;请输入他的英语成绩:&quot;))</h1>
-<h1 id="bintinput请输入他的语文成绩">b=int(input(&quot;请输入他的语文成绩&quot;))</h1>
-<h1 id="cintinput请输入他的数学成绩">c=int(input(&quot;请输入他的数学成绩&quot;))</h1>
-<h1 id="if-101-a-0-and-101-b-0-and-101-c-0">if 101 &gt; a &gt; 0 and 101 &gt; b &gt; 0 and 101 &gt; c &gt; 0:</h1>
-<h1 id="if-a-b-and-a-c">if a &gt; b and a &gt; c:</h1>
-<h1 id="printtop英语-a">print(&quot;top:英语:&quot;, a)</h1>
-<h1 id="elif-b-c-and-b-a">elif b &gt; c and b &gt; a:</h1>
-<h1 id="printtop语文-b">print(&quot;top:语文:&quot;, b)</h1>
-<h1 id="elif-c-a-and-c-b">elif c &gt; a and c &gt; b:</h1>
-<h1 id="printtop数学-c">print(&quot;top:数学:&quot;, c)</h1>
-<h1 id="printz">print(z)</h1>
-<h1 id=""></h1>
-<h1 id="-2"></h1>
-<h1 id="if-a-b-and-a-c-2">if a &lt; b and a &lt; c:</h1>
-<h1 id="printlow-英语-a">print(&quot;low: 英语:&quot;, a)</h1>
-<h1 id="elif-b-c-and-b-a-2">elif b &lt; c and b &lt; a:</h1>
-<h1 id="printlow-语文-b">print(&quot;low: 语文:&quot;, b)</h1>
-<h1 id="elif-c-a-and-c-b-2">elif c &lt; a and c &lt; b:</h1>
-<h1 id="printlow-数学-c">print(&quot;low: 数学:&quot;, c)</h1>
-<h1 id="-3"></h1>
-<h1 id="print平均-a-b-c3">print(&quot;平均:&quot;, (a + b + c)/3)</h1>
-<h1 id="else">else:</h1>
-<h1 id="printnotis-mark">print(&quot;not'is mark&quot;)</h1>
-<p>#数值可以转换为字符串，但字符串不一定可以转换为数值</p>
-<h1 id="a552">a=&quot;5.5+2&quot;</h1>
-<h1 id="printevala">print(eval(a))</h1>
-<h1 id="utf-8字符转换">utf-8字符转换</h1>
-<h1 id="printchr97">print(chr(97))</h1>
-<p>#查字符串的表</p>
-<h1 id="printordaordz">print(ord(&quot;a&quot;),ord(&quot;z&quot;))</h1>
-<h1 id="for-i-in-range97123">for i in range(97,123):</h1>
-<h1 id="printchriend">print(chr(i),end=&quot; &quot;)</h1>
-<p>'''<br>
-输入和输出<br>
-'''</p>
-<h1 id="aevalinput请输入一个整数">a=eval(input(&quot;请输入一个整数 ：&quot;))</h1>
-<h1 id="printtypea-输入的类型都会打印为字符串"># print(type(a)) #输入的类型都会打印为字符串</h1>
-<h1 id="printtypea">print(type(a))</h1>
-<p>#输出 :格式化输出( 针对字符串)%s,%d,%f,%%</p>
-<h1 id="name张三">name=&quot;张三&quot;</h1>
-<h1 id="age18">age=18</h1>
-<h1 id="height185">height=1.85</h1>
-<h1 id="xuehao5">xuehao=5</h1>
-<h1 id="socre5">socre=5</h1>
-<h1 id="print我的名字叫s今年d岁身高2f米学号是05d成绩是年级前dnameageheightxuehaosocre">print(&quot;我的名字叫%s,今年%d岁,身高%.2f米,学号是%05d,成绩是年级前%d%%&quot;%(name,age,height,xuehao,socre))</h1>
-<h1 id="input">input()</h1>
-<h1 id="print">print()</h1>
-<h1 id="d1-name-b-price-100">d1 = {'name': 'b', 'price': 100}</h1>
-<h1 id="d2-name-z-price-666">d2 = {'name': 'z', 'price': 666}</h1>
-<h1 id="d3-name-c-price-1">d3 = {'name': 'c', 'price': 1}</h1>
-<h1 id="l1-d1-d2-d3">l1 = [d1, d2, d3]</h1>
-<h1 id="a-maxl1-keylambda-x-xname">a = max(l1, key=lambda x: x['name'])</h1>
-<h1 id="printa">print(a)</h1>
-<h1 id="b-maxl1-keylambda-x-xprice">b = max(l1, key=lambda x: x['price'])</h1>
-<h1 id="printb">print(b)</h1>
-<h1 id="买票进火车站">买票进火车站</h1>
-<h1 id="需求">需求:</h1>
-<h1 id="1定义一个-has_ticket-车票表示是否有车票定义一个-knife_legth-刀的长度">(1)定义一个 has_ticket 车票，表示是否有车票，定义一个 knife_legth 刀的长度，</h1>
-<h1 id="2检查火车票是否满足否则不让上火车">(2)检查火车票，是否满足，否则不让上火车</h1>
-<h1 id="3检查行李箱是否有违法品如果刀子长度超过-20cm-不让上火车">(3)检查行李箱，是否有违法品，如果刀子长度超过 20cm 不让上火车</h1>
-<h1 id="import-random">import random</h1>
-<h1 id="has_ticketintinput车票">has_ticket=int(input(&quot;车票:&quot;))</h1>
-<h1 id="knife_lengthintinput刀子长度"># knife_length=int(input(&quot;刀子长度:&quot;))</h1>
-<h1 id="knife_lengthrandomrandint140">knife_length=random.randint(1,40)</h1>
-<h1 id="-4"></h1>
-<h1 id="if-has_tickethas_ticket">if has_ticket==has_ticket:</h1>
-<h1 id="-5"></h1>
-<h1 id="if-has_tickethas_ticket-and-knife_length20">if has_ticket==has_ticket and knife_length&lt;=20:</h1>
-<h1 id="print感谢你搭乘本次列车">print(&quot;感谢你搭乘本次列车&quot;)</h1>
-<h1 id="else-2">else:</h1>
-<h1 id="print带有违禁品不能上火车">print(&quot;带有违禁品不能上火车&quot;)</h1>
-<h1 id="else-3">else:</h1>
-<h1 id="print没有车票不能上火车">print(&quot;没有车票不能上火车&quot;)</h1>
-<p>#讲解</p>
-<h1 id="has_ticket-intinput请输入车票">has_ticket = int(input(&quot;请输入车票&quot;))</h1>
-<h1 id="knife_legth18">knife_legth=18</h1>
-<h1 id="if-has_ticket1">if has_ticket==1:</h1>
-<h1 id="if-knife_legth20">if knife_legth&lt;=20:</h1>
-<h1 id="print可以上火车">print(&quot;可以上火车&quot;)</h1>
-<h1 id="else-4">else:</h1>
-<h1 id="print刀具太长不能上火车">print(&quot;刀具太长不能上火车&quot;)</h1>
-<h1 id="else-5">else:</h1>
-<h1 id="print没有车票先去买票">print(&quot;没有车票,先去买票&quot;)</h1>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[sql日常2]]></title>
-        <id>https://yooinn.github.io//post/sql-ri-chang-2</id>
-        <link href="https://yooinn.github.io//post/sql-ri-chang-2">
-        </link>
-        <updated>2019-06-12T09:37:33.000Z</updated>
-        <content type="html"><![CDATA[<blockquote>
-<p>1,简单查询语句<br>
-从一张表查询数据<br>
-2 复杂查询语句</p>
-</blockquote>
-<pre><code>&gt; 	多表联查（列横向叠加）
-&gt; 	内连接。左连接。右连接。全连接。自连接。非等值连接
-&gt;   复合查询（查询结果上下 叠加）
-&gt;   子查询（关联子查询，非关联子查询）
+import sys
+import atexit
+def daemonize(pid_file=None):
+    &quot;&quot;&quot;
+    创建守护进程
+    :param pid_file: 保存进程id的文件
+    :return:
+    &quot;&quot;&quot;
+    # 从父进程fork一个子进程出来
+    pid = os.fork()
+    # 子进程的pid一定为0，父进程大于0
+    if pid:
+        # 退出父进程，sys.exit()方法比os._exit()方法会多执行一些刷新缓冲工作
+        sys.exit(0)
+    # 子进程默认继承父进程的工作目录，最好是变更到根目录，否则回影响文件系统的卸载
+    os.chdir('/')
+    # 子进程默认继承父进程的umask（文件权限掩码），重设为0（完全控制），以免影响程序读写文件
+    os.umask(0)
+    # 让子进程成为新的会话组长和进程组长
+    os.setsid()
+    # 注意了，这里是第2次fork，也就是子进程的子进程，我们把它叫为孙子进程
+    _pid = os.fork()
+    if _pid:
+        # 退出子进程
+        sys.exit(0)
+    # 此时，孙子进程已经是守护进程了，接下来重定向标准输入、输出、错误的描述符(是重定向而不是关闭, 这样可以避免程序在 print 的时候出错)
+    # 刷新缓冲区先，小心使得万年船
+    sys.stdout.flush()
+    sys.stderr.flush()
+    # dup2函数原子化地关闭和复制文件描述符，重定向到/dev/nul，即丢弃所有输入输出
+    with open('/dev/null') as read_null, open('/dev/null', 'w') as write_null:
+        os.dup2(read_null.fileno(), sys.stdin.fileno())
+        os.dup2(write_null.fileno(), sys.stdout.fileno())
+        os.dup2(write_null.fileno(), sys.stderr.fileno())
+    # 写入pid文件
+    if pid_file:
+        with open(pid_file, 'w+') as f:
+            f.write(str(os.getpid()))
+        # 注册退出函数，进程异常退出时移除pid文件
+        atexit.register(os.remove, pid_file)
 </code></pre>
-<blockquote>
-<p>3 select 数据 from table where.. group by ..having..order by</p>
-</blockquote>
-<pre><code>&gt;   +,-,*,/,and,or,not,&lt;,&gt;,&lt;=,&gt;=,&lt;&gt;,!=,
-&gt;   is null,is not null,
-&gt;   in 
-&gt;  between..and not between..and  范围查询
-&gt;  like 模糊查询
-</code></pre>
-<blockquote>
-<p>#查看表中的行数据<br>
-<code>&gt; select * from stu;</code><br>
-查询stu表中性别为女体重超过60公斤的<br>
-<code>&gt; select * from stu where sex='女' and weight&gt;60;</code><br>
-查询stu表中分数在500-600之间的男生学生的所有信息<br>
-<code>&gt; select * from stu where (cno='1'or cno='2') and sex='男'and height&gt;=190;</code><br>
-3.查询stu表中1班或者2班,身高超过190的学生的所有信息</p>
-</blockquote>
-<pre><code>&gt; select * from stu where (cno='1'or cno='2') and sex='男'and height&gt;=190;
-&gt; select * from stu where cno in (1,2) and  height&gt;=190;
-</code></pre>
-<blockquote>
-<p>查询练习<br>
-1.查询stu表中性别为女 体重超过69公斤的学生的所有信息<br>
-2.<br>
-3.查询stu表中3班学生中分数在400-505.5之间的女生<br>
-select * from stu where sex='女' and cno='3'score between 400 and 505.5;<br>
-4.查询stu表中没有分班的女生<br>
-select * from stu where sex='女' and cno is null;<br>
-查询stu表中有分班的女生<br>
-select * from stu where sex='女' and cno is not null;<br>
-6查询stu表中体重低于40公斤且身高低于1.65米的学生,<br>
-列出其姓名。身高。体重。总分。以及总分占750分的百分比</p>
-<p>select sname,score,weight,height from stu where weight&lt;40 and height&lt;1.65;<br>
-sname height  weight score</p>
-<p>select sname,weight,height,score,round(score/750*100,1) from stu where height&lt;40 and  height/100&lt;1.65;</p>
-<p>7.查询stu表中姓名第二个字是'侯'或者第一个字是'张'且名字只有两个字的学生<br>
-select * from stu where sname like'<em>侯%' or sname like '张</em>';</p>
-<p>常用数值函数:round(num,n) 四舍五入num 数值 ，n保留小数</p>
-<p>查询stu表中1990年出生的学生<br>
-select sname,birth from stu;<br>
-select sname from stu where year(birth)=08;<br>
-year获取年份<br>
-month获取月份<br>
-查询stu表中8月份出生的学生</p>
-</blockquote>
-<pre><code>&gt; select sname from stu where month(birth)=08;
-&gt; select sname,birth,month(birth) from stu where month(birth)=08;
-&gt; 	select	datediff(date1,date2) 计算两个日期之间的天数
-&gt; 	select  curdate 获取当前日期
-</code></pre>
-<pre><code>&gt; 查询stu表中学生的姓名,生日，年龄(保留两位小数),只显示小于20岁的学生. 
-&gt; datediff(year,birth)/365 from stu ;
-&gt; select sname,birth,round(datediff(curdate(),birth)/365,2) from stu  where round(datediff(curdate(),birth)/365,2)&lt;20;
-&gt; select datediff(year,'1984-2-16',getdate())
-&gt; select curdate();
-&gt; select datediff(curdate(),'2019-6-1');
-</code></pre>
-<blockquote>
-<p>条件判断函数if if(expr,v1,v2) expr是条件 ，满足走v1,否则走v2<br>
-如果学生分数大于520分,为优秀生，否则为一般生<br>
-，从stu表中查找,显示考分和类型(优秀生,一般生)</p>
-<p>select sname,score,if(score&gt;520,'优秀生','一般生')from stu;</p>
-<p>case 多重条件判断，比if跟灵活<br>
-case when expr1 then v1 when expr2 then v2 else vn end<br>
-#700分以上是优秀，600分以上是良好，520分以上中等，否则较差<br>
-显示姓名，分数，类型<br>
-select sname,score,(case score&gt;=700 then '优秀' when case &gt;=600 then '良好' when score&gt;=520 then '中等' else '较差' end) from stu;</p>
-<p>聚合函数 max(最大),min(最小),sum(总和),avg(平均),count(数)<br>
-#找出学生中最高的身高，最轻的体重，平均分数，学生总数<br>
-select max(height)最大,min(weight),sum(score),avg(score),count(sno) from stu;</p>
-<p>distinct 查询除指定的1个或多个字段的不重复记录<br>
-select distinct * from stu;</p>
-<p>查询stu表中不重复的 班号 和性别<br>
-select distinct (cno)班号,(sex)性别 from stu;<br>
-#排序<br>
-order by增序asc, desc降序<br>
-select sname,sex,birth,height,weight from stu order(asc)<br>
-按照stu表按照体重增序列出学生信息<br>
-select * from stu  order by  weight desc;<br>
-展示以分班学员信息,按照班号增序，在按照分数降序<br>
-select * from stu where cno is not null order by cno asc,score desc;<br>
-select * from stu where cno is not null order by 8 asc,7 desc;</p>
-<p>#limit 限制显示几条信息<br>
-#查询stu表显示分数最高的三名学生信息<br>
-select * from stu order by score desc limit 3;</p>
-<p>group by 分组<br>
-按照班号分组</p>
-</blockquote>
-<pre><code>&gt; select cno from stu group by cno;
-&gt; select sname,cno from stu group by cno,sname;
-</code></pre>
-<blockquote>
-<p>按照班号分组,统计每个班的平均身高，平均体重，人数，最高分，不包括未分班的同学max()</p>
-</blockquote>
-<pre><code>&gt; select cno,count(*),avg(height),avg(weight),max(score) from stu where cno is not null group by cno;
-</code></pre>
-<blockquote>
-<p>#查询stu表按照班号分组,在按照性别分组，列出班号，性别，<br>
-统计每个班的男女平均身高,平均体重,人数，最高分，不包括未分班同学<br>
-结果先按照班号排序，再按照男女排序.<br>
-max(最大),min(最小),sum(总和),avg(平均),count(数)<br>
-<code>&gt; select cno,sex,avg(height),avg(weight),count(*),max(score) from stu where cno is not null group by cno,sex order by cno,sex;</code><br>
-按照学生出生年月份分组，统计每个年份的人数，最高分，最低分，按照年份排序<br>
-select year(birth),count(*),max(score),min(score) from stu  group by year(birth) order by year(birth);</p>
-<p>having对group by 产生的结果进行过滤， 也可以对聚合函数进行过滤<br>
-按照学生出生年月份分组，统计每个年份的人数，最高分，最低分，按照年份排序,并从结果中找出人数超出2个<br>
-并且最高分超过600分的年份<br>
-select year(birth),count(<em>),max(score),min(score) from stu  group by year(birth) having count(</em>)&gt;2 and max(score)&gt;600 order by year(birth);</p>
-<p>#找出已分班学生中,那些平均身高超过175.列出班号和人数<br>
-select cno,count(<em>) from stu where cno is not null group by cno having avg(height)&gt;175;<br>
-#找出以分班学生中，那些班学生每个人身高超过165，列出班号和人数<br>
-select cno,count(</em>) from stu where cno is not null group by cno having min(height)&gt;165;</p>
-<p>约束:非空约束 not null ,<br>
-主键约束primary ，唯一约束unique key(auto increment),unsigned正数</p>
-<p>create table a(id int primary key,age int not null default 18,phone int unique );</p>
-<p>insert into a values(1,12,123);<br>
-insert into a values(2,12,124);<br>
-create table b(id int primary key auto_increment,age int not null default 18,phone int unique );<br>
-insert into b values(1,12,123);<br>
-insert into b(age,phone) values(12,124);</p>
-</blockquote>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[用命令创建MySQL数据库]]></title>
-        <id>https://yooinn.github.io//post/yong-ming-ling-chuang-jian-mysql-shu-ju-ku</id>
-        <link href="https://yooinn.github.io//post/yong-ming-ling-chuang-jian-mysql-shu-ju-ku">
-        </link>
-        <updated>2019-06-11T12:12:47.000Z</updated>
-        <content type="html"><![CDATA[<p><strong>一、连接MYSQL</strong></p>
-<blockquote>
-<p>格式： mysql -h主机地址 -u用户名 -p用户密码</p>
-</blockquote>
-<hr>
-<h1 id="1-连接到本机上的mysql">1、 连接到本机上的MYSQL</h1>
-<pre><code>首先打开DOS窗口，然后进入目录mysql\\bin，再键入命令mysql -u root -p，回车后提示你输密码.注意用户名前可以有空格也可以没有空格，但是密码前必须没有空格，否则让你重新输入密码.
-如果刚安装好MYSQL，超级用户root是没有密码的，故直接回车即可进入到MYSQL中了，MYSQL的提示符是： mysql&gt;
-</code></pre>
-<h1 id="2-连接到远程主机上的mysql">2、连接到远程主机上的MYSQL。</h1>
-<pre><code>假设远程主机的IP为：110.110.110.110，用户名为root,密码为abcd123。则键入以下命 令：
-
-mysql -h110.110.110.110 -u root -p 123;(注:u与root之间可以不用加空格，其它也一样)
-
-3、 退出MYSQL命令： exit (回车)
-</code></pre>
-<h1 id="二-修改密码">二、修改密码</h1>
-<pre><code>格式：mysqladmin -u用户名 -p旧密码 password 新密码。 例如
-
-　1、 给root加个密码ab12。首先在DOS下进入目录mysql\\bin，然后键入以下命令
-
-　mysqladmin -u root -password ab12
-
- 　　2、 再将root的密码改为djg345。
-
- 　　mysqladmin -u root -p ab12 password \\``
-</code></pre>
-<h1 id="三-创建数据库">三、创建数据库</h1>
-<pre><code>　　1、 CREATE DATABASE 数据库名;
-
-　　2、 GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER ON 数据库名.\* TO 数据库名@localhost IDENTIFIED BY '密码';
-
-　　3、 SET PASSWORD FOR
-
-　　'数据库名'@'localhost' = OLD_PASSWORD('密码');
-
-　　依次执行3个命令完成数据库创建。注意：中文 “密码”和“数据库”是户自己需要设置的。
-
-
-</code></pre>
-<hr>
-<hr>
-<h1 id="现在介绍一些常用的mysql命令"><code>现在介绍一些常用的MYSQL命令</code></h1>
-<hr>
-<pre><code> 一个消解器
-
-　　一、操作技巧
-
-　　1、如果你打命令时，回车后发现忘记加分号，你无须重打一遍命令，只要打个分号回车就可以了。
-
-　　也就是说你可以把一个完整的命令分成几行来打，完后用分号作结束标志就OK。
-
-　　2、你可以使用光标上下键调出以前的命令。
-
-　　二、常用命令
-
-　　1、显示当前数据库服务器中的数据库列表：
-
-　　mysql&gt; SHOW DATABASES;
-
-　　2、建立数据库：
-
-　　mysql&gt; CREATE DATABASE 库名;
-
-　　mysql&gt; CREATE DATABASE IF NOT EXISTS mydb default charset utf8 COLLATE utf8general_ci;
-
-　　3、建立数据表：
-
-　　mysql&gt; USE 库名;
-
-　　mysql&gt; CREATE TABLE 表名 (字段名 VARCHAR(20), 字段名 CHAR(1));
-
-　　4、删除数据库：
-
-　　mysql&gt; DROP DATABASE 库名;
-
-　　5、删除数据表：
-
-　　mysql&gt; DROP TABLE 表名;
-
-　　6、将表中记录清空：
-
-　　mysql&gt; DELETE FROM 表名;
-
-　　7、往表中插入记录：
-
-　　mysql&gt; INSERT INTO 表名 VALUES (&quot;hyq&quot;,&quot;M&quot;);
-
-　　8、更新表中数据：
-
-　　mysql-&gt; UPDATE 表名 SET 字段名1='a',字段名2='b' WHERE 字段名3='c';
-
-　　9、用文本方式将数据装入数据表中：
-
-　　mysql&gt; LOAD DATA LOCAL INFILE &quot;D:/mysql.txt&quot; INTO TABLE 表名;
-
-　　10、导入.sql文件命令：
-
-　　mysql&gt; USE 数据库名;
-
-　　mysql&gt; SOURCE d:/mysql.sql;
-
-　　11、命令行修改root密码：
-
-　　mysql&gt; UPDATE mysql.user SET password=PASSWORD('新密码') WHERE User='root';
-
-　　mysql&gt; FLUSH PRIVILEGES;
-
-　　三、一个建库和建表以及插入数据的实例
-
-　　drop database if exists school; //如果存在sudu则删除
-
-　　create database sudu; //建立库sudu
-
-　　use school; //打开库sudu
-
-　　create table teacher //建立表TEACHER
-
-　　(
-
-　　id int(3) auto_increment not null primary key,
-
-　　name char(10) not null,
-
-　　address varchar(50) default '深圳',
-
-　　year date
-
-　　); //建表结束
-
-　　//以下为插入字段
-
-　　insert into teacher values('','allen','飞数科技1','2005-10-10');
-
-　　insert into teacher values('','jack','飞数科技2','2005-12-23');如果你在mysql提示符键入上面的命令也可以，但不方便调试。
-
-　　(1)你可以将以上命令原样写入一个文本文件中，假设为sudu.sql，然后复制到c:\\下，并在DOS状态进入目录\\mysql\\bin，然后键入以下命令：
-
-　　mysql -uroot -p密码 \\ source c:\\sudu.sql; 也可以将sudu.sql文件导入数据库中。
-
-　　四、将文本数据转到数据库中
-
-　　1、文本数据应符合的格式：字段数据之间用tab键隔开，null值用\\n来代替.例：
-
-　　3 rose 飞数科技1 1976-10-10
-
-　　4 mike 飞数科技2 1975-12-23
-
-　　假设你把这两组数据存为速度sudu.txt文件，放在c盘根目录下。
-
-　　2、数据传入命令 load data local infile &quot;c:\\sudu.txt&quot; into table 表名;
-
-　　注意：你最好将文件复制到\\mysql\\bin目录下，并且要先用use命令打表所在的库。
-
-　　五、备份数据库：(命令在DOS的\\mysql\\bin目录下执行)
-
-　　1.导出整个数据库
-
-　　导出文件默认是存在mysql\\bin目录下
-
-　　mysqldump -u 用户名 -p 数据库名 &gt; 导出的文件名
-
-　　mysqldump -u username -p123456 databasename &gt; outfile_name.sql
-
-　　2.导出一个表
-
-　　mysqldump -u 用户名 -p 数据库名 表名&gt; 导出的文件名
-
-　　mysqldump -u username -p databasename tablename &gt; outfilename.sql
-
-　　3.导出一个数据库结构
-
-　　mysqldump -u username -p -d --add-drop-table databasename &gt; outfile_name.sql
-
-　　\-d 没有数据 --add-drop-table 在每个create语句之前增加一个drop table
-
-　　4.带语言参数导出
-
-　　mysqldump -uroot -p --default-character-set=latin1 --set-charset=gbk --skip-opt databasename &gt; outfilename.sql
-　
-
-</code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[mysql数据库笔记]]></title>
-        <id>https://yooinn.github.io//post/mysql-shu-ju-ku</id>
-        <link href="https://yooinn.github.io//post/mysql-shu-ju-ku">
-        </link>
-        <updated>2019-06-11T06:43:06.000Z</updated>
-        <content type="html"><![CDATA[<p><em>mysql数据库</em></p>
-<blockquote>
-<p>msylq常用命令：</p>
-</blockquote>
-<pre><code>&gt; 查看数据库：show databases;
-&gt; 
-&gt; 选择数据库：use 数据库名称;
-&gt; 
-&gt; mysql程序在哪里：status;
-&gt; 
-&gt; 查看mysql版本:select version();
-&gt; 
-&gt; 查看当前用户：select user();
-&gt; 
-&gt; 查看当前时间：select now();
-&gt; 
-&gt; 查看数据库中的表：show tables;  #show tables from mysql;
-&gt; 
-&gt; 查看数据库名称：select database();
-&gt; 
-&gt; 查看数据库中表的结构：desc 表名;
-&gt; 
-&gt; 查看数据库中表的行：select 内容 from 表名;
-&gt; 
-</code></pre>
-<blockquote>
-<p>#创建数据库：</p>
-</blockquote>
-<pre><code>&gt; CREATE DATABASE 库名;
-&gt; create database 加上你要创建的数据库名称：
-</code></pre>
-<blockquote>
-<p>#删除数据库<br>
-<code>&gt; drop database 数据库名称：</code></p>
-<p>#语句分类：DDL数据定义语句，DML数据操纵语句，DQL语句，数据库查询语句</p>
-</blockquote>
-<pre><code>&gt; #数据类型：1.数值（身高，体重，工资），int整数，decimal小数
-&gt; 	   2.字符（姓名，公司名称），定长字符char(),不定长字符varchar()
-&gt; 	   3.时间（生日，订单日期）,date,默认格式：'YYYY-MM-DD',datetime,'YYYY-MM-DD-HH:MM:SS'
-&gt; 	   4.二进制（照片，音频）
-&gt; 
-</code></pre>
-<blockquote>
-<p>#创建student表  use 你要使用的表;</p>
-</blockquote>
-<pre><code>&gt; create table stu(sno int,sname varchar(20),sex char(1),birth date,height decimal(4,1),weight 
-&gt; 
-&gt; decimal(4,1),score decimal(4,1),cno int);
-&gt; 
-&gt; create table cno(cno int,cname varchar(20),teacher varchar(20));
-&gt; 
-&gt; create table bmi(id int,bname varchar(20),lval decimal(4,2),hval decimal(4,2),sex char(1));
-&gt; show tables;
-</code></pre>
-<blockquote>
-<p>#插入数据（增加 insert into）</p>
-</blockquote>
-<pre><code>&gt; insert into stu(sno,sname,sex,birth,height,weight,score,cno) values(17,'吕布','男','1992-12- 08','192.0','92.0','352.0',NULL);
-&gt; insert into stu(sno,sname,sex,birth,height,weight,score,cno) values(18,'袁绍','女','1990-04- 25','175.0','55.6','511.0',NULL);
-&gt; insert into stu(sno,sname,sex,birth,height,weight,score,cno) values(19,'诸葛亮','男','1998- 11-12','186.5','75.5','721.5','NULL');
-</code></pre>
-<blockquote>
-<p>#查看表中的行数据</p>
-</blockquote>
-<pre><code>&gt; select * from stu;
-&gt; 
-&gt; insert into bmi values(1,'过轻','0.00','19.99','男');
-&gt; insert into bmi values(2,'适中','20.00','24.99','男');
-&gt; insert into bmi values(3,'过重','25.00','29.99','男');
-&gt; insert into bmi values(4,'肥胖','30.00','35.00','男');
-&gt; insert into bmi values(5,'过轻','0.00','18.99','女');
-&gt; insert into bmi values(6,'适中','19.00','23.99','女');
-&gt; insert into bmi values(7,'过重','24.00','28.99','女');
-&gt; insert into bmi values(8,'肥胖','29.00','34.00','女');
-&gt; insert into class values(1,'1班','曹操');
-&gt; insert into class values(2,'2班','刘备');
-&gt; insert into class values(3,'3班','孙权');
-&gt; insert into class values(4,'4班','刘协');
-</code></pre>
-<blockquote>
-<p>#同时插入多条数据<br>
-<code>&gt; insert into stu values(4,'关羽','男','1993-4-5'),(5,'张飞','男','1992-8-4');</code></p>
-<p>#修改数据（update..set）</p>
-</blockquote>
-<pre><code>&gt; update stu set cno=NULL where sname='吕布';
-&gt; update stu set sno=17 where sname='吕布';
-&gt; 许褚 关羽 张飞 赵云  马超 黄忠 周瑜 大桥 小乔  张昭 太史慈 吕布
-&gt; 
-</code></pre>
-<blockquote>
-<p>#删除数据（delete from）<br>
-delete from student where sno=1;<br>
-#删除表   drop table student;<br>
-#删除表中所有数据  delete from student;</p>
-</blockquote>
+<p><strong>概括一下守护进程的编写步骤：</strong></p>
+<p>1、fork出子进程，退出父进程</p>
+<p>2、子进程变更工作目录(chdir)、文件权限掩码(umask)、进程组和会话组(setsid)</p>
+<p>3、子进程fork孙子进程，退出子进程</p>
+<p>4、孙子进程刷新缓冲，重定向标准输入／输出／错误（一般到/dev/null，意即丢弃）</p>
+<p>5、(可选)pid写入文件</p>
+<p>理解几个要点<br>
+为什么要fork两次<br>
+第一次fork，是为了脱离终端控制的魔爪。父进程之所以退出，是因为终端敲击键盘、或者关闭时给它发送了信号；而fork出来的子进程，在父进程自杀后成为孤儿进程，进而被操作系统的init进程接管，因此脱离终端控制。</p>
+<p>所以其实，第二次fork并不是必须的（很多开源项目里的代码就没有fork两次）。只不过出于谨慎考虑，防止进程再次打开一个控制终端。因为子进程现在是会话组长了（对话期的首次进程），有能力打开控制终端，再fork一次，孙子进程就不能打开控制终端了。</p>
+<p>文件描述符<br>
+Linux是“一切皆文件”，文件描述符是内核为已打开的文件所创建的索引，通常是非负整数。进程通过文件描述符执行IO操作。</p>
+<p>每个进程有自己的文件描述符表，因此相同的描述符可能指向同一个文件，也可能指向不同文件；来自不同进程的不同的描述符，当然也有可能指向同一个文件。</p>
+<p>默认情况下，0代表标准输入，1代表标准输出，2代表标准错误。</p>
+<p>umask权限掩码<br>
+我们知道，在Linux中，任何一个文件都有读（read）、写（write）和执行（execute）的三种使用权限。其中，读的权限用数字4代表，写权限是2，执行权限是1。命令ls -l可以查看文件权限，r/w/x分别表示具有读/写/执行权限。</p>
+<p>任何文件，也都有用户（User）,用户组（Group）,其他组（Others）三种身份权限。一般用3个数字表示文件权限，例如754：</p>
+<p>7，是User权限，即文件拥有者权限</p>
+<p>5，是Group权限，拥有者所在用户组的组员所具有的权限</p>
+<p>4，是Others权限，即其他组用户的权限啦</p>
+<p>而umask是为了控制默认权限，防止新建文件或文件夹具有全权。</p>
+<p>系统一般默认为022（使用命令umask查看），表示默认创建文件的权限是644，文件夹是755。你应该可以看出它们的规律，就是文件权限和umask的相加结果为666（笑），文件夹权限和umask的相加结果为777。</p>
+<p>进程组<br>
+每个进程都属于一个进程组（PG,Process Group），进程组可以包含多个进程。</p>
+<p>进程组有一个进程组长（Leader），进程组长的ID（PID, Process ID）就作为整个进程组的ID（PGID,Process Groupd ID）。</p>
+<p>会话组<br>
+登陆终端时，就会创造一个会话，多个进程组可以包含在一个会话中。而创建会话的进程，就是会话组长。</p>
+<p>已经是会话组长的进程，不可以再调用setsid()方法创建会话。因此，上面代码中，子进程可以调用setsid()，而父进程不能，因为它本身就是会话组长。</p>
+<p>另外，sh（Bourne Shell）不支持会话机制，因为会话机制需要shell支持工作控制（Job Control）。</p>
+<p>守护进程与后台进程<br>
+通过&amp;符号，可以把命令放到后台执行。它与守护进程是不同的：</p>
+<p>1、守护进程与终端无关，是被init进程收养的孤儿进程；而后台进程的父进程是终端，仍然可以在终端打印</p>
+<p>2、守护进程在关闭终端时依然坚挺；而后台进程会随用户退出而停止，除非加上nohup</p>
+<p>3、守护进程改变了会话、进程组、工作目录和文件描述符，后台进程直接继承父进程（shell）的</p>
+<p>换句话说：守护进程就是默默地奋斗打拼的有为青年，而后台进程是默默继承老爸资产的富二代。</p>
 ]]></content>
     </entry>
 </feed>
