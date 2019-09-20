@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yooinn.github.io/</id>
     <title>Jiank</title>
-    <updated>2019-09-20T12:19:06.652Z</updated>
+    <updated>2019-09-20T13:15:16.426Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yooinn.github.io/"/>
     <link rel="self" href="https://yooinn.github.io//atom.xml"/>
@@ -10,6 +10,306 @@
     <logo>https://yooinn.github.io//images/avatar.png</logo>
     <icon>https://yooinn.github.io//favicon.ico</icon>
     <rights>All rights reserved 2019, Jiank</rights>
+    <entry>
+        <title type="html"><![CDATA[Django框架静态文件使用/中间件/禁用ip功能实例详解]]></title>
+        <id>https://yooinn.github.io//post/django-kuang-jia-jing-tai-wen-jian-shi-yong-zhong-jian-jian-jin-yong-ip-gong-neng-shi-li-xiang-jie</id>
+        <link href="https://yooinn.github.io//post/django-kuang-jia-jing-tai-wen-jian-shi-yong-zhong-jian-jian-jin-yong-ip-gong-neng-shi-li-xiang-jie">
+        </link>
+        <updated>2019-09-20T13:14:23.000Z</updated>
+        <content type="html"><![CDATA[<p>静态文件</p>
+<p>一、静态文件的使用</p>
+<p>静态文件：网页中使用的css，js，图片</p>
+<p>静态文件的使用：</p>
+<p>在项目下创建静态目录，比如：static，导入静态文件（HTML、CSS、js）</p>
+<p>在setting.py中配置静态目录</p>
+<h1 id="通过此url来引用静态文件可以隐藏服务器的文件的实际保存目录">通过此url来引用静态文件，可以隐藏服务器的文件的实际保存目录</h1>
+<p>STATIC_URL = '/abc/'</p>
+<h1 id="指定静态文件所在的物理目录">指定静态文件所在的物理目录</h1>
+<p>STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]</p>
+<p>通过setting.py中的STATIC_URL的值来引用静态文件，好处：可以隐藏服务器的文件的实际保存目录。比如：</p>
+<img src="/abc/image/mm.jpg" />
+<script src="/abc/js/jquery-1.12.4.min.js"></script>
+<p>二、使用static标签动态引用</p>
+<p>上述写法是硬编码，存在维护问题，可以使用static标签动态引用</p>
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+<head>
+...
+</head>
+<body>
+动态引用：<br/>
+<img src="{% static 'image/mm.jpg' %}"/>
+</body>
+</html>
+<p>中间件</p>
+<p>MIDDLEWARE: 中间件</p>
+<p>一、案例： 禁止指定ip地址的访问</p>
+<p>使用request对象的META属性，可以获取用户访问的ip地址：</p>
+<p>request.META.get('REMOTE_ADDR')</p>
+<p>二、中间件</p>
+<p>中间件： django框架预留的接口，可以控制请求和响应的过程。Django在中间件中预置了6个方法，这些方法会在不同的阶段执行，对输入或输出进行干预。</p>
+<p><img src="https://files.jb51.net/file_images/article/201907/2019722114704117.png?2019622114834" alt=""></p>
+<p>初始化：无需任何参数，服务器响应第一个请求的时候调用一次：</p>
+<p>def <strong>init</strong>():<br>
+pass</p>
+<p>处理请求前(url匹配前)调用： 返回None或HttpResponse对象</p>
+<p>def process_request(self, request):<br>
+pass</p>
+<p>url匹配后视图函数处理前调用： 返回None或HttpResponse对象</p>
+<p>def process_view(self, request, view_func, view_args, view_kwargs):<br>
+pass</p>
+<p>视图函数出异常时调用：返回一个HttpResponse对象</p>
+<p>def process_exception(self, request, exception):<br>
+return response</p>
+<p>视图函数处理后，模板响应处理前调用： 返回实现了render方法的响应对象</p>
+<p>def process_template_response(self, request, response):<br>
+pass</p>
+<p>视图函数返回TemplateReponse时才会调用，返回HttpResponse对象不会调用</p>
+<p>视图函数处理后，返回内容给浏览器前调用：返回HttpResponse对象</p>
+<p>def process_response(self, request, response):<br>
+return response</p>
+<p>禁用ip功能</p>
+<p>在MyMiddleware的process_view方法中，新增代码如下：</p>
+<p>class MyMiddleware(object):<br>
+...<br>
+exclude_ips = ['127.0.0.1']<br>
+def process_view(self, request, view_func, view_args, view_kwargs):<br>
+print('--process_view--')<br>
+# 禁用ip，以下代码也可以添加到process_request方法<br>
+ip = request.META.get('REMOTE_ADDR')<br>
+if ip in exclude_ips:<br>
+return HttpResponse('禁止访问')</p>
+<p>异常处理</p>
+<p>异常处理： 视图函数执行出错之后，会调用中间件的process_exception方法，可以在该方法中执行异常操作。</p>
+<p>在index视图函数中，添加执行出错代码：</p>
+<p>def index(request):<br>
+&quot;&quot;&quot;进入首页&quot;&quot;&quot;<br>
+print('=<mark><mark>index</mark></mark>')</p>
+<h1 id="添加出错代码">添加出错代码</h1>
+<p>aa = None<br>
+print('aa='+ aa)<br>
+return render(request, 'app01/index.html')</p>
+<p>在前面编写的MyMiddleware中： 添加处理异常的中间件方法，并注释前面的拦截ip的拦截：</p>
+<h1 id="middlewarepy">middleware.py</h1>
+<p>class MyMiddleware(object):<br>
+...<br>
+def process_view(self, request, view_func, view_args, view_kwargs):<br>
+print('-------process_view')<br>
+# # 禁止ip访问<br>
+# ip = request.META.get('REMOTE_ADDR')<br>
+# if ip in exclude_ips:<br>
+#   return HttpResponse('禁止访问')<br>
+def process_exception(self, request, exception):<br>
+print('-----process_exception')</p>
+<p>访问首页，查看服务器，发现：处理异常的中间件方法process_exception执行了</p>
+<p>处理出错： 在process_exception方法中返回HttpResponse对象就可以了：</p>
+<h1 id="middlewarepy-2">middleware.py</h1>
+<p>class MyMiddleware(object):<br>
+...<br>
+def process_exception(self, request, exception):<br>
+print('-----process_exception')<br>
+return HttpResponse('运行出错了：%s' % exception)</p>
+<p>希望本文所述对大家基于Django框架的Python程序设计有所帮助。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Django中间件拦截未登录url实例详解]]></title>
+        <id>https://yooinn.github.io//post/django-zhong-jian-jian-lan-jie-wei-deng-lu-url-shi-li-xiang-jie</id>
+        <link href="https://yooinn.github.io//post/django-zhong-jian-jian-lan-jie-wei-deng-lu-url-shi-li-xiang-jie">
+        </link>
+        <updated>2019-09-20T13:13:48.000Z</updated>
+        <content type="html"><![CDATA[<p>1.利用装饰器在视图中拦截未登录的url</p>
+<p>@login_required(login_url='/user/login/')<br>
+def homepage(request):<br>
+pass<br>
+这种方法适合于程序中只有少数几个需要登录拦截的url。</p>
+<ol start="2">
+<li>利用中间件技术拦截未登录的url</li>
+</ol>
+<p>2.1 在settings.py添加MIDDLEWARE设置：middleware.LoginCheckMiddleware</p>
+<p>MIDDLEWARE = [<br>
+'django.middleware.security.SecurityMiddleware',<br>
+'django.contrib.sessions.middleware.SessionMiddleware',<br>
+'django.middleware.common.CommonMiddleware',</p>
+<h1 id="djangomiddlewarecsrfcsrfviewmiddleware">'django.middleware.csrf.CsrfViewMiddleware',</h1>
+<p>'django.contrib.auth.middleware.AuthenticationMiddleware',<br>
+'django.contrib.messages.middleware.MessageMiddleware',<br>
+'django.middleware.clickjacking.XFrameOptionsMiddleware',</p>
+<h1 id="url登录拦截中间件">url登录拦截中间件</h1>
+<p>'middleware.LoginCheckMiddleware',<br>
+]<br>
+2.2 在项目目录下创建middleware.py文件，文件中创建拦截类：LoginCheckMiddleware</p>
+<p>import re<br>
+from django.http import JsonResponse<br>
+from django.shortcuts import HttpResponseRedirect<br>
+from django.utils.deprecation import MiddlewareMixin</p>
+<p>class LoginCheckMiddleware(MiddlewareMixin):<br>
+def process_request(self, request):<br>
+# | 分隔要匹配的多个url，从左到右匹配，有匹配就返回匹配值，否则返回None。<br>
+pattern = r'^(/<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">∣</mi><mi mathvariant="normal">/</mi><mi>u</mi><mi>s</mi><mi>e</mi><mi>r</mi><mi mathvariant="normal">/</mi><mi>u</mi><mi>s</mi><mi>e</mi><mi>r</mi><mi mathvariant="normal">/</mi><mo>[</mo><mn>0</mn><mo>−</mo><mn>9</mn><mo>]</mo><mo>+</mo><mi mathvariant="normal">/</mi></mrow><annotation encoding="application/x-tex">|/user/user/[0-9]+/</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord">/</span><span class="mord mathdefault">u</span><span class="mord mathdefault">s</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord">/</span><span class="mord mathdefault">u</span><span class="mord mathdefault">s</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord">/</span><span class="mopen">[</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">9</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">/</span></span></span></span>|/user/user/$|/user/getuserall|/user/get_token_code|/user/update_phone_no|/stock|/future)'</p>
+<pre><code># 如果 request.path 的开始位置能够找到这个正则样式的任意个匹配，就返回一个相应的匹配对象。
+# 如果不匹配，就返回None
+match = re.search(pattern, request.path)
+# 需要拦截的url
+if match and not request.user.is_authenticated:
+  print('用户未登录URL拦截 &gt;&gt;: ', request.path)
+</code></pre>
+<p># 主页未登录<br>
+if request.path == '/':<br>
+return HttpResponseRedirect('/user/login/')<br>
+# ajax请求未登录<br>
+else:<br>
+return JsonResponse({'status': False, 'info': '用户未登录!'})<br>
+应用了正则表达式过滤需要拦截的url。</p>
+<p>由于ajax请求不能重定向，所以对于ajax请求的url拦截返回json数据，由前端处理返回的结果。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Python写一个基于MD5的文件监听程序]]></title>
+        <id>https://yooinn.github.io//post/python-xie-yi-ge-ji-yu-md5-de-wen-jian-jian-ting-cheng-xu</id>
+        <link href="https://yooinn.github.io//post/python-xie-yi-ge-ji-yu-md5-de-wen-jian-jian-ting-cheng-xu">
+        </link>
+        <updated>2019-09-20T12:28:41.000Z</updated>
+        <content type="html"><![CDATA[<p>前述</p>
+<p>写了一个基于MD5算法的文件监听程序，通过不同的文件能够生成不同的哈希函数，来实现实现判断文件夹中的文件的增加、修改、删除和过滤含有特定字符的文件名的文件。</p>
+<p>需求说明<br>
+需要实现对一个文件夹下的文件的增加、修改和删除的监控， 一旦发生上述操作，则进行提示。可以选择过滤掉文件名中的特定字符和只监听文件名中含有特定字符的文件。</p>
+<p>简述<br>
+首先，关于文件的增加、修改、删除的反馈，可以想到利用MD5等类似的加密算法，因为文件本身可以生成哈希值，只要文件内容或者文件名被修改过，就会生成和修改之前的哈希值不同的值，因此可以利用dict来存储，一个文件名对应一个哈希值来存储。其中增加和删除就对应一个新增加的键值对和一个减少的键值对，而修改则可以理解为删除了旧的文件、增加了一个新的文件。<br>
+MD5算法可以直接利用第三方的 hashlib 库来实现</p>
+<p>m = hashlib.md5()<br>
+myFile = open(full_path, 'rb')<br>
+for line in myFile.readlines(): #以行为单位不断更新哈希值，避免文件过大导致一次产生大量开销<br>
+m.update(line) #最后可以得到整个文件的哈希值<br>
+第二，关于滤掉文件名中的特定字符和只监听文件名中含有特定字符的文件的功能，这个其实非常简单，只需要用 list 分别对需要过滤和必须存在字符串进行存储， 然后利用标志位和字符串的子串包含性进行判断就可以了，只有满足条件的文件可以产生哈希值，产生哈希值也就意味着被监听了。<br>
+判断字符串中是否含有字串最常用的方法是 in 和 string 中的 find 方法，这里就不再赘述，可以直接看下面的代码</p>
+<p>第三，因为要同时监控多个文件夹，所以必须要利用到线程来处理，创建一个线程池来存储线程， 线程利用了 threading 库，并且实现一个线程类来处理线程的操作<br>
+class myListener(threading.Thread):<br>
+thread1 = myListener(mydir, json_list_include, json_list_exclude) #生成线程<br>
+说明<br>
+需要额外说明的一点是，在传输需要监听的文件夹、必须包含的字段以及过滤字段的时候，我这里是利用配置文件的形式来存储的。说到底，是利用 toml 格式的数据进行的传输，toml格式和 json格式相比，用户的可读性更强一些，为了便于博客展示，因此利用了 toml 格式</p>
+<p>首先利用代码生成了一下toml格式的文件，以后再想用的话，程序打包之后，可以直接修改配置文件来实现对程序的控制。</p>
+<p>#!/usr/bin/env python</p>
+<h1 id="-codingutf-8-">-<em>- coding:utf-8 -</em>-</h1>
+<h1 id="author-jyroooy">Author: JYRoooy</h1>
+<p>import collections<br>
+import json<br>
+import toml<br>
+if <strong>name</strong> == '<strong>main</strong>':<br>
+myOrderDict = collections.OrderedDict<br>
+myOrderDict = {'dict':[{'path':'E:/testing', 'include':['log_'], 'exclude': ['.swp', '.swx', 'tmp']},{'path':'E:/tmp', 'include':['.record'], 'exclude': ['.tmp']}]}<br>
+myToml = toml.dump(myOrderDict, open('E:/python/code/PythonProject/tomlConfig.txt','w+'))<br>
+toml文件</p>
+<p>格式说明， 一个 dict 对应一个监听的文件夹和需要 过滤(exculde) 和 含有(include) 的字段，解释一下，这里的字段只是文件名的字段，监控 E:/testing 目录下的文件，要包含 log_ 字段的文件，且不包含 .swp .swx .tmp 字段的文件， 并且监控 E:/tmp 目录下的文件，要包含 .record 字段的文件，且不包含 .tmp 的文件。<br>
+<img src="https://files.jb51.net/file_images/article/201903/2019311100740411.png?201921110747" alt=""><br>
+代码<br>
+完整程序的代码，具体解释可以看注释</p>
+<pre><code>#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# Author: JYRoooy
+import toml
+import hashlib
+import os
+import sys
+import time
+import importlib
+import threading
+importlib.reload(sys)
+
+class myListener(threading.Thread):
+ '''
+ 监听类
+ '''
+ def __init__(self, input_dir, filt_in, filt_ex): #文件夹路径，必须包含的字符，必须过滤的字符
+ threading.Thread.__init__(self)
+ self.input_dir = input_dir
+ self.filt_in = filt_in
+ self.filt_ex = filt_ex
+ self.dict = {} #用来存储文件名和对应的哈希值
+ self.file_list = [] #存储每一次扫描时的文件的文件名
+ self.pop_list = [] #存储需要删除的文件名
+
+ def run(self):
+ while (1): #保证文件夹一直处于被监听的状态
+  for cur_dir, dirs, files in os.walk(self.input_dir):
+  if files != []:
+   self.file_list = []
+   for each_file_1 in files:
+   each_file = each_file_1
+   if self.filt_in: #判断文件名中是否有必须存在的字段
+    flagone = 0
+    for i in range(len(self.filt_in)):
+    if self.filt_in[i] in each_file:
+     flagone += 1
+    if flagone == 0:
+    continue
+
+   if self.filt_ex: #判断文件名中是否有必须过滤掉的字段
+    flagtwo = 0
+    for i in range(len(self.filt_ex)):
+    if self.filt_ex[i] in each_file:
+     flagtwo = 1
+    if flagtwo==1:
+    continue
+
+   self.file_list.append(each_file)
+   full_path = os.path.join(cur_dir, each_file)
+   m = hashlib.md5() #实例化md5算法
+
+   myFile = open(full_path, 'rb')
+
+   for line in myFile.readlines():
+    m.update(line)
+   if each_file not in self.dict.keys(): #如果当前的dict中没有这个文件，那么就添加进去
+    self.dict[each_file] = m.hexdigest() #生成哈希值
+    print('文件夹:' +cur_dir+ &quot;中的文件名为：&quot; + each_file + &quot;的文件为新文件&quot; + time.strftime('%Y-%m-%d %H:%M:%S',
+           time.localtime(time.time())))
+   if each_file in self.dict.keys() and self.dict[each_file] != m.hexdigest(): #如果当前dict中有这个文件，但是哈希值不同，说明文件被修改过，则需要对字典进行更新
+    print('文件夹:' +cur_dir+ &quot;中的文件名为：&quot; + each_file + &quot;的文件被修改于&quot; + time.strftime('%Y-%m-%d %H:%M:%S',
+           time.localtime(time.time())))
+    self.dict[each_file] = m.hexdigest()
+   myFile.close()
+  pop_list = []
+  for i in self.dict.keys():
+   if i not in self.file_list: #当字典中有不在当前文件名列表中时，说明文件已经被删除
+   print('文件夹:' +cur_dir+ '中的文件名为:' + i + &quot;的文件已被删除!!!&quot; + time.strftime('%Y-%m-%d %H:%M:%S',
+          time.localtime(time.time())))
+   pop_list.append(i)
+  for i in pop_list:
+   self.dict.pop(i)
+
+  time.sleep(2)
+
+if __name__ == '__main__':
+ threads = [] #用来存储线程的线程池
+ with open('E:/python/code/PythonProject/tomlConfig.txt','r+') as f: #读取toml格式的文件，并分解格式
+ mytoml = toml.load(f)
+ myList = mytoml['dict']
+ for i in range(len(myList)): #因为可能同时需要监听多个文件夹，所以利用线程池处理多线程
+  json_list_include = []
+  json_list_exclude = []
+  mydir = myList[i]['path']
+  for sublist in range(len(myList[i]['include'])):
+  json_list_include.append(myList[i]['include'][sublist])
+  for sublist in range(len(myList[i]['exclude'])):
+  json_list_exclude.append(myList[i]['exclude'][sublist])
+  thread1 = myListener(mydir, json_list_include, json_list_exclude) #生成线程
+  threads.append(thread1)
+
+ for t in threads: #开启所有线程
+  t.start();
+</code></pre>
+<p>运行结果<br>
+两个文件夹中的文件<br>
+<img src="https://files.jb51.net/file_images/article/201903/2019311100842641.png?201921110849" alt=""><br>
+第一次运行程序， 可以看到已经按照过滤规则完成了过滤和监听<br>
+<img src="https://files.jb51.net/file_images/article/201903/2019311100945510.png?201921110951" alt=""><br>
+修改 loko.record 文件为 loko.re，再来看结果<br>
+<img src="https://files.jb51.net/file_images/article/201903/2019311101001277.png?201921110107" alt=""></p>
+<p>可以看到已经完成了监听，因为 loko.re 文件，并符合监听的规则，所以不做出监听，而我们前面说过，一个修改相当于一个删除和一个新建操作，所以监听程序提示原文件被删除了</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[django-simple-captcha 图形验证码模块]]></title>
         <id>https://yooinn.github.io//post/django-simple-captcha-tu-xing-yan-zheng-ma-mo-kuai</id>
@@ -920,294 +1220,6 @@ python
 <p>SublimeREPL 可以用于运行和调试一些需要交互的程序。</p>
 <p>SublimeCodeIntel 可以支持代码的自动补全以及成员/方法提示等功能。</p>
 <p>SublimeLinter 是用来在写代码时做代码检查的，可以检查Python代码是否符合PEP8的要求。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Python3 加密解密技术详解]]></title>
-        <id>https://yooinn.github.io//post/python3-jia-mi-jie-mi-ji-zhu-xiang-jie</id>
-        <link href="https://yooinn.github.io//post/python3-jia-mi-jie-mi-ji-zhu-xiang-jie">
-        </link>
-        <updated>2019-09-19T09:57:22.000Z</updated>
-        <content type="html"><![CDATA[<p>Python 3 的标准库中没多少用来解决加密的，不过却有用于处理哈希的库。在这里我们会对其进行一个简单的介绍，但重点会放在两个第三方的软件包：PyCrypto 和 cryptography 上。我们将学习如何使用这两个库，来加密和解密字符串。</p>
-<p><strong>哈希</strong><br>
-如果需要用到安全哈希算法或是消息摘要算法，那么你可以使用标准库中的 hashlib 模块。这个模块包含了符合 FIPS（美国联邦信息处理标准）的安全哈希算法，包括 SHA1，SHA224，SHA256，SHA384，SHA512 以及 RSA 的 MD5 算法。Python 也支持 adler32 以及 crc32 哈希函数，不过它们在 zlib 模块中。</p>
-<p>哈希的一个最常见的用法是，存储密码的哈希值而非密码本身。当然了，使用的哈希函数需要稳健一点，否则容易被破解。另一个常见的用法是，计算一个文件的哈希值，然后将这个文件和它的哈希值分别发送。接收到文件的人可以计算文件的哈希值，检验是否与接受到的哈希值相符。如果两者相符，就说明文件在传送的过程中未经篡改。</p>
-<p><strong>让我们试着创建一个 md5 哈希：</strong></p>
-<pre><code>
-&gt;&gt;&gt; import hashlib
-&gt;&gt;&gt; md5 = hashlib.md5()
-&gt;&gt;&gt; md5.update('Python rocks!')
-Traceback (most recent call last):
-  File &quot;&lt;pyshell#5&gt;&quot;, line 1, in &lt;module&gt;
-    md5.update('Python rocks!')
-TypeError: Unicode-objects must be encoded before hashing
-&gt;&gt;&gt; md5.update(b'Python rocks!')
-&gt;&gt;&gt; md5.digest()
-b'\x14\x82\xec\x1b#d\xf6N}\x16*+[\x16\xf4w'
-</code></pre>
-<p>让我们花点时间一行一行来讲解。首先，我们导入 hashlib ，然后创建一个 md5 哈希对象的实例。接着，我们向这个实例中添加一个字符串后，却得到了报错信息。原来，计算 md5 哈希时，需要使用字节形式的字符串而非普通字符串。正确添加字符串后，我们调用它的 digest 函数来得到哈希值。如果你想要十六进制的哈希值，也可以用以下方法：</p>
-<pre><code>
-&gt;&gt;&gt; md5.hexdigest()
-'1482ec1b2364f64e7d162a2b5b16f477'
-</code></pre>
-<p>实际上，有一种精简的方法来创建哈希，下面我们看一下用这种方法创建一个 <strong>sha1 哈希：</strong></p>
-<pre><code>&gt;&gt;&gt; sha = hashlib.sha1(b'Hello Python').hexdigest()
-&gt;&gt;&gt; sha
-'422fbfbc67fe17c86642c5eaaa48f8b670cbed1b'
-</code></pre>
-<p>可以看到，我们可以同时创建一个哈希实例并且调用其 digest 函数。然后，我们打印出这个哈希值看一下。这里我使用 sha1 哈希函数作为例子，但它不是特别安全，读者可以随意尝试其他的哈希函数。</p>
-<p><strong>密钥导出</strong><br>
-Python 的标准库对密钥导出支持较弱。实际上，hashlib 函数库提供的唯一方法就是 pbkdf2_hmac 函数。它是 PKCS#5 的基于口令的第二个密钥导出函数，并使用 HMAC 作为伪随机函数。因为它支持“加盐salt”和迭代操作，你可以使用类似的方法来哈希你的密码。例如，如果你打算使用 SHA-256 加密方法，你将需要至少 16 个字节的“盐”，以及最少 100000 次的迭代操作。</p>
-<p>简单来说，“盐”就是随机的数据，被用来加入到哈希的过程中，以加大破解的难度。这基本可以保护你的密码免受字典和彩虹表rainbow table的攻击。</p>
-<p>让我们看一个简单的例子：</p>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>import binascii<br>
-dk = hashlib.pbkdf2_hmac(hash_name='sha256',<br>
-password=b'bad_password34',<br>
-salt=b'bad_salt',<br>
-iterations=100000)</p>
-</blockquote>
-</blockquote>
-<blockquote>
-<blockquote>
-<p>binascii.hexlify(dk)<br>
-b'6e97bad21f6200f9087036a71e7ca9fa01a59e1d697f7e0284cd7f9b897d7c02'<br>
-这里，我们用 SHA256 对一个密码进行哈希，使用了一个糟糕的盐，但经过了 100000 次迭代操作。当然，SHA 实际上并不被推荐用来创建密码的密钥。你应该使用类似 scrypt 的算法来替代。另一个不错的选择是使用一个叫 bcrypt 的第三方库，它是被专门设计出来哈希密码的。</p>
-</blockquote>
-</blockquote>
-</blockquote>
-<p><strong><code>PyCryptodome</code></strong><br>
-PyCrypto 可能是 Python 中密码学方面最有名的第三方软件包。可惜的是，它的开发工作于 2012 年就已停止。其他人还在继续发布最新版本的 PyCrypto，如果你不介意使用第三方的二进制包，仍可以取得 Python 3.5 的相应版本。比如，我在 Github (https://github.com/sfbahr/PyCrypto-Wheels) 上找到了对应 Python 3.5 的 PyCrypto 二进制包。</p>
-<p>幸运的是，有一个该项目的分支 PyCrytodome 取代了 PyCrypto 。为了在 Linux 上安装它，你可以使用以下 pip 命令：</p>
-<p><code>pip install pycryptodome</code><br>
-在 Windows 系统上安装则稍有不同：</p>
-<p><code>pip install pycryptodomex</code><br>
-如果你遇到了问题，可能是因为你没有安装正确的依赖包（LCTT 译注：如 python-devel），或者你的 Windows 系统需要一个编译器。</p>
-<p>还值得注意的是，PyCryptodome 在 PyCrypto 最后版本的基础上有很多改进。非常值得去访问它们的主页，看看有什么新的特性。</p>
-<p>加密字符串<br>
-访问了他们的主页之后，我们可以看一些例子。在第一个例子中，我们将使用 DES 算法来加密一个字符串：</p>
-<pre><code>&gt;&gt;&gt; from Crypto.Cipher import DES
-&gt;&gt;&gt; key = 'abcdefgh'
-&gt;&gt;&gt; def pad(text):
-        while len(text) % 8 != 0:
-            text += ' '
-        return text
-&gt;&gt;&gt; des = DES.new(key, DES.MODE_ECB)
-&gt;&gt;&gt; text = 'Python rocks!'
-&gt;&gt;&gt; padded_text = pad(text)
-&gt;&gt;&gt; encrypted_text = des.encrypt(text)
-Traceback (most recent call last):
-  File &quot;&lt;pyshell#35&gt;&quot;, line 1, in &lt;module&gt;
-    encrypted_text = des.encrypt(text)
-  File &quot;C:\Programs\Python\Python35-32\lib\site-packages\Crypto\Cipher\blockalgo.py&quot;, line 244, in encrypt
-    return self._cipher.encrypt(plaintext)
-ValueError: Input strings must be a multiple of 8 in length
-&gt;&gt;&gt; encrypted_text = des.encrypt(padded_text)
-&gt;&gt;&gt; encrypted_text
-b'&gt;\xfc\x1f\x16x\x87\xb2\x93\x0e\xfcH\x02\xd59VQ'
-</code></pre>
-<p>这段代码稍有些复杂，让我们一点点来看。首先需要注意的是，DES 加密使用的密钥长度为 8 个字节，这也是我们将密钥变量设置为 8 个字符的原因。而我们需要加密的字符串的长度必须是 8 的倍数，所以我们创建了一个名为 pad 的函数，来给一个字符串末尾填充空格，直到它的长度是 8 的倍数。然后，我们创建了一个 DES 的实例，以及我们需要加密的文本。我们还创建了一个经过填充处理的文本。我们尝试着对未经填充处理的文本进行加密，啊欧，报了一个 ValueError 错误！我们需要对经过填充处理的文本进行加密，然后得到加密的字符串。（LCTT 译注：encrypt 函数的参数应为 byte 类型字符串，代码为：encrypted_text = des.encrypt(padded_text.encode('utf-8'))）</p>
-<p>知道了如何加密，还要知道如何解密：</p>
-<pre><code>&gt;&gt;&gt; des.decrypt(encrypted_text)
-b'Python rocks!   '
-</code></pre>
-<p>幸运的是，解密非常容易，我们只需要调用 des 对象的 decrypt 方法就可以得到我们原来的 byte 类型字符串了。下一个任务是学习如何用 RSA 算法加密和解密一个文件。首先，我们需要创建一些 RSA 密钥。</p>
-<p>创建 RSA 密钥<br>
-如果你希望使用 RSA 算法加密数据，那么你需要拥有访问 RAS 公钥和私钥的权限，否则你需要生成一组自己的密钥对。在这个例子中，我们将生成自己的密钥对。创建 RSA 密钥非常容易，所以我们将在 Python 解释器中完成。</p>
-<pre><code>&gt;&gt;&gt; from Crypto.PublicKey import RSA
-&gt;&gt;&gt; code = 'nooneknows'
-&gt;&gt;&gt; key = RSA.generate(2048)
-&gt;&gt;&gt; encrypted_key = key.exportKey(passphrase=code, pkcs=8, 
-        protection=&quot;scryptAndAES128-CBC&quot;)
-&gt;&gt;&gt; with open('/path_to_private_key/my_private_rsa_key.bin', 'wb') as f:
-        f.write(encrypted_key)
-&gt;&gt;&gt; with open('/path_to_public_key/my_rsa_public.pem', 'wb') as f:
-        f.write(key.publickey().exportKey())
-</code></pre>
-<p>首先我们从 Crypto.PublicKey 包中导入 RSA，然后创建一个傻傻的密码。接着我们生成 2048 位的 RSA 密钥。现在我们到了关键的部分。为了生成私钥，我们需要调用 RSA 密钥实例的 exportKey 方法，然后传入密码，使用的 PKCS 标准，以及加密方案这三个参数。之后，我们把私钥写入磁盘的文件中。</p>
-<p>接下来，我们通过 RSA 密钥实例的 publickey 方法创建我们的公钥。我们使用方法链调用 publickey 和 exportKey 方法生成公钥，同样将它写入磁盘上的文件。</p>
-<p>加密文件<br>
-有了私钥和公钥之后，我们就可以加密一些数据，并写入文件了。这里有个比较标准的例子：</p>
-<pre><code>from Crypto.PublicKey import RSA
-from Crypto.Random import get_random_bytes
-from Crypto.Cipher import AES, PKCS1_OAEP
-with open('/path/to/encrypted_data.bin', 'wb') as out_file:
-    recipient_key = RSA.import_key(
-        open('/path_to_public_key/my_rsa_public.pem').read())
-    session_key = get_random_bytes(16)
-    cipher_rsa = PKCS1_OAEP.new(recipient_key)
-    out_file.write(cipher_rsa.encrypt(session_key))
-    cipher_aes = AES.new(session_key, AES.MODE_EAX)
-    data = b'blah blah blah Python blah blah'
-    ciphertext, tag = cipher_aes.encrypt_and_digest(data)
-    out_file.write(cipher_aes.nonce)
-    out_file.write(tag)
-    out_file.write(ciphertext)
-</code></pre>
-<p>代码的前三行导入 PyCryptodome 包。然后我们打开一个文件用于写入数据。接着我们导入公钥赋给一个变量，创建一个 16 字节的会话密钥。在这个例子中，我们将使用混合加密方法，即 PKCS#1 OAEP ，也就是最优非对称加密填充。这允许我们向文件中写入任意长度的数据。接着我们创建 AES 加密，要加密的数据，然后加密数据。我们将得到加密的文本和消息认证码。最后，我们将随机数，消息认证码和加密的文本写入文件。</p>
-<p>顺便提一下，随机数通常是真随机或伪随机数，只是用来进行密码通信的。对于 AES 加密，其密钥长度最少是 16 个字节。随意用一个你喜欢的编辑器试着打开这个被加密的文件，你应该只能看到乱码。</p>
-<p>现在让我们学习如何解密我们的数据。</p>
-<pre><code>from Crypto.PublicKey import RSA
-from Crypto.Cipher import AES, PKCS1_OAEP
-code = 'nooneknows'
-with open('/path/to/encrypted_data.bin', 'rb') as fobj:
-    private_key = RSA.import_key(
-        open('/path_to_private_key/my_rsa_key.pem').read(),
-        passphrase=code)
-    enc_session_key, nonce, tag, ciphertext = [ fobj.read(x) 
-                                                for x in (private_key.size_in_bytes(), 
-                                                16, 16, -1) ]
-    cipher_rsa = PKCS1_OAEP.new(private_key)
-    session_key = cipher_rsa.decrypt(enc_session_key)
-    cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
-    data = cipher_aes.decrypt_and_verify(ciphertext, tag)
-print(data)
-</code></pre>
-<p>如果你认真看了上一个例子，这段代码应该很容易解析。在这里，我们先以二进制模式读取我们的加密文件，然后导入私钥。注意，当你导入私钥时，需要提供一个密码，否则会出现错误。然后，我们文件中读取数据，首先是加密的会话密钥，然后是 16 字节的随机数和 16 字节的消息认证码，最后是剩下的加密的数据。</p>
-<p>接下来我们需要解密出会话密钥，重新创建 AES 密钥，然后解密出数据。</p>
-<p>你还可以用 PyCryptodome 库做更多的事。不过我们要接着讨论在 Python 中还可以用什么来满足我们加密解密的需求。</p>
-<p>cryptography 包<br>
-cryptography 的目标是成为“人类易于使用的密码学包cryptography for humans”，就像 requests 是“人类易于使用的 HTTP 库HTTP for Humans”一样。这个想法使你能够创建简单安全、易于使用的加密方案。如果有需要的话，你也可以使用一些底层的密码学基元，但这也需要你知道更多的细节，否则创建的东西将是不安全的。</p>
-<p>如果你使用的 Python 版本是 3.5, 你可以使用 pip 安装，如下：</p>
-<p>pip install cryptography<br>
-你会看到 cryptography 包还安装了一些依赖包（LCTT 译注：如 libopenssl-devel）。如果安装都顺利，我们就可以试着加密一些文本了。让我们使用 Fernet 对称加密算法，它保证了你加密的任何信息在不知道密码的情况下不能被篡改或读取。Fernet 还通过 MultiFernet 支持密钥轮换。下面让我们看一个简单的例子：</p>
-<pre><code>&gt;&gt;&gt; from cryptography.fernet import Fernet
-&gt;&gt;&gt; cipher_key = Fernet.generate_key()
-&gt;&gt;&gt; cipher_key
-b'APM1JDVgT8WDGOWBgQv6EIhvxl4vDYvUnVdg-Vjdt0o='
-&gt;&gt;&gt; cipher = Fernet(cipher_key)
-&gt;&gt;&gt; text = b'My super secret message'
-&gt;&gt;&gt; encrypted_text = cipher.encrypt(text)
-&gt;&gt;&gt; encrypted_text
-(b'gAAAAABXOnV86aeUGADA6mTe9xEL92y_m0_TlC9vcqaF6NzHqRKkjEqh4d21PInEP3C9HuiUkS9f'
- b'6bdHsSlRiCNWbSkPuRd_62zfEv3eaZjJvLAm3omnya8=')
-&gt;&gt;&gt; decrypted_text = cipher.decrypt(encrypted_text)
-&gt;&gt;&gt; decrypted_text
-b'My super secret message'
-</code></pre>
-<p>首先我们需要导入 Fernet，然后生成一个密钥。我们输出密钥看看它是什么样儿。如你所见，它是一个随机的字节串。如果你愿意的话，可以试着多运行 generate_key 方法几次，生成的密钥会是不同的。然后我们使用这个密钥生成 Fernet 密码实例。</p>
-<p>现在我们有了用来加密和解密消息的密码。下一步是创建一个需要加密的消息，然后使用 encrypt 方法对它加密。我打印出加密的文本，然后你可以看到你再也读不懂它了。为了解密出我们的秘密消息，我们只需调用 decrypt 方法，并传入加密的文本作为参数。结果就是我们得到了消息字节串形式的纯文本。</p>
-<p>小结<br>
-这一章仅仅浅显地介绍了 PyCryptodome 和 cryptography 这两个包的使用。不过这也确实给了你一个关于如何加密解密字符串和文件的简述。请务必阅读文档，做做实验，看看还能做些什么！</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Django使用redis缓存服务器]]></title>
-        <id>https://yooinn.github.io//post/django-shi-yong-redis-huan-cun-fu-wu-qi</id>
-        <link href="https://yooinn.github.io//post/django-shi-yong-redis-huan-cun-fu-wu-qi">
-        </link>
-        <updated>2019-09-19T09:54:37.000Z</updated>
-        <content type="html"><![CDATA[<p>redis相信大家都很熟悉了，和memcached一样是一个高性能的key-value数据库，至于什么是缓存服务器，度娘都有很明白的介绍了，我在这里就不一一介绍了。</p>
-<p>那我们一般什么情况下才会使用缓存服务器呢？可不是什么情况都需要的哦，一般来说是在需要频繁对一个字段读取的时候才会需要将这个字段放入到缓存服务器上，而且由于key-value数据库一般只是放很简单的数据，所以在选择保存的对象的时候要注意选择好。</p>
-<p>下面我就来介绍如何在Django中配置使用redis数据库，首先是先安装redis了，在Ubuntu中执行下面这句命令：</p>
-<p><code>#安装Redis服务器端</code></p>
-<p><code>sudo apt-get install redis-server</code><br>
-然后为了能在Django中使用redis，还需要安装redis for Django的插件：</p>
-<p><code>pip install django-redis</code><br>
-这是一个开源的项目，github地址是https://github.com/niwibe/django-redis，感谢作者。</p>
-<p>那么现在就是在Django的settings中配置了。</p>
-<pre><code>CACHES = {
-    'default': {
-        'BACKEND': 'redis_cache.cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379',
-        &quot;OPTIONS&quot;: {
-            &quot;CLIENT_CLASS&quot;: &quot;redis_cache.client.DefaultClient&quot;,
-        },
-    },
-}
-REDIS_TIMEOUT=7*24*60*60
-CUBES_REDIS_TIMEOUT=60*60
-NEVER_REDIS_TIMEOUT=365*24*60*60
-</code></pre>
-<p>其实只是需要CACHES中的那几条就可以了，后面这三句可以不需要的，只是我后面的例子里需要用到，我就在这里配置了。</p>
-<p>好了，现在连接和配置都已经完成了，那么在项目中该如何使用呢？接下来看下面这段例子吧。</p>
-<pre><code>from django.conf import settings
-from django.core.cache import cache
-#read cache user id
-def read_from_cache(self, user_name):
-    key = 'user_id_of_'+user_name
-    value = cache.get(key)
-    if value == None:
-        data = None
-    else:
-        data = json.loads(value)
-    return data
-#write cache user id
-def write_to_cache(self, user_name):
-    key = 'user_id_of_'+user_name
-    cache.set(key, json.dumps(user_name), settings.NEVER_REDIS_TIMEOUT)
-</code></pre>
-<p>通过上面的这两个方法就可以实现对redis的读取操作了，只需要将需要的字段当参数传入到方法中就好了。</p>
-<p>那么之前提到的memcached呢？其实也是一样的配置：</p>
-<pre><code>CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
-    }
-}
-</code></pre>
-<p>当然用法也是和我上面的例子是一样的了。其实对于redis这样的缓存服务器来说，配置都是很简单的，而具体的使用也不难，官网上面也有很多简单明了的例子可以供我们参考，只有一点需要注意的，那就是对于要将什么样的信息保存到redis才是我们真正需要关心的。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[利用Python延迟初始化提升性能]]></title>
-        <id>https://yooinn.github.io//post/li-yong-python-yan-chi-chu-shi-hua-ti-sheng-xing-neng</id>
-        <link href="https://yooinn.github.io//post/li-yong-python-yan-chi-chu-shi-hua-ti-sheng-xing-neng">
-        </link>
-        <updated>2019-09-19T09:50:06.000Z</updated>
-        <content type="html"><![CDATA[<p>所谓类属性的延迟计算就是将类的属性定义成一个property，只在访问的时候才会计算，而且一旦被访问后，结果将会被缓存起来，不用每次都计算。构造一个延迟计算属性的主要目的是为了提升性能</p>
-<p><strong>property</strong><br>
-在切入正题之前，我们了解下property的用法，property可以将属性的访问转变成方法的调用。</p>
-<pre><code>class Circle(object): 
-  def __init__(self, radius): 
-    self.radius = radius 
-   
-  @property
-  def area(self): 
-    return 3.14 * self.radius ** 2
-   
-c = Circle(4) 
-print c.radius 
-print c.area
-</code></pre>
-<p>可以看到，area虽然是定义成一个方法的形式，但是加上@property后，可以直接执行c.area，当成属性访问。</p>
-<p>现在问题来了，每次调用c.area，都会计算一次，太浪费cpu了，怎样才能只计算一次呢?这就是lazy property<br>
-<strong>代码实现</strong></p>
-<pre><code>class LazyProperty(object):
-  def __init__(self, func):
-    self.func = func
-  def __get__(self, instance, owner):
-    if instance is None:
-      return self
-    else:
-      value = self.func(instance)
-      setattr(instance, self.func.__name__, value)
-      return value
-import math
-class Circle(object):
-  def __init__(self, radius):
-    self.radius = radius
-  @LazyProperty
-  def area(self):
-    print 'Computing area'
-    return math.pi * self.radius ** 2
-  @LazyProperty
-  def perimeter(self):
-    print 'Computing perimeter'
-    return 2 * math.pi * self.radius
-</code></pre>
-<p><strong>说明</strong><br>
-定义了一个延迟计算的装饰器类LazyProperty。Circle是用于测试的类，Circle类有是三个属性半径(radius)、面积(area)、周长(perimeter)。面积和周长的属性被LazyProperty装饰，下面来试试LazyProperty的魔法：</p>
-<pre><code>&gt;&gt;&gt; c = Circle(2)
-&gt;&gt;&gt; print c.area
-Computing area
-12.5663706144
-&gt;&gt;&gt; print c.area
-12.5663706144
-</code></pre>
-<p>在area()中每计算一次就会打印一次“Computing area”，而连续调用两次c.area后“Computing area”只被打印了一次。这得益于LazyProperty,只要调用一次后，无论后续调用多少次都不会重复计算。</p>
 ]]></content>
     </entry>
 </feed>
