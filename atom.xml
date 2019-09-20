@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://yooinn.github.io/</id>
+    <id>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output</id>
     <title>Jiank</title>
-    <updated>2019-09-20T07:02:56.975Z</updated>
+    <updated>2019-09-20T07:13:03.135Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://yooinn.github.io/"/>
-    <link rel="self" href="https://yooinn.github.io//atom.xml"/>
+    <link rel="alternate" href="C:/Users/Administrator.PC-201907311419/Documents/Gridea/output"/>
+    <link rel="self" href="C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/atom.xml"/>
     <subtitle>温故而知新</subtitle>
-    <logo>https://yooinn.github.io//images/avatar.png</logo>
-    <icon>https://yooinn.github.io//favicon.ico</icon>
+    <logo>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/images/avatar.png</logo>
+    <icon>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/favicon.ico</icon>
     <rights>All rights reserved 2019, Jiank</rights>
     <entry>
         <title type="html"><![CDATA[django-simple-captcha 图形验证码模块]]></title>
-        <id>https://yooinn.github.io//post/django-simple-captcha-tu-xing-yan-zheng-ma-mo-kuai</id>
-        <link href="https://yooinn.github.io//post/django-simple-captcha-tu-xing-yan-zheng-ma-mo-kuai">
+        <id>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/django-simple-captcha-tu-xing-yan-zheng-ma-mo-kuai/index.html</id>
+        <link href="C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/django-simple-captcha-tu-xing-yan-zheng-ma-mo-kuai/index.html">
         </link>
         <updated>2019-09-20T06:56:49.000Z</updated>
         <content type="html"><![CDATA[<p>**一、引言 **<br>
@@ -114,12 +114,14 @@ def jarge_captcha(captchaStr, captchaHashkey):
         });
 &lt;/script&gt;
 </code></pre>
+<p>效果<br>
+<img src="https://i.loli.net/2019/09/20/9OueNLHPFosdRyr.png" alt=""></p>
 ]]></content>
     </entry>
     <entry>
         <title type="html"><![CDATA[Django templates 模板的语法]]></title>
-        <id>https://yooinn.github.io//post/django-templates-mo-ban-de-yu-fa</id>
-        <link href="https://yooinn.github.io//post/django-templates-mo-ban-de-yu-fa">
+        <id>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/django-templates-mo-ban-de-yu-fa/index.html</id>
+        <link href="C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/django-templates-mo-ban-de-yu-fa/index.html">
         </link>
         <updated>2019-09-20T01:10:22.000Z</updated>
         <content type="html"><![CDATA[<p>MVC 以及 MTV<br>
@@ -234,8 +236,8 @@ inclusion_tag {% inclusion_tag的函数名 %}<br>
     </entry>
     <entry>
         <title type="html"><![CDATA[Python进程、线程、协程详解]]></title>
-        <id>https://yooinn.github.io//post/python-jin-cheng-xian-cheng-xie-cheng-xiang-jie</id>
-        <link href="https://yooinn.github.io//post/python-jin-cheng-xian-cheng-xie-cheng-xiang-jie">
+        <id>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/python-jin-cheng-xian-cheng-xie-cheng-xiang-jie/index.html</id>
+        <link href="C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/python-jin-cheng-xian-cheng-xie-cheng-xiang-jie/index.html">
         </link>
         <updated>2019-09-19T10:11:37.000Z</updated>
         <content type="html"><![CDATA[<p>进程与线程的历史<br>
@@ -764,8 +766,8 @@ gevent.joinall([
     </entry>
     <entry>
         <title type="html"><![CDATA[django的settings中设置中文支持]]></title>
-        <id>https://yooinn.github.io//post/django-de-settings-zhong-she-zhi-zhong-wen-zhi-chi</id>
-        <link href="https://yooinn.github.io//post/django-de-settings-zhong-she-zhi-zhong-wen-zhi-chi">
+        <id>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/django-de-settings-zhong-she-zhi-zhong-wen-zhi-chi/index.html</id>
+        <link href="C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/django-de-settings-zhong-she-zhi-zhong-wen-zhi-chi/index.html">
         </link>
         <updated>2019-09-19T10:09:47.000Z</updated>
         <content type="html"><![CDATA[<p>今天创建了个django工程，用的是目前django 1.9.6，创建工程后，settings.py中设置中文显示支持（最简单的，例如把admin界面的默认英文改成中文），定义</p>
@@ -792,8 +794,8 @@ LANGUAGE_CODE = 'zh-cn'
     </entry>
     <entry>
         <title type="html"><![CDATA[Django中如何防范CSRF跨站点请求伪造攻击]]></title>
-        <id>https://yooinn.github.io//post/django-zhong-ru-he-fang-fan-csrf-kua-zhan-dian-qing-qiu-wei-zao-gong-ji</id>
-        <link href="https://yooinn.github.io//post/django-zhong-ru-he-fang-fan-csrf-kua-zhan-dian-qing-qiu-wei-zao-gong-ji">
+        <id>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/django-zhong-ru-he-fang-fan-csrf-kua-zhan-dian-qing-qiu-wei-zao-gong-ji/index.html</id>
+        <link href="C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/django-zhong-ru-he-fang-fan-csrf-kua-zhan-dian-qing-qiu-wei-zao-gong-ji/index.html">
         </link>
         <updated>2019-09-19T10:05:55.000Z</updated>
         <content type="html"><![CDATA[<p>CSRF概念<br>
@@ -844,8 +846,8 @@ return render_to_response(&quot;a_template.html&quot;, c)</p>
     </entry>
     <entry>
         <title type="html"><![CDATA[Python爬虫使用代理proxy抓取网页]]></title>
-        <id>https://yooinn.github.io//post/python-pa-chong-shi-yong-dai-li-proxy-zhua-qu-wang-ye</id>
-        <link href="https://yooinn.github.io//post/python-pa-chong-shi-yong-dai-li-proxy-zhua-qu-wang-ye">
+        <id>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/python-pa-chong-shi-yong-dai-li-proxy-zhua-qu-wang-ye/index.html</id>
+        <link href="C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/python-pa-chong-shi-yong-dai-li-proxy-zhua-qu-wang-ye/index.html">
         </link>
         <updated>2019-09-19T10:02:47.000Z</updated>
         <content type="html"><![CDATA[<p>代理类型（proxy）:透明代理 匿名代理 混淆代理和高匿代理. 这里写一些python爬虫使用代理的知识, 还有一个代理池的类. 方便大家应对工作中各种复杂的抓取问题。</p>
@@ -891,8 +893,8 @@ python
     </entry>
     <entry>
         <title type="html"><![CDATA[使用sublime搭建python开发环境]]></title>
-        <id>https://yooinn.github.io//post/shi-yong-sublime-da-jian-python-kai-fa-huan-jing</id>
-        <link href="https://yooinn.github.io//post/shi-yong-sublime-da-jian-python-kai-fa-huan-jing">
+        <id>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/shi-yong-sublime-da-jian-python-kai-fa-huan-jing/index.html</id>
+        <link href="C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/shi-yong-sublime-da-jian-python-kai-fa-huan-jing/index.html">
         </link>
         <updated>2019-09-19T10:00:22.000Z</updated>
         <content type="html"><![CDATA[<p>sublime Text具有漂亮的用户界面和强大的功能，例如代码缩略图，Python的插件，代码段等。还可自定义键绑定，菜单和工具栏。Sublime Text的主要功能包括：拼写检查，书签，完整的 Python API，Goto功能，即时项目切换，多选择，多窗口等等。</p>
@@ -922,8 +924,8 @@ python
     </entry>
     <entry>
         <title type="html"><![CDATA[Python3 加密解密技术详解]]></title>
-        <id>https://yooinn.github.io//post/python3-jia-mi-jie-mi-ji-zhu-xiang-jie</id>
-        <link href="https://yooinn.github.io//post/python3-jia-mi-jie-mi-ji-zhu-xiang-jie">
+        <id>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/python3-jia-mi-jie-mi-ji-zhu-xiang-jie/index.html</id>
+        <link href="C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/python3-jia-mi-jie-mi-ji-zhu-xiang-jie/index.html">
         </link>
         <updated>2019-09-19T09:57:22.000Z</updated>
         <content type="html"><![CDATA[<p>Python 3 的标准库中没多少用来解决加密的，不过却有用于处理哈希的库。在这里我们会对其进行一个简单的介绍，但重点会放在两个第三方的软件包：PyCrypto 和 cryptography 上。我们将学习如何使用这两个库，来加密和解密字符串。</p>
@@ -1093,8 +1095,8 @@ b'My super secret message'
     </entry>
     <entry>
         <title type="html"><![CDATA[Django使用redis缓存服务器]]></title>
-        <id>https://yooinn.github.io//post/django-shi-yong-redis-huan-cun-fu-wu-qi</id>
-        <link href="https://yooinn.github.io//post/django-shi-yong-redis-huan-cun-fu-wu-qi">
+        <id>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/django-shi-yong-redis-huan-cun-fu-wu-qi/index.html</id>
+        <link href="C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/django-shi-yong-redis-huan-cun-fu-wu-qi/index.html">
         </link>
         <updated>2019-09-19T09:54:37.000Z</updated>
         <content type="html"><![CDATA[<p>redis相信大家都很熟悉了，和memcached一样是一个高性能的key-value数据库，至于什么是缓存服务器，度娘都有很明白的介绍了，我在这里就不一一介绍了。</p>
@@ -1151,8 +1153,8 @@ def write_to_cache(self, user_name):
     </entry>
     <entry>
         <title type="html"><![CDATA[利用Python延迟初始化提升性能]]></title>
-        <id>https://yooinn.github.io//post/li-yong-python-yan-chi-chu-shi-hua-ti-sheng-xing-neng</id>
-        <link href="https://yooinn.github.io//post/li-yong-python-yan-chi-chu-shi-hua-ti-sheng-xing-neng">
+        <id>C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/li-yong-python-yan-chi-chu-shi-hua-ti-sheng-xing-neng/index.html</id>
+        <link href="C:/Users/Administrator.PC-201907311419/Documents/Gridea/output/post/li-yong-python-yan-chi-chu-shi-hua-ti-sheng-xing-neng/index.html">
         </link>
         <updated>2019-09-19T09:50:06.000Z</updated>
         <content type="html"><![CDATA[<p>所谓类属性的延迟计算就是将类的属性定义成一个property，只在访问的时候才会计算，而且一旦被访问后，结果将会被缓存起来，不用每次都计算。构造一个延迟计算属性的主要目的是为了提升性能</p>
