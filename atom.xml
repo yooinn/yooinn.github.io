@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yooinn.github.io/</id>
     <title>Jiank</title>
-    <updated>2019-09-19T10:18:46.610Z</updated>
+    <updated>2019-09-20T07:02:56.975Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yooinn.github.io/"/>
     <link rel="self" href="https://yooinn.github.io//atom.xml"/>
@@ -10,6 +10,228 @@
     <logo>https://yooinn.github.io//images/avatar.png</logo>
     <icon>https://yooinn.github.io//favicon.ico</icon>
     <rights>All rights reserved 2019, Jiank</rights>
+    <entry>
+        <title type="html"><![CDATA[django-simple-captcha 图形验证码模块]]></title>
+        <id>https://yooinn.github.io//post/django-simple-captcha-tu-xing-yan-zheng-ma-mo-kuai</id>
+        <link href="https://yooinn.github.io//post/django-simple-captcha-tu-xing-yan-zheng-ma-mo-kuai">
+        </link>
+        <updated>2019-09-20T06:56:49.000Z</updated>
+        <content type="html"><![CDATA[<p>**一、引言 **<br>
+        官方文档：django-simple-captcha</p>
+<p>本博客谈不上深度，算是笔记和一些探索经验。主要是遇到了一个实际问题，在使用django-simple-captcha模块的时候，官网推荐使用django表单的形式去添加，django表单确实很方便，但是对于简单项目或者只需要django-simple-captcha模块的时候也没有太多的文档具体说明，这篇博客就说一下怎么单独使用django-simple-captcha模块。</p>
+<p>目标：实现手动创建验证码和前端显示，后台手动验证，ajax请求。</p>
+<p><strong>二、流程</strong><br>
+1）安装 django-simple-captcha</p>
+<p>pip install django-simple-captcha<br>
+2）注册captcha</p>
+<p>INSTALLED_APPS = [<br>
+'django.contrib.admin',<br>
+'django.contrib.auth',<br>
+'django.contrib.contenttypes',<br>
+'django.contrib.sessions',<br>
+'django.contrib.messages',<br>
+'django.contrib.staticfiles',<br>
+'captcha',<br>
+]<br>
+也可以个性化定制，在 settings.py中添加如下代码，详情参考官方文档：</p>
+<h1 id="设置-captcha-图片大小">设置 captcha 图片大小</h1>
+<p>CAPTCHA_IMAGE_SIZE = (80, 45)</p>
+<h1 id="字符个数">字符个数</h1>
+<p>CAPTCHA_LENGTH = 4</p>
+<h1 id="超时minutes">超时(minutes)</h1>
+<p>CAPTCHA_TIMEOUT = 1<br>
+3）执行数据迁移，生成数据表 captcha_captchastore</p>
+<p>python manage.py migrate<br>
+4）添加路由</p>
+<p>urlpatterns = [<br>
+path('admin/', admin.site.urls),<br>
+# 图片验证码 路由<br>
+path('captcha/', include('captcha.urls'))<br>
+]<br>
+再添加ajax刷新请求的二级路由，ajxa请求地址： /refresh_captcha/</p>
+<p>path('refresh_captcha/', views.refresh_captcha),    # 刷新验证码，ajax<br>
+本次django使用的是2.1.8版本，路由的写法可能有点不同，原理一样。</p>
+<p>5）在views.py中添加代码，因为在我的项目中，设计到代码的复用问题，所以我创建验证码和验证单独做成函数</p>
+<pre><code> 验证码需要导入的模块
+from captcha.models import CaptchaStore
+from captcha.helpers import captcha_image_url
+from django.http import JsonResponse
+ 
+# 创建验证码
+def captcha():
+    # 验证码，第一次请求
+    hashkey = CaptchaStore.generate_key()
+    image_url = captcha_image_url(hashkey)
+    captcha = {'hashkey': hashkey, 'image_url': image_url}
+    return captcha
+		
+ #验证码API接口
+def refresh_captcha(request):
+    # 响应
+    return JsonResponse(captcha(), content_type='application/json')
+ 
+# 验证验证码
+def jarge_captcha(captchaStr, captchaHashkey):
+    if captchaStr and captchaHashkey:
+        try:
+            # 获取根据hashkey获取数据库中的response值
+            get_captcha = CaptchaStore.objects.get(hashkey=captchaHashkey) 
+            # 如果验证码匹配
+            if get_captcha.response == captchaStr.lower():  
+                return True
+        except:
+            return False
+    else:
+        return False
+</code></pre>
+<p><strong>前端页面：</strong></p>
+<pre><code>&lt;div class=&quot;form-group&quot;&gt;
+    &lt;label for=&quot;id_password&quot;&gt;验证码&lt;/label&gt;
+    &lt;div id=&quot;captcha_div&quot;&gt;
+        &lt;input type=&quot;text&quot; name='captcha' class=&quot;form-control&quot; placeholder=&quot;Captcha&quot; required style=&quot;width: 55%;display: inline-block;margin-right: 8%;&quot;&gt;
+        &lt;a href=&quot;#&quot; class=&quot;captcha&quot;&gt;&lt;img src=&quot;{{captcha.image_url}}&quot; alt=&quot;点击换一张&quot; id=&quot;id_captcha&quot;&gt;&lt;/a&gt;
+        &lt;input value=&quot;{{captcha.hashkey}}&quot; name=&quot;hashkey&quot; type=&quot;hidden&quot; id=&quot;id_captcha_0&quot;&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p><strong>前端页面显示图片采用 src=&quot;{{captcha.image_url}}&quot;来获取：</strong></p>
+<pre><code>&lt;script&gt;
+        &lt;!-- 动态刷新验证码js --&gt;
+        //网页加载时调用
+        $(document).ready(function(){
+            //网页加载时发送请求
+            $.getJSON(&quot;/refresh_captcha/&quot;, function (result) {
+                    $('#id_captcha').attr('src', result['image_url']);
+                    $('#id_captcha_0').val(result['hashkey'])
+                });
+            //点击按钮触发,发送请求
+            $('.captcha').click(function () {
+                $.getJSON(&quot;/refresh_captcha/&quot;, function (result) {
+                    $('#id_captcha').attr('src', result['image_url']);
+                    $('#id_captcha_0').val(result['hashkey'])
+                });
+            });
+        });
+&lt;/script&gt;
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Django templates 模板的语法]]></title>
+        <id>https://yooinn.github.io//post/django-templates-mo-ban-de-yu-fa</id>
+        <link href="https://yooinn.github.io//post/django-templates-mo-ban-de-yu-fa">
+        </link>
+        <updated>2019-09-20T01:10:22.000Z</updated>
+        <content type="html"><![CDATA[<p>MVC 以及 MTV<br>
+MVC:<br>
+M : model --&gt;&gt; 存取数据(模型)<br>
+V: view --&gt;&gt; 信息的展示(视图)<br>
+C: controller --&gt;&gt; 逻辑的控制(控制器)<br>
+MTV:<br>
+M: model --&gt;&gt; ORM操作(模型)<br>
+T: template --&gt;&gt; 模板(模板)<br>
+V: view --&gt;&gt; 业务逻辑 (视图)<br>
+变量<br>
+取值顺序 : 字典Key ---&gt;&gt; 属性---&gt;&gt;方法---&gt;&gt;索引<br>
+{{ new_name }} ——》 变量 新华出版社 字典或列表用 . 取值<br>
+for循环for 标签带有一个可选的{% empty %} 从句，以便在给出的组是空的或者没有被找到时，可以有所操作。<br>
+{% for person in person_list %}</p>
+<p>{{ person.name }}</p>
+<h1 id="循环取值">循环取值</h1>
+<p>{% empty %}<br>
+<p>sorry,no person here</p>   #  person_list 为空时 显示<br>
+{% endfor %}<br>
+if 标签 ：{% if %}会对一个变量求值，如果它的值是“True”（存在、不为空、且不是boolean类型的false值），对应的内容块会输出。<br>
+{% if i &gt; 300 %}<br>
+大于{{ i }}</p>
+<p>{% elif i == 200 %}<br>
+等于{{ i }}</p>
+<p>{% else %}<br>
+小于{{ i }}</p>
+<p>{% endif %}<br>
+.with：使用一个简单地名字缓存一个复杂的变量，当你需要使用一个“昂贵的”方法（比如访问数据库）很多次的时候是非常有用的<br>
+{% with total=business.employees.count %}<br>
+{{ total }} employee{{ total|pluralize }}<br>
+{% endwith %}<br>
+{{ person_list.2.name }}</p>
+<p>{% with name=person_list.2.name %}<br>
+{{ name }}</p>
+<p>{% endwith %}<br>
+内置过滤器<br>
+{{ str|default:'返回值' }} ----&gt;&gt;&gt;&gt; 默认值<br>
+{{ str|filesizeformat }} ----&gt;&gt;&gt;&gt; 将文件大小转换为 可读的 类型<br>
+{{ str|add:'2' }} ----&gt;&gt;&gt;&gt; 给变量加参数 变量位数字 就加法运算 str 拼接<br>
+{{ str|length }} ----&gt;&gt;&gt;&gt; 返回value 的长度<br>
+{{ time|data:'Y-m-d H:i:s' }} ----&gt;&gt;&gt;&gt; 时间转换<br>
+{{ time|data }} ----&gt;&gt;&gt;&gt; 时间转换 需在 stting 中配置<br>
+{{ str|slice:'2:-1' }} ----&gt;&gt;&gt;&gt; 切片<br>
+{{ list|first }} ----&gt;&gt;&gt;&gt; 取第一个<br>
+{{ list|last }} ----&gt;&gt;&gt;&gt; 取最后一个<br>
+{{ list|join:'//' }} ----&gt;&gt;&gt;&gt; 拼接<br>
+{{ str|truncatechars:10 }} ----&gt;&gt;&gt;&gt; 截断字符串<br>
+{{ html|safa }} ----&gt;&gt;&gt;&gt; 不转义 可写入 html 标签</p>
+<p>自定义<br>
+定义filter 过滤器<br>
+在APP下创建一个叫templatetags的python包； 不能变的，必须是包，名字必须是templatetags<br>
+在包中创建一个py文件 my_filters;<br>
+在py文件中写代码<br>
+from django import template</p>
+<p>register = template.Library()  # register的名字不能改<br>
+写函数<br>
+@register.filter<br>
+def add_dsb(value, arg):<br>
+return &quot;{}<em>{}&quot;.format(value, arg)<br>
+给定义的函数加装饰器<br>
+@register.filter<br>
+def add_dsb(value, arg):<br>
+使用<br>
+在模板中使用：<br>
+导入定义的文件<br>
+{% load my_filter %}<br>
+使用过滤器<br>
+{{ name|add_dsb:'very_dsb' }}<br>
+定义simpletag<br>
+和 定义 filter 一样<br>
+@register.simple_tags<br>
+def add_data(*args,**kwargs):<br>
+return &quot;{}</em>{}&quot;.format(&quot;--&quot;.join(args),&quot;*&quot;.join(kwarg.values()))<br>
+自定义inclusion_tag<br>
+@register.inclusion_tag('show_li.html')<br>
+def show_li(num):<br>
+return {'num':range(1,num+1)}<br>
+写模板 show_li.html</p>
+<p>{% for i in num %}<br>
+{{ i }}<br>
+{% endfor %}</p>
+<p>使用:<br>
+模板中导入 {% load 定义的py文件名 %}<br>
+filter {{ 变量|函数名：参数 }}<br>
+simple_tag {{ 变量|函数名：参数 }}<br>
+inclusion_tag {% inclusion_tag的函数名 %}<br>
+标签<br>
+{% csrf_token %}<br>
+添加在form表单中 就可以提交POST请求<br>
+母版和继承<br>
+母版<br>
+就是一个普通的HTML文本，将多个页面公共部分的内容提取出来，在页面中定义多个block块<br>
+{% block content %}<br>
+{% endblock %}<br>
+继承<br>
+在子页面中，继承母版 {% extends 'base.html' %}<br>
+可以重新书写block块中内容<br>
+注意事项<br>
+{% extends 'base.html' %} 写在第一行，上面不写内容<br>
+要修改的 内容写在block块中，写在外面不显示<br>
+{% extends 'base.html' %} base.html 记得带上引号，不然当做变量去查找<br>
+定义多个block块，一般要定义上 css和js<br>
+组件include<br>
+{% include 'nav.html' %}<br>
+静态文件相关<br>
+{% load static %}<br>
+{% static '静态文件相对路径' %} ——》 获取到别名，跟后面的参数进行拼接<br>
+{% get_static_prefix %} ——》 获取到别名</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Python进程、线程、协程详解]]></title>
         <id>https://yooinn.github.io//post/python-jin-cheng-xian-cheng-xie-cheng-xiang-jie</id>
@@ -984,171 +1206,6 @@ Computing area
 12.5663706144
 </code></pre>
 <p>在area()中每计算一次就会打印一次“Computing area”，而连续调用两次c.area后“Computing area”只被打印了一次。这得益于LazyProperty,只要调用一次后，无论后续调用多少次都不会重复计算。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[python实现高效率的排列组合算法]]></title>
-        <id>https://yooinn.github.io//post/python-shi-xian-gao-xiao-lu-de-pai-lie-zu-he-suan-fa</id>
-        <link href="https://yooinn.github.io//post/python-shi-xian-gao-xiao-lu-de-pai-lie-zu-he-suan-fa">
-        </link>
-        <updated>2019-09-19T09:46:26.000Z</updated>
-        <content type="html"><![CDATA[<p>组合算法</p>
-<p>本程序的思路是开一个数组，其下标表示1到m个数，数组元素的值为1表示其下标</p>
-<p>代表的数被选中，为0则没选中。</p>
-<p>首先初始化，将数组前n个元素置1，表示第一个组合为前n个数。</p>
-<p>然后从左到右扫描数组元素值的“10”组合，找到第一个“10”组合后将其变为</p>
-<p>“01”组合，同时将其左边的所有“1”全部移动到数组的最左端。</p>
-<p>当第一个“1”移动到数组的m-n的位置，即n个“1”全部移动到最右端时，就得</p>
-<p>到了最后一个组合。</p>
-<p>例如求5中选3的组合：</p>
-<p>1   1   1   0   0   //1,2,3</p>
-<p>1   1   0   1   0   //1,2,4</p>
-<p>1   0   1   1   0   //1,3,4</p>
-<p>0   1   1   1   0   //2,3,4</p>
-<p>1   1   0   0   1   //1,2,5</p>
-<p>1   0   1   0   1   //1,3,5</p>
-<p>0   1   1   0   1   //2,3,5</p>
-<p>1   0   0   1   1   //1,4,5</p>
-<p>0   1   0   1   1   //2,4,5</p>
-<p>0   0   1   1   1   //3,4,5</p>
-<p>使用python实现：</p>
-<pre><code>group = [1, 1, 1, 0, 0, 0]
-group_len = len(group)
-#计算次数
-ret = [group]
-ret_num = (group_len * (group_len - 1) * (group_len - 2)) / 6
-for i in xrange(ret_num - 1):
-  
-    '第一步：先把10换成01'
-    number1_loc = group.index(1)
-    number0_loc = group.index(0)
-  
-    #替换位置从第一个０的位置开始
-    location = number0_loc
-      #判断第一个０和第一个１的位置哪个在前，
-      #如果第一个０的位置小于第一个１的位置，
-      #那么替换位置从第一个１位置后面找起
-  
-    if number0_loc &lt; number1_loc:
-        location = group[number1_loc:].index(0) + number1_loc
-  
-    group[location] = 1
-    group[location - 1] = 0
-  
-    '第二步：把第一个10前面的所有１放在数组的最左边'
-    if location - 3 &gt;= 0:
-        if group[location - 3] == 1 and group[location - 2] == 1:
-            group[location - 3] = 0
-            group[location - 2] = 0
-            group[0] = 1
-            group[1] = 1
-        elif group[location - 3] == 1:
-            group[location - 3] = 0
-            group[0] = 1
-        elif group[location - 2] == 1:
-            group[location - 2] = 0
-            group[0] = 1
-  
-    print group
-    ret.append(group)
-</code></pre>
-<p>全排列算法</p>
-<p>从1到N，输出全排列，共N！条。</p>
-<p>分析：用N进制的方法吧。设一个N个单元的数组，对第一个单元做加一操作，满N进</p>
-<p>一。每加一次一就判断一下各位数组单元有无重复，有则再转回去做加一操作，没</p>
-<p>有则说明得到了一个排列方案。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[用Python实现守护进程]]></title>
-        <id>https://yooinn.github.io//post/yong-python-shi-xian-shou-hu-jin-cheng</id>
-        <link href="https://yooinn.github.io//post/yong-python-shi-xian-shou-hu-jin-cheng">
-        </link>
-        <updated>2019-09-19T08:18:09.000Z</updated>
-        <content type="html"><![CDATA[<p>Daemon场景<br>
-考虑如下场景：你编写了一个python服务程序，并且在命令行下启动，而你的命令行会话又被终端所控制，python服务成了终端程序的一个子进程。因此如果你关闭了终端，这个命令行程序也会随之关闭。</p>
-<p>要使你的python服务不受终端影响而常驻系统，就需要将它变成守护进程。</p>
-<p>守护进程就是Daemon程序，是一种在系统后台执行的程序，它独立于控制终端并且执行一些周期任务或触发事件，通常被命名为&quot;d&quot;字母结尾，如常见的httpd、syslogd、systemd和dockerd等。</p>
-<p>代码实现<br>
-python可以很简洁地实现守护进程，下面给出代码和相应注释。这份代码稳定运行在我本地电脑的一个守护进程(自制闹钟)里，暂时没出过问题。</p>
-<pre><code># coding=utf8
-import os
-import sys
-import atexit
-def daemonize(pid_file=None):
-    &quot;&quot;&quot;
-    创建守护进程
-    :param pid_file: 保存进程id的文件
-    :return:
-    &quot;&quot;&quot;
-    # 从父进程fork一个子进程出来
-    pid = os.fork()
-    # 子进程的pid一定为0，父进程大于0
-    if pid:
-        # 退出父进程，sys.exit()方法比os._exit()方法会多执行一些刷新缓冲工作
-        sys.exit(0)
-    # 子进程默认继承父进程的工作目录，最好是变更到根目录，否则回影响文件系统的卸载
-    os.chdir('/')
-    # 子进程默认继承父进程的umask（文件权限掩码），重设为0（完全控制），以免影响程序读写文件
-    os.umask(0)
-    # 让子进程成为新的会话组长和进程组长
-    os.setsid()
-    # 注意了，这里是第2次fork，也就是子进程的子进程，我们把它叫为孙子进程
-    _pid = os.fork()
-    if _pid:
-        # 退出子进程
-        sys.exit(0)
-    # 此时，孙子进程已经是守护进程了，接下来重定向标准输入、输出、错误的描述符(是重定向而不是关闭, 这样可以避免程序在 print 的时候出错)
-    # 刷新缓冲区先，小心使得万年船
-    sys.stdout.flush()
-    sys.stderr.flush()
-    # dup2函数原子化地关闭和复制文件描述符，重定向到/dev/nul，即丢弃所有输入输出
-    with open('/dev/null') as read_null, open('/dev/null', 'w') as write_null:
-        os.dup2(read_null.fileno(), sys.stdin.fileno())
-        os.dup2(write_null.fileno(), sys.stdout.fileno())
-        os.dup2(write_null.fileno(), sys.stderr.fileno())
-    # 写入pid文件
-    if pid_file:
-        with open(pid_file, 'w+') as f:
-            f.write(str(os.getpid()))
-        # 注册退出函数，进程异常退出时移除pid文件
-        atexit.register(os.remove, pid_file)
-</code></pre>
-<p><strong>概括一下守护进程的编写步骤：</strong></p>
-<p>1、fork出子进程，退出父进程</p>
-<p>2、子进程变更工作目录(chdir)、文件权限掩码(umask)、进程组和会话组(setsid)</p>
-<p>3、子进程fork孙子进程，退出子进程</p>
-<p>4、孙子进程刷新缓冲，重定向标准输入／输出／错误（一般到/dev/null，意即丢弃）</p>
-<p>5、(可选)pid写入文件</p>
-<p>理解几个要点<br>
-为什么要fork两次<br>
-第一次fork，是为了脱离终端控制的魔爪。父进程之所以退出，是因为终端敲击键盘、或者关闭时给它发送了信号；而fork出来的子进程，在父进程自杀后成为孤儿进程，进而被操作系统的init进程接管，因此脱离终端控制。</p>
-<p>所以其实，第二次fork并不是必须的（很多开源项目里的代码就没有fork两次）。只不过出于谨慎考虑，防止进程再次打开一个控制终端。因为子进程现在是会话组长了（对话期的首次进程），有能力打开控制终端，再fork一次，孙子进程就不能打开控制终端了。</p>
-<p>文件描述符<br>
-Linux是“一切皆文件”，文件描述符是内核为已打开的文件所创建的索引，通常是非负整数。进程通过文件描述符执行IO操作。</p>
-<p>每个进程有自己的文件描述符表，因此相同的描述符可能指向同一个文件，也可能指向不同文件；来自不同进程的不同的描述符，当然也有可能指向同一个文件。</p>
-<p>默认情况下，0代表标准输入，1代表标准输出，2代表标准错误。</p>
-<p>umask权限掩码<br>
-我们知道，在Linux中，任何一个文件都有读（read）、写（write）和执行（execute）的三种使用权限。其中，读的权限用数字4代表，写权限是2，执行权限是1。命令ls -l可以查看文件权限，r/w/x分别表示具有读/写/执行权限。</p>
-<p>任何文件，也都有用户（User）,用户组（Group）,其他组（Others）三种身份权限。一般用3个数字表示文件权限，例如754：</p>
-<p>7，是User权限，即文件拥有者权限</p>
-<p>5，是Group权限，拥有者所在用户组的组员所具有的权限</p>
-<p>4，是Others权限，即其他组用户的权限啦</p>
-<p>而umask是为了控制默认权限，防止新建文件或文件夹具有全权。</p>
-<p>系统一般默认为022（使用命令umask查看），表示默认创建文件的权限是644，文件夹是755。你应该可以看出它们的规律，就是文件权限和umask的相加结果为666（笑），文件夹权限和umask的相加结果为777。</p>
-<p>进程组<br>
-每个进程都属于一个进程组（PG,Process Group），进程组可以包含多个进程。</p>
-<p>进程组有一个进程组长（Leader），进程组长的ID（PID, Process ID）就作为整个进程组的ID（PGID,Process Groupd ID）。</p>
-<p>会话组<br>
-登陆终端时，就会创造一个会话，多个进程组可以包含在一个会话中。而创建会话的进程，就是会话组长。</p>
-<p>已经是会话组长的进程，不可以再调用setsid()方法创建会话。因此，上面代码中，子进程可以调用setsid()，而父进程不能，因为它本身就是会话组长。</p>
-<p>另外，sh（Bourne Shell）不支持会话机制，因为会话机制需要shell支持工作控制（Job Control）。</p>
-<p>守护进程与后台进程<br>
-通过&amp;符号，可以把命令放到后台执行。它与守护进程是不同的：</p>
-<p>1、守护进程与终端无关，是被init进程收养的孤儿进程；而后台进程的父进程是终端，仍然可以在终端打印</p>
-<p>2、守护进程在关闭终端时依然坚挺；而后台进程会随用户退出而停止，除非加上nohup</p>
-<p>3、守护进程改变了会话、进程组、工作目录和文件描述符，后台进程直接继承父进程（shell）的</p>
-<p>换句话说：守护进程就是默默地奋斗打拼的有为青年，而后台进程是默默继承老爸资产的富二代。</p>
 ]]></content>
     </entry>
 </feed>

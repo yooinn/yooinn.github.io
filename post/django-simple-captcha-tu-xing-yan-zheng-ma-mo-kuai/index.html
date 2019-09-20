@@ -184,70 +184,115 @@
                   
                       <div class="tag-container">
                           
-                              <a href="https://yooinn.github.io//tag/zE5M8ZF1G" class="tag">算法, </a>
-                          
-                              <a href="https://yooinn.github.io//tag/tXH4POF09" class="tag">python, </a>
+                              <a href="https://yooinn.github.io//tag/QRAqbdG_m" class="tag">django, </a>
                           
                       </div>
                   
               </span>
-              <h2 class="fh5co-article-title animate-box">利用Python延迟初始化提升性能</h2>
-              <span class="fh5co-meta fh5co-date animate-box">2019-09-19</span>
+              <h2 class="fh5co-article-title animate-box">django-simple-captcha 图形验证码模块</h2>
+              <span class="fh5co-meta fh5co-date animate-box">2019-09-20</span>
 
               <div class="col-lg-12 col-lg-offset-0 col-md-12 col-md-offset-0 col-sm-12 col-sm-offset-0 col-xs-12 col-xs-offset-0 text-left content-article">
                   <div class="row">
                       <div class="col-md-12 animate-box post-content">
-                          <p> <p>所谓类属性的延迟计算就是将类的属性定义成一个property，只在访问的时候才会计算，而且一旦被访问后，结果将会被缓存起来，不用每次都计算。构造一个延迟计算属性的主要目的是为了提升性能</p>
-<p><strong>property</strong><br>
-在切入正题之前，我们了解下property的用法，property可以将属性的访问转变成方法的调用。</p>
-<pre><code>class Circle(object): 
-  def __init__(self, radius): 
-    self.radius = radius 
-   
-  @property
-  def area(self): 
-    return 3.14 * self.radius ** 2
-   
-c = Circle(4) 
-print c.radius 
-print c.area
-</code></pre>
-<p>可以看到，area虽然是定义成一个方法的形式，但是加上@property后，可以直接执行c.area，当成属性访问。</p>
-<p>现在问题来了，每次调用c.area，都会计算一次，太浪费cpu了，怎样才能只计算一次呢?这就是lazy property<br>
-<strong>代码实现</strong></p>
-<pre><code>class LazyProperty(object):
-  def __init__(self, func):
-    self.func = func
-  def __get__(self, instance, owner):
-    if instance is None:
-      return self
+                          <p> <p>**一、引言 **<br>
+        官方文档：django-simple-captcha</p>
+<p>本博客谈不上深度，算是笔记和一些探索经验。主要是遇到了一个实际问题，在使用django-simple-captcha模块的时候，官网推荐使用django表单的形式去添加，django表单确实很方便，但是对于简单项目或者只需要django-simple-captcha模块的时候也没有太多的文档具体说明，这篇博客就说一下怎么单独使用django-simple-captcha模块。</p>
+<p>目标：实现手动创建验证码和前端显示，后台手动验证，ajax请求。</p>
+<p><strong>二、流程</strong><br>
+1）安装 django-simple-captcha</p>
+<p>pip install django-simple-captcha<br>
+2）注册captcha</p>
+<p>INSTALLED_APPS = [<br>
+'django.contrib.admin',<br>
+'django.contrib.auth',<br>
+'django.contrib.contenttypes',<br>
+'django.contrib.sessions',<br>
+'django.contrib.messages',<br>
+'django.contrib.staticfiles',<br>
+'captcha',<br>
+]<br>
+也可以个性化定制，在 settings.py中添加如下代码，详情参考官方文档：</p>
+<h1 id="设置-captcha-图片大小">设置 captcha 图片大小</h1>
+<p>CAPTCHA_IMAGE_SIZE = (80, 45)</p>
+<h1 id="字符个数">字符个数</h1>
+<p>CAPTCHA_LENGTH = 4</p>
+<h1 id="超时minutes">超时(minutes)</h1>
+<p>CAPTCHA_TIMEOUT = 1<br>
+3）执行数据迁移，生成数据表 captcha_captchastore</p>
+<p>python manage.py migrate<br>
+4）添加路由</p>
+<p>urlpatterns = [<br>
+path('admin/', admin.site.urls),<br>
+# 图片验证码 路由<br>
+path('captcha/', include('captcha.urls'))<br>
+]<br>
+再添加ajax刷新请求的二级路由，ajxa请求地址： /refresh_captcha/</p>
+<p>path('refresh_captcha/', views.refresh_captcha),    # 刷新验证码，ajax<br>
+本次django使用的是2.1.8版本，路由的写法可能有点不同，原理一样。</p>
+<p>5）在views.py中添加代码，因为在我的项目中，设计到代码的复用问题，所以我创建验证码和验证单独做成函数</p>
+<pre><code> 验证码需要导入的模块
+from captcha.models import CaptchaStore
+from captcha.helpers import captcha_image_url
+from django.http import JsonResponse
+ 
+# 创建验证码
+def captcha():
+    # 验证码，第一次请求
+    hashkey = CaptchaStore.generate_key()
+    image_url = captcha_image_url(hashkey)
+    captcha = {'hashkey': hashkey, 'image_url': image_url}
+    return captcha
+		
+ #验证码API接口
+def refresh_captcha(request):
+    # 响应
+    return JsonResponse(captcha(), content_type='application/json')
+ 
+# 验证验证码
+def jarge_captcha(captchaStr, captchaHashkey):
+    if captchaStr and captchaHashkey:
+        try:
+            # 获取根据hashkey获取数据库中的response值
+            get_captcha = CaptchaStore.objects.get(hashkey=captchaHashkey) 
+            # 如果验证码匹配
+            if get_captcha.response == captchaStr.lower():  
+                return True
+        except:
+            return False
     else:
-      value = self.func(instance)
-      setattr(instance, self.func.__name__, value)
-      return value
-import math
-class Circle(object):
-  def __init__(self, radius):
-    self.radius = radius
-  @LazyProperty
-  def area(self):
-    print 'Computing area'
-    return math.pi * self.radius ** 2
-  @LazyProperty
-  def perimeter(self):
-    print 'Computing perimeter'
-    return 2 * math.pi * self.radius
+        return False
 </code></pre>
-<p><strong>说明</strong><br>
-定义了一个延迟计算的装饰器类LazyProperty。Circle是用于测试的类，Circle类有是三个属性半径(radius)、面积(area)、周长(perimeter)。面积和周长的属性被LazyProperty装饰，下面来试试LazyProperty的魔法：</p>
-<pre><code>&gt;&gt;&gt; c = Circle(2)
-&gt;&gt;&gt; print c.area
-Computing area
-12.5663706144
-&gt;&gt;&gt; print c.area
-12.5663706144
+<p><strong>前端页面：</strong></p>
+<pre><code>&lt;div class=&quot;form-group&quot;&gt;
+    &lt;label for=&quot;id_password&quot;&gt;验证码&lt;/label&gt;
+    &lt;div id=&quot;captcha_div&quot;&gt;
+        &lt;input type=&quot;text&quot; name='captcha' class=&quot;form-control&quot; placeholder=&quot;Captcha&quot; required style=&quot;width: 55%;display: inline-block;margin-right: 8%;&quot;&gt;
+        &lt;a href=&quot;#&quot; class=&quot;captcha&quot;&gt;&lt;img src=&quot;{{captcha.image_url}}&quot; alt=&quot;点击换一张&quot; id=&quot;id_captcha&quot;&gt;&lt;/a&gt;
+        &lt;input value=&quot;{{captcha.hashkey}}&quot; name=&quot;hashkey&quot; type=&quot;hidden&quot; id=&quot;id_captcha_0&quot;&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
 </code></pre>
-<p>在area()中每计算一次就会打印一次“Computing area”，而连续调用两次c.area后“Computing area”只被打印了一次。这得益于LazyProperty,只要调用一次后，无论后续调用多少次都不会重复计算。</p>
+<p><strong>前端页面显示图片采用 src=&quot;{{captcha.image_url}}&quot;来获取：</strong></p>
+<pre><code>&lt;script&gt;
+        &lt;!-- 动态刷新验证码js --&gt;
+        //网页加载时调用
+        $(document).ready(function(){
+            //网页加载时发送请求
+            $.getJSON(&quot;/refresh_captcha/&quot;, function (result) {
+                    $('#id_captcha').attr('src', result['image_url']);
+                    $('#id_captcha_0').val(result['hashkey'])
+                });
+            //点击按钮触发,发送请求
+            $('.captcha').click(function () {
+                $.getJSON(&quot;/refresh_captcha/&quot;, function (result) {
+                    $('#id_captcha').attr('src', result['image_url']);
+                    $('#id_captcha_0').val(result['hashkey'])
+                });
+            });
+        });
+&lt;/script&gt;
+</code></pre>
  </p>
                       </div>
                   </div>
@@ -257,9 +302,9 @@ Computing area
                           
                               <div class="next-post">
                                   <div class="next">下一篇</div>
-                                  <a href="https://yooinn.github.io//post/python-shi-xian-gao-xiao-lu-de-pai-lie-zu-he-suan-fa">
+                                  <a href="https://yooinn.github.io//post/django-templates-mo-ban-de-yu-fa">
                                       <h3 class="post-title">
-                                          python实现高效率的排列组合算法
+                                          Django templates 模板的语法
                                       </h3>
                                   </a>
                               </div>

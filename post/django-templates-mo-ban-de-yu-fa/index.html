@@ -184,70 +184,125 @@
                   
                       <div class="tag-container">
                           
-                              <a href="https://yooinn.github.io//tag/zE5M8ZF1G" class="tag">算法, </a>
-                          
-                              <a href="https://yooinn.github.io//tag/tXH4POF09" class="tag">python, </a>
+                              <a href="https://yooinn.github.io//tag/QRAqbdG_m" class="tag">django, </a>
                           
                       </div>
                   
               </span>
-              <h2 class="fh5co-article-title animate-box">利用Python延迟初始化提升性能</h2>
-              <span class="fh5co-meta fh5co-date animate-box">2019-09-19</span>
+              <h2 class="fh5co-article-title animate-box">Django templates 模板的语法</h2>
+              <span class="fh5co-meta fh5co-date animate-box">2019-09-20</span>
 
               <div class="col-lg-12 col-lg-offset-0 col-md-12 col-md-offset-0 col-sm-12 col-sm-offset-0 col-xs-12 col-xs-offset-0 text-left content-article">
                   <div class="row">
                       <div class="col-md-12 animate-box post-content">
-                          <p> <p>所谓类属性的延迟计算就是将类的属性定义成一个property，只在访问的时候才会计算，而且一旦被访问后，结果将会被缓存起来，不用每次都计算。构造一个延迟计算属性的主要目的是为了提升性能</p>
-<p><strong>property</strong><br>
-在切入正题之前，我们了解下property的用法，property可以将属性的访问转变成方法的调用。</p>
-<pre><code>class Circle(object): 
-  def __init__(self, radius): 
-    self.radius = radius 
-   
-  @property
-  def area(self): 
-    return 3.14 * self.radius ** 2
-   
-c = Circle(4) 
-print c.radius 
-print c.area
-</code></pre>
-<p>可以看到，area虽然是定义成一个方法的形式，但是加上@property后，可以直接执行c.area，当成属性访问。</p>
-<p>现在问题来了，每次调用c.area，都会计算一次，太浪费cpu了，怎样才能只计算一次呢?这就是lazy property<br>
-<strong>代码实现</strong></p>
-<pre><code>class LazyProperty(object):
-  def __init__(self, func):
-    self.func = func
-  def __get__(self, instance, owner):
-    if instance is None:
-      return self
-    else:
-      value = self.func(instance)
-      setattr(instance, self.func.__name__, value)
-      return value
-import math
-class Circle(object):
-  def __init__(self, radius):
-    self.radius = radius
-  @LazyProperty
-  def area(self):
-    print 'Computing area'
-    return math.pi * self.radius ** 2
-  @LazyProperty
-  def perimeter(self):
-    print 'Computing perimeter'
-    return 2 * math.pi * self.radius
-</code></pre>
-<p><strong>说明</strong><br>
-定义了一个延迟计算的装饰器类LazyProperty。Circle是用于测试的类，Circle类有是三个属性半径(radius)、面积(area)、周长(perimeter)。面积和周长的属性被LazyProperty装饰，下面来试试LazyProperty的魔法：</p>
-<pre><code>&gt;&gt;&gt; c = Circle(2)
-&gt;&gt;&gt; print c.area
-Computing area
-12.5663706144
-&gt;&gt;&gt; print c.area
-12.5663706144
-</code></pre>
-<p>在area()中每计算一次就会打印一次“Computing area”，而连续调用两次c.area后“Computing area”只被打印了一次。这得益于LazyProperty,只要调用一次后，无论后续调用多少次都不会重复计算。</p>
+                          <p> <p>MVC 以及 MTV<br>
+MVC:<br>
+M : model --&gt;&gt; 存取数据(模型)<br>
+V: view --&gt;&gt; 信息的展示(视图)<br>
+C: controller --&gt;&gt; 逻辑的控制(控制器)<br>
+MTV:<br>
+M: model --&gt;&gt; ORM操作(模型)<br>
+T: template --&gt;&gt; 模板(模板)<br>
+V: view --&gt;&gt; 业务逻辑 (视图)<br>
+变量<br>
+取值顺序 : 字典Key ---&gt;&gt; 属性---&gt;&gt;方法---&gt;&gt;索引<br>
+{{ new_name }} ——》 变量 新华出版社 字典或列表用 . 取值<br>
+for循环for 标签带有一个可选的{% empty %} 从句，以便在给出的组是空的或者没有被找到时，可以有所操作。<br>
+{% for person in person_list %}</p>
+<p>{{ person.name }}</p>
+<h1 id="循环取值">循环取值</h1>
+<p>{% empty %}<br>
+<p>sorry,no person here</p>   #  person_list 为空时 显示<br>
+{% endfor %}<br>
+if 标签 ：{% if %}会对一个变量求值，如果它的值是“True”（存在、不为空、且不是boolean类型的false值），对应的内容块会输出。<br>
+{% if i &gt; 300 %}<br>
+大于{{ i }}</p>
+<p>{% elif i == 200 %}<br>
+等于{{ i }}</p>
+<p>{% else %}<br>
+小于{{ i }}</p>
+<p>{% endif %}<br>
+.with：使用一个简单地名字缓存一个复杂的变量，当你需要使用一个“昂贵的”方法（比如访问数据库）很多次的时候是非常有用的<br>
+{% with total=business.employees.count %}<br>
+{{ total }} employee{{ total|pluralize }}<br>
+{% endwith %}<br>
+{{ person_list.2.name }}</p>
+<p>{% with name=person_list.2.name %}<br>
+{{ name }}</p>
+<p>{% endwith %}<br>
+内置过滤器<br>
+{{ str|default:'返回值' }} ----&gt;&gt;&gt;&gt; 默认值<br>
+{{ str|filesizeformat }} ----&gt;&gt;&gt;&gt; 将文件大小转换为 可读的 类型<br>
+{{ str|add:'2' }} ----&gt;&gt;&gt;&gt; 给变量加参数 变量位数字 就加法运算 str 拼接<br>
+{{ str|length }} ----&gt;&gt;&gt;&gt; 返回value 的长度<br>
+{{ time|data:'Y-m-d H:i:s' }} ----&gt;&gt;&gt;&gt; 时间转换<br>
+{{ time|data }} ----&gt;&gt;&gt;&gt; 时间转换 需在 stting 中配置<br>
+{{ str|slice:'2:-1' }} ----&gt;&gt;&gt;&gt; 切片<br>
+{{ list|first }} ----&gt;&gt;&gt;&gt; 取第一个<br>
+{{ list|last }} ----&gt;&gt;&gt;&gt; 取最后一个<br>
+{{ list|join:'//' }} ----&gt;&gt;&gt;&gt; 拼接<br>
+{{ str|truncatechars:10 }} ----&gt;&gt;&gt;&gt; 截断字符串<br>
+{{ html|safa }} ----&gt;&gt;&gt;&gt; 不转义 可写入 html 标签</p>
+<p>自定义<br>
+定义filter 过滤器<br>
+在APP下创建一个叫templatetags的python包； 不能变的，必须是包，名字必须是templatetags<br>
+在包中创建一个py文件 my_filters;<br>
+在py文件中写代码<br>
+from django import template</p>
+<p>register = template.Library()  # register的名字不能改<br>
+写函数<br>
+@register.filter<br>
+def add_dsb(value, arg):<br>
+return &quot;{}<em>{}&quot;.format(value, arg)<br>
+给定义的函数加装饰器<br>
+@register.filter<br>
+def add_dsb(value, arg):<br>
+使用<br>
+在模板中使用：<br>
+导入定义的文件<br>
+{% load my_filter %}<br>
+使用过滤器<br>
+{{ name|add_dsb:'very_dsb' }}<br>
+定义simpletag<br>
+和 定义 filter 一样<br>
+@register.simple_tags<br>
+def add_data(*args,**kwargs):<br>
+return &quot;{}</em>{}&quot;.format(&quot;--&quot;.join(args),&quot;*&quot;.join(kwarg.values()))<br>
+自定义inclusion_tag<br>
+@register.inclusion_tag('show_li.html')<br>
+def show_li(num):<br>
+return {'num':range(1,num+1)}<br>
+写模板 show_li.html</p>
+<p>{% for i in num %}<br>
+{{ i }}<br>
+{% endfor %}</p>
+<p>使用:<br>
+模板中导入 {% load 定义的py文件名 %}<br>
+filter {{ 变量|函数名：参数 }}<br>
+simple_tag {{ 变量|函数名：参数 }}<br>
+inclusion_tag {% inclusion_tag的函数名 %}<br>
+标签<br>
+{% csrf_token %}<br>
+添加在form表单中 就可以提交POST请求<br>
+母版和继承<br>
+母版<br>
+就是一个普通的HTML文本，将多个页面公共部分的内容提取出来，在页面中定义多个block块<br>
+{% block content %}<br>
+{% endblock %}<br>
+继承<br>
+在子页面中，继承母版 {% extends 'base.html' %}<br>
+可以重新书写block块中内容<br>
+注意事项<br>
+{% extends 'base.html' %} 写在第一行，上面不写内容<br>
+要修改的 内容写在block块中，写在外面不显示<br>
+{% extends 'base.html' %} base.html 记得带上引号，不然当做变量去查找<br>
+定义多个block块，一般要定义上 css和js<br>
+组件include<br>
+{% include 'nav.html' %}<br>
+静态文件相关<br>
+{% load static %}<br>
+{% static '静态文件相对路径' %} ——》 获取到别名，跟后面的参数进行拼接<br>
+{% get_static_prefix %} ——》 获取到别名</p>
  </p>
                       </div>
                   </div>
@@ -257,9 +312,9 @@ Computing area
                           
                               <div class="next-post">
                                   <div class="next">下一篇</div>
-                                  <a href="https://yooinn.github.io//post/python-shi-xian-gao-xiao-lu-de-pai-lie-zu-he-suan-fa">
+                                  <a href="https://yooinn.github.io//post/python-jin-cheng-xian-cheng-xie-cheng-xiang-jie">
                                       <h3 class="post-title">
-                                          python实现高效率的排列组合算法
+                                          Python进程、线程、协程详解
                                       </h3>
                                   </a>
                               </div>
