@@ -213,17 +213,18 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 </code></pre>
 <p>二、使用static标签动态引用</p>
 <p>上述写法是硬编码，存在维护问题，可以使用static标签动态引用</p>
-<!DOCTYPE html>
-<html lang="en">
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
 {% load staticfiles %}
-<head>
+&lt;head&gt;
 ...
-</head>
-<body>
-动态引用：<br/>
-<img src="{% static 'image/mm.jpg' %}"/>
-</body>
-</html>
+&lt;/head&gt;
+&lt;body&gt;
+动态引用：&lt;br/&gt;
+&lt;img src=&quot;{% static 'image/mm.jpg' %}&quot;/&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 <p>中间件</p>
 <p>MIDDLEWARE: 中间件</p>
 <p>一、案例： 禁止指定ip地址的访问</p>
