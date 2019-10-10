@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yooinn.github.io/</id>
     <title>Jiank</title>
-    <updated>2019-10-10T15:01:33.823Z</updated>
+    <updated>2019-10-10T15:07:11.865Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yooinn.github.io/"/>
     <link rel="self" href="https://yooinn.github.io//atom.xml"/>
@@ -113,6 +113,14 @@ count()
  db.mycol.count()
 5、查询表达式:
 最简单的查询表达式
+
+| Model| 命令| Model | 命令|
+| --------- | -------- | -----: | --: |
+|  $lt| 小于  |  $lte |   小于等于 |
+| $gt| 大于|   $gte|   大于等于 |
+| $ne --- != | 查询表达式 |   |    |
+|  |     |    |    |
+
     {filed:value} ,是指查询field列的值为value的文档
 $lt小于
 $lte小于等于
