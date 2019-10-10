@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yooinn.github.io/</id>
     <title>Jiank</title>
-    <updated>2019-09-22T07:19:35.728Z</updated>
+    <updated>2019-10-10T00:54:27.922Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yooinn.github.io/"/>
     <link rel="self" href="https://yooinn.github.io//atom.xml"/>
@@ -10,6 +10,137 @@
     <logo>https://yooinn.github.io//images/avatar.png</logo>
     <icon>https://yooinn.github.io//favicon.ico</icon>
     <rights>All rights reserved 2019, Jiank</rights>
+    <entry>
+        <title type="html"><![CDATA[Python 爬虫框架scrapy笔记]]></title>
+        <id>https://yooinn.github.io//post/python-pa-chong-kuang-jia-scrapy-bi-ji</id>
+        <link href="https://yooinn.github.io//post/python-pa-chong-kuang-jia-scrapy-bi-ji">
+        </link>
+        <updated>2019-10-10T00:49:21.000Z</updated>
+        <content type="html"><![CDATA[<pre><code>scrapy startproject name 创建项目
+scrapy genspider spider_name 创建爬虫文件
+编写代码
+scrapy crawl spider_name 运行爬虫
+</code></pre>
+<pre><code>项目文件下所有py的功能介绍：
+scrapy.cfg：配置文件
+spiders：存放你Spider文件，也就是你爬取的py文件
+items.py：相当于一个容器，和字典较像
+middlewares.py：定义Downloader Middlewares(下载器中间件)和Spider Middlewares(蜘蛛中间件)的实现
+pipelines.py:定义Item Pipeline的实现，实现数据的清洗，储存，验证。
+settings.py：全局配置
+</code></pre>
+<p><strong>一个例子</strong></p>
+<pre><code>boss直聘项目：
+1.创建项目
+scrapy startproject name 创建项目
+2.创建spider
+scrapy genspider spider_name 创建爬虫文件
+3.robots改为false
+项目里settings.py里面
+	COOKIES_ENABLED = False
+4.设置请求头
+	DEFAULT_REQUEST_HEADERS = {
+5.添加待爬取的url到start_urks
+6、测试parse方法能否爬取到页面数据。如果不能分析。
+	这个项目需要添加cookie，如果想要设置自定义的cookie，需要将：
+	COOKIES_ENABLED = False
+7、爬取数据：
+	1、在items.py中定义爬取字段
+	2.在parse方法中实例化items
+	item = BosszpItem()
+	3、提取item的每个字段，并设置到item中。
+	item['name'] = name
+	item['salary'] = salary
+	4、设置好之后，yield item，开始编写pipeline的内容
+	5、写好pipeline之后，需要配置才能生效。
+	
+中间件如何设置：
+	1.新建一个文件，比如：mymidderware.py
+	2.在这个类中，主要实现：
+	    def process_request(self, request, spider):
+        if spider.name=='tencent':
+            print('============in middle============')
+            self.driver.get(request.url)
+            self.wait.until(EC.presence_of_element_located((By.XPATH,'//div[@class=&quot;search-content&quot;]')))
+            html = self.driver.page_source
+            #将页面内容包装到一个response对象中
+            return HtmlResponse(request.url,body=html,encoding='utf-8',request=request)
+        print('====222======')
+        return None
+	3.配置：
+	DOWNLOADER_MIDDLEWARES = {
+   'bosszp.MyMiddleWares.MiddleWares_Tencent': 543,
+	}
+
+LOG_ENABLED=True
+LOG_ENCODING='utf-8'
+LOG_FILE='tencent.log'
+LOG_LEVEL = 'INFO'
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Python中MD5加密]]></title>
+        <id>https://yooinn.github.io//post/python-zhong-md5-jia-mi</id>
+        <link href="https://yooinn.github.io//post/python-zhong-md5-jia-mi">
+        </link>
+        <updated>2019-09-27T01:22:05.000Z</updated>
+        <content type="html"><![CDATA[<p>Python中生成MD5</p>
+<h1 id="由于md5模块在python3中被移除">由于MD5模块在python3中被移除</h1>
+<h1 id="在python3中使用hashlib模块进行md5操作">在python3中使用hashlib模块进行md5操作</h1>
+<pre><code>import hashlib
+
+# 待加密信息
+str = '123456'
+# 创建md5对象
+hl = hashlib.md5()
+#更新hash对象的值，如果不使用update方法也可以直接md5构造函数内填写
+#md5_obj=hashlib.md5(&quot;123456&quot;.encode(&quot;utf-8&quot;)) 效果一样
+hl.update(str.encode(&quot;utf-8&quot;))
+print('MD5加密前为 ：' + str)
+print('MD5加密后为 ：' + hl.hexdigest())
+</code></pre>
+<p><strong>MD5双重加密</strong></p>
+<pre><code>md5_obj=hashlib.md5(&quot;123456&quot;.encode(&quot;utf-8&quot;))
+str1=md5_obj.hexdigest() #加密1次
+obj2=hashlib.md5(str1.encode(&quot;utf-8&quot;))
+str2=obj2.hexdigest()#加密2次
+print(str2) #双重加密后，同样解密开
+</code></pre>
+<p><strong>MD5加盐值(SALT)</strong></p>
+<pre><code>from random import Random  
+import hashlib
+  
+# 获取由4位随机大小写字母、数字组成的salt值  
+def create_salt(length = 4):  
+    salt = ''  
+    chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789'  
+    len_chars = len(chars) - 1  
+    random = Random()  
+    for i in range(length):  
+        # 每次从chars中随机取一位  
+        salt += chars[random.randint(0, len_chars)]  
+    return salt  
+  
+# 获取原始密码+salt的md5值  
+def create_md5(pwd,salt):  
+    md5_obj = hashlib.md5()  
+    md5_obj.update((pwd + salt).encode(&quot;utf-8&quot;))  
+    return md5_obj.hexdigest()  
+  
+# 原始密码  
+pwd = '123456'  
+# 随机生成4位salt  
+salt = create_salt()  
+# 加密后的密码  
+md5 = create_md5(pwd, salt)  
+  
+print('[pwd]\n',pwd ) 
+print('[salt]\n', salt)  
+print('[md5]\n', md5) 
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[CentOS下编译安装Python3教程]]></title>
         <id>https://yooinn.github.io//post/centos-xia-bian-yi-an-zhuang-python3-jiao-cheng</id>
@@ -1143,105 +1274,6 @@ LANGUAGE_CODE = 'zh-cn'
 <p>当 Web 服务搭建好以后，可以接收来自全球不同国家用户访问。这样就要求开发人员调整软件，使之能适用于不同的语言，即国际化和本地化。国际化</p>
 <p>-- Internationalization，i 和 n 之间有 18 个字母，简称 I18N,。本地化 -- localization， l 和 n 之间有 10 个字母，简称 L10N。国际化意味着 Web</p>
 <p>产品有适用于任何地方的潜力，针对程序开发人员；本地化则是指使一个国际化的程序为了在某个特定地区使用而进行实际翻译的过程，针对翻译人员而言</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Django中如何防范CSRF跨站点请求伪造攻击]]></title>
-        <id>https://yooinn.github.io//post/django-zhong-ru-he-fang-fan-csrf-kua-zhan-dian-qing-qiu-wei-zao-gong-ji</id>
-        <link href="https://yooinn.github.io//post/django-zhong-ru-he-fang-fan-csrf-kua-zhan-dian-qing-qiu-wei-zao-gong-ji">
-        </link>
-        <updated>2019-09-19T10:05:55.000Z</updated>
-        <content type="html"><![CDATA[<p>CSRF概念<br>
-CSRF跨站点请求伪造(Cross—Site Request Forgery)。</p>
-<p>攻击者盗用了你的身份，以你的名义发送恶意请求，对服务器来说这个请求是完全合法的，但是却完成了攻击者所期望的一个操作，比如以你的名义发送邮件、发消息，盗取你的账号，添加系统管理员，甚至于购买商品、虚拟货币转账等。</p>
-<p>CSRF攻击原理以及过程<br>
-用户C打开浏览器，访问受信任网站A，输入用户名和密码请求登录网站A；</p>
-<p>2.在用户信息通过验证后，网站A产生Cookie信息并返回给浏览器，此时用户登录网站A成功，可以正常发送请求到网站A；</p>
-<p>用户未退出网站A之前，在同一浏览器中，打开一个TAB页访问网站B；</p>
-<p>网站B接收到用户请求后，返回一些攻击性代码，并发出一个请求要求访问第三方站点A；</p>
-<p>浏览器在接收到这些攻击性代码后，根据网站B的请求，在用户不知情的情况下携带Cookie信息，向网站A发出请求。网站A并不知道该请求其实是由B发起的，所以会根据用户C的Cookie信息以C的权限处理该请求，导致来自网站B的恶意代码被执行。</p>
-<p>CSRF攻击实例<br>
-受害者 Bob 在银行有一笔存款，通过对银行的网站发送请求 http://bank.example/withdraw?account=bob&amp;amount=1000000&amp;for=bob2可以使 Bob 把 1000000 的存款转到 bob2 的账号下。通常情况下，该请求发送到网站后，服务器会先验证该请求是否来自一个合法的 session，并且该 session 的用户 Bob 已经成功登陆。</p>
-<p>黑客 Mallory 自己在该银行也有账户，他知道上文中的 URL 可以把钱进行转帐操作。Mallory 可以自己发送一个请求给银行：http://bank.example/withdraw?account=bob&amp;amount=1000000&amp;for=Mallory。但是这个请求来自 Mallory 而非 Bob，他不能通过安全认证，因此该请求不会起作用。</p>
-<p>这时，Mallory 想到使用 CSRF 的攻击方式，他先自己做一个网站，在网站中放入如下代码：src=”http://bank.example/withdraw?account=bob&amp;amount=1000000&amp;for=Mallory ”，并且通过广告等诱使 Bob 来访问他的网站。当 Bob 访问该网站时，上述 url 就会从 Bob 的浏览器发向银行，而这个请求会附带 Bob 浏览器中的 cookie 一起发向银行服务器。大多数情况下，该请求会失败，因为他要求 Bob 的认证信息。但是，如果 Bob 当时恰巧刚访问他的银行后不久，他的浏览器与银行网站之间的 session 尚未过期，浏览器的 cookie 之中含有 Bob 的认证信息。这时，悲剧发生了，这个 url 请求就会得到响应，钱将从 Bob 的账号转移到 Mallory 的账号，而 Bob 当时毫不知情。等以后 Bob 发现账户钱少了，即使他去银行查询日志，他也只能发现确实有一个来自于他本人的合法请求转移了资金，没有任何被攻击的痕迹。而 Mallory 则可以拿到钱后逍遥法外。</p>
-<p>Django中如何防范CSRF<br>
-Django使用专门的中间件（CsrfMiddleware）来进行CSRF防护。具体的原理如下：</p>
-<p>1.它修改当前处理的请求，向所有的 POST 表单增添一个隐藏的表单字段，使用名称是 csrfmiddlewaretoken ，值为当前会话 ID 加上一个密钥的散列值。 如果未设置会话 ID ，该中间件将不会修改响应结果，因此对于未使用会话的请求来说性能损失是可以忽略的。</p>
-<p>2.对于所有含会话 cookie 集合的传入 POST 请求，它将检查是否存在 csrfmiddlewaretoken 及其是否正确。 如果不是的话，用户将会收到一个 403 HTTP 错误。 403 错误页面的内容是检测到了跨域请求伪装。 终止请求。</p>
-<p>该步骤确保只有源自你的站点的表单才能将数据 POST 回来。</p>
-<p>另外要说明的是，未使用会话 cookie 的 POST 请求无法受到保护，但它们也不 需要 受到保护，因为恶意网站可用任意方法来制造这种请求。为了避免转换非 HTML 请求，中间件在编辑响应结果之前对它的 Content-Type 头标进行检查。 只有标记为 text/html 或 application/xml+xhtml 的页面才会被修改。</p>
-<p>Django防范CSRF的具体操作</p>
-<ol>
-<li>将'django.middleware.csrf.CsrfViewMiddleware'添加到Django的settings.py文件中的MIDDLEWARE_CLASSES列表中（默认已经添加）。 该中间件必须在 SessionMiddleware 之后执行，因此在列表中 CsrfMiddleware 必须出现在SessionMiddleware 之前 （因为响应中间件是自后向前执行的）。 同时，它也必须在响应被压缩或解压之前对响应结果进行处理，因此CsrfMiddleware必须在GZipMiddleware之后执行。</li>
-</ol>
-<p>MIDDLEWARE_CLASSES = (<br>
-'django.middleware.common.CommonMiddleware',<br>
-'django.contrib.sessions.middleware.SessionMiddleware',<br>
-'django.middleware.csrf.CsrfViewMiddleware',<br>
-'django.contrib.auth.middleware.AuthenticationMiddleware',<br>
-'django.contrib.messages.middleware.MessageMiddleware',<br>
-# Uncomment the next line for simple clickjacking protection:<br>
-# 'django.middleware.clickjacking.XFrameOptionsMiddleware',<br>
-)</p>
-<ol start="2">
-<li>在使用到POST方法提交FORM的页面中，添加csrf_token标签，例如：</li>
-</ol>
-<form action="." method="post">{% csrf_token %}
-3. 在相应的view中，确保“django.core.context_processors.csrf” 上下文处理器被正确使用，有两种方法实现这一点，一是使用RequestContext，它内部会自动使用到“django.core.context_processors.csrf”。另一种方法是手动使用这个处理器，示例代码如下：
-<p>from django.core.context_processors import csrf<br>
-from django.shortcuts import render_to_response<br>
-def my_view(request):<br>
-c = {}<br>
-c.update(csrf(request))<br>
-# ... view code here<br>
-return render_to_response(&quot;a_template.html&quot;, c)</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Python爬虫使用代理proxy抓取网页]]></title>
-        <id>https://yooinn.github.io//post/python-pa-chong-shi-yong-dai-li-proxy-zhua-qu-wang-ye</id>
-        <link href="https://yooinn.github.io//post/python-pa-chong-shi-yong-dai-li-proxy-zhua-qu-wang-ye">
-        </link>
-        <updated>2019-09-19T10:02:47.000Z</updated>
-        <content type="html"><![CDATA[<p>代理类型（proxy）:透明代理 匿名代理 混淆代理和高匿代理. 这里写一些python爬虫使用代理的知识, 还有一个代理池的类. 方便大家应对工作中各种复杂的抓取问题。</p>
-<p><strong>urllib 模块使用代理</strong><br>
-urllib/urllib2使用代理比较麻烦, 需要先构建一个ProxyHandler的类, 随后将该类用于构建网页打开的opener的类,再在request中安装该opener.</p>
-<p>代理格式是&quot;http://127.0.0.1:80&quot;,如果要账号密码是&quot;http://user:password@127.0.0.1:80&quot;.</p>
-<pre><code>proxy=&quot;http://127.0.0.1:80&quot;
-# 创建一个ProxyHandler对象
-proxy_support=urllib.request.ProxyHandler({'http':proxy})
-# 创建一个opener对象
-opener = urllib.request.build_opener(proxy_support)
-# 给request装载opener
-urllib.request.install_opener(opener)
-# 打开一个url
-r = urllib.request.urlopen('http://youtube.com',timeout = 500)
-</code></pre>
-<p><strong>requests 模块 使用代理</strong><br>
-requests使用代理要比urllib简单多了…这里以单次代理为例. 多次的话可以用session一类构建.</p>
-<p>如果需要使用代理，你可以通过为任意请求方法提供 proxies 参数来配置单个请求:</p>
-<pre><code>import requests
-proxies = {
-  &quot;http&quot;: &quot;http://127.0.0.1:3128&quot;,
-  &quot;https&quot;: &quot;http://127.0.0.1:2080&quot;,
-}
-r=requests.get(&quot;http://youtube.com&quot;, proxies=proxies)
-print r.text
-</code></pre>
-<p>你也可以通过环境变量 HTTP_PROXY 和 HTTPS_PROXY 来配置代理。</p>
-<pre><code>
-export HTTP_PROXY=&quot;http://127.0.0.1:3128&quot;
-export HTTPS_PROXY=&quot;http://127.0.0.1:2080&quot;
-python
-&gt;&gt;&gt; import requests
-&gt;&gt;&gt; r=requests.get(&quot;http://youtube.com&quot;)
-&gt;&gt;&gt; print r.text
-</code></pre>
-<p>若你的代理需要使用HTTP Basic Auth，可以使用 http://user:password@host/ 语法:</p>
-<pre><code>proxies = {
-    &quot;http&quot;: &quot;http://user:pass@127.0.0.1:3128/&quot;,
-}
-</code></pre>
 ]]></content>
     </entry>
 </feed>
