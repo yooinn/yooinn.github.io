@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yooinn.github.io/</id>
     <title>Jiank</title>
-    <updated>2019-10-10T00:56:03.253Z</updated>
+    <updated>2019-10-10T15:01:33.823Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yooinn.github.io/"/>
     <link rel="self" href="https://yooinn.github.io//atom.xml"/>
@@ -10,6 +10,146 @@
     <logo>https://yooinn.github.io//images/avatar.png</logo>
     <icon>https://yooinn.github.io//favicon.ico</icon>
     <rights>All rights reserved 2019, Jiank</rights>
+    <entry>
+        <title type="html"><![CDATA[mongo数据库]]></title>
+        <id>https://yooinn.github.io//post/mongo-shu-ju-ku</id>
+        <link href="https://yooinn.github.io//post/mongo-shu-ju-ku">
+        </link>
+        <updated>2019-10-10T13:20:24.000Z</updated>
+        <content type="html"><![CDATA[<p><strong>mongo入门命令</strong></p>
+<pre><code>show dbs  查看当前的数据库
+ use databaseName 选库
+show collections 查看当前库下的collection
+
+</code></pre>
+<p>如何创建库?<br>
+Mongodb的库是隐式创建,你可以use 一个不存在的库，然后在该库下创建collection,即可创建库<br>
+db.createCollection(‘collectionName’)<br>
+即可创建一个集合。<br>
+其实在MongoDB中，collection也是可以隐身创建的<br>
+db.collectionName.insert(document)<br>
+如何删除数据库和集合？<br>
+db.collectionName.drop()//删除集合<br>
+db.dropDatabase()//删除数据库</p>
+<p>MongoDB基础增删改查操作</p>
+<pre><code>1、增：insert方法
+首先要明确一点，MongoDB存储的时文档，文档其实就是json格式的对象。
+语法：
+db.collectionName.isnert(document)
+增加单篇文档：
+db.collectionName.insert({title:’nice day’})
+增加单个文档,并指定_id
+db.collectionName.insert({_id:8,age:78,name:’lisi’})
+增加多个文档
+db.collectionName.insert(
+[
+{time:'friday',study:'mongodb'},
+{_id:9,gender:'male',name:'QQ'}
+]
+)
+2、删除：remove
+语法:
+ db.collection.remove(查询表达式, 选项)
+选项是指  {justOne:true/false},是否只删一行, 默认为false
+注意：
+1: 查询表达式依然是个json对象 {age:20} where age =20   where age&gt;20
+2: 查询表达式匹配的行,将被删掉.
+3: 如果不写查询表达式,collections中的所有文档将被删掉
+例1:删除stu表中 sn属性值为’001’的文档
+ db.stu.remove({sn:’001’})
+例2: 删除stu表中gender属性为m的文档,只删除1行.
+db.stu.remove({gender:’m’,true});
+
+3、更新：update
+语法: db.collection.update(查询表达式,新值,选项)
+
+改谁? --- 查询表达式
+改成什么样? -- 新值 或 赋值表达式
+操作选项 ----- 可选参数
+例:
+db.news.update({name:'QQ'},{name:'MSN'});
+是指选中news表中,name值为QQ的文档,并把其文档值改为{name:’MSN’},结果: 文档中的其他列也不见了,改后只有_id和name列了，即--新文档直接替换了旧文档,而不是修改
+如果是想修改文档的某列,可以用$set关键字：
+db.collectionName.update(query,{$set:{name:’QQ’}})
+修改时的赋值表达式
+$set 修改某列的值
+$unset 删除某个列
+$rename 重命名某个列
+$inc 增长某个列
+Option的作用:{upsert:true/false,multi:true/false}
+Upsert---是指没有匹配的行,则直接插入该行.
+例:
+db.stu.update({name:'wuyong'},{$set:{name:'junshiwuyong'}},{upsert:true});
+如果有name=’wuyong’的文档,将被修改，如果没有,将添加此新文档
+db.news.update({_id:99},{x:123,y:234},{upsert:true});
+没有_id=99的文档被修改,因此直接插入该文档
+multi: 是指修改多行(即使查询表达式命中多行,默认也只改1行,如果想改多行,可以用此选项)
+db.news.update({age:21},{$set:{age:22}},{multi:true});
+    则把news中所有age=21的文档,都修改
+4、查: find
+语法: db.collection.find(查询表达式,查询的列);
+db.collections.find(表达式,{列1:1,列2:1});
+    在查询的列参数中，1表示显示，0表示不显示
+例1:db.stu.find()
+    查询所有文档 所有内容
+例2: db.stu.find({},{gendre:1})
+    查询所有文档,的gender属性 (_id属性默认总是查出来)
+例3: db.stu.find({},{gender:1, _id:0})
+    查询所有文档的gender属性,且不查询_id属性
+例4: db.stu.find({gender:’male’},{name:1,_id:0});
+    查询所有gender属性值为male的文档中的name属性
+    2. MongoDB AND 条件
+    MongoDB 的 find() 方法可以传入多个键(key)，每个键(key)以逗号隔开，及常规 SQL 的 AND 条件。类似于 WHERE 语句：WHERE by='优就业' AND title='MongoDB 教程。
+    语法格式如下：
+db.col.find({key1:value1， key2:value2}).pretty()
+    3、常用方法：
+limit()
+db.COLLECTION_NAME.find().limit(NUMBER)
+skip()
+db.COLLECTION_NAME.find().limit(NUMBER).skip(NUMBER)
+sort()
+db.COLLECTION_NAME.find().sort({KEY:1})
+count()
+ db.mycol.count()
+5、查询表达式:
+最简单的查询表达式
+    {filed:value} ,是指查询field列的值为value的文档
+$lt小于
+$lte小于等于
+$gt 大于
+$gte大于等于
+$ne --- != 查询表达式
+{field:{$nq:value}} ---作用：查filed列的值 不等于 value 的文档
+db.goods.find({cat_id:{$nq:3}},{cat_id:1,goods_id:1,goods_name:1,_id:0})
+//查询cat_id不等3的数据
+$nin --&gt; not in
+db.stu.find({age:{$nin:[1,16]}})
+$all：指数组所有单元匹配，就是指我指定的内容都要有，通过一个list来指定
+db.stu.insert({name:'xt',age:99,hobby:['aa','bb']})
+db.stu.find({hobby:{$all:['aa','bb']}},{name:1,age:1,_id:0})
+$exists
+        语法: {field:{$exists:1}}
+        作用: 查询出含有field字段的文档
+ db.stu.find({hobby:{$exists:1}})
+$nor
+{$nor,[条件1,条件2]} 是指  所有条件都不满足的文档为真返回
+$and
+        {$and,[条件1,条件2]} 是指  所有条件都满足，就为真
+$or
+        {$or,[条件1,条件2]} 是指  条件1和条件2有一个满足，就为真
+</code></pre>
+<p><strong>例子:</strong></p>
+<h1 id="取出不属于第3栏目且不属于第11栏目的商品and-nin和nor分别实现">//取出不属于第3栏目且不属于第11栏目的商品($and <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>n</mi><mi>i</mi><mi>n</mi><mi mathvariant="normal">和</mi></mrow><annotation encoding="application/x-tex">nin和</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.65952em;vertical-align:0em;"></span><span class="mord mathdefault">n</span><span class="mord mathdefault">i</span><span class="mord mathdefault">n</span><span class="mord cjk_fallback">和</span></span></span></span>nor分别实现)</h1>
+<p>db.goods.find({<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;}&#039;, got &#039;EOF&#039; at end of input: …:[{shop_price:{'>and:[{shop_price:{</span>lt:500}},{shop_price:{<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;}&#039; at position 7: gt:100}̲}]},{_id:0,shop…'>gt:100}}]},{_id:0,shop_price:1})
+db.goods.find({</span>nor:[{cat_id:3},{cat_id:11}]},{cat_id:1})<br>
+db.goods.find({cat_id:{$nin:[3,11]}},{cat_id:1})</p>
+<h1 id="取出价格大于100且小于300或者大于4000且小于5000的商品">//取出价格大于100且小于300,或者大于4000且小于5000的商品()</h1>
+<p>db.goods.find({<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;}&#039;, got &#039;EOF&#039; at end of input: or:[{'>or:[{</span>and:[{shop_price:{<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;}&#039; at position 7: gt:100}̲},{shop_price:{'>gt:100}},{shop_price:{</span>lt:300}}]},{<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;}&#039;, got &#039;EOF&#039; at end of input: …:[{shop_price:{'>and:[{shop_price:{</span>gt:4000}},{shop_price:{$lt:5000}}]}]})</p>
+<h1 id="取出goods_id5-1-即1611这样的商品">取出goods_id%5 == 1, 即,1,6,11,..这样的商品</h1>
+<p>db.goods.find({goods_id:{$mod:[5,1]}},{goods_id:1})</p>
+<p>格式db.表明.find({表内容:值|条件})</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Python 爬虫框架scrapy笔记]]></title>
         <id>https://yooinn.github.io//post/python-pa-chong-kuang-jia-scrapy-bi-ji</id>
@@ -233,7 +373,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 <p>request.META.get('REMOTE_ADDR')</p>
 <p>二、中间件</p>
 <p>中间件： django框架预留的接口，可以控制请求和响应的过程。Django在中间件中预置了6个方法，这些方法会在不同的阶段执行，对输入或输出进行干预。</p>
-<p><img src="https://files.jb51.net/file_images/article/201907/2019722114704117.png?2019622114834" alt=""></p>
+<figure data-type="image" tabindex="1"><img src="https://files.jb51.net/file_images/article/201907/2019722114704117.png?2019622114834" alt=""></figure>
 <p>初始化：无需任何参数，服务器响应第一个请求的时候调用一次：</p>
 <p>def <strong>init</strong>():<br>
 pass</p>
@@ -1246,34 +1386,6 @@ gevent.joinall([
     gevent.spawn(func, 'https://github.com/'),
 ])
 </code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[django的settings中设置中文支持]]></title>
-        <id>https://yooinn.github.io//post/django-de-settings-zhong-she-zhi-zhong-wen-zhi-chi</id>
-        <link href="https://yooinn.github.io//post/django-de-settings-zhong-she-zhi-zhong-wen-zhi-chi">
-        </link>
-        <updated>2019-09-19T10:09:47.000Z</updated>
-        <content type="html"><![CDATA[<p>今天创建了个django工程，用的是目前django 1.9.6，创建工程后，settings.py中设置中文显示支持（最简单的，例如把admin界面的默认英文改成中文），定义</p>
-<pre><code>TIME_ZONE = 'Asia/Shanghai'
-LANGUAGE_CODE = 'zh-cn'
-</code></pre>
-<p>当然TIME_ZONE只是指定时区，和中文显示没有关系，这里一并修改了默认值。结果运行项目时报错了，如下：</p>
-<p>django IOError: No translation files found for default language zh-cn<br>
-即找不到zh-cn对应的本地化文件。一般而言，zh-cn编码对应的本地化文件夹为zh_CN，我去django的安装目录查找zh_CN，结果确实没有找到，在django安装目录的contrib子目录下的一系列子目录的locale文件夹中，没有zh_CN，而有zh_Hans。不知道为什么django的这个版本没有zh_CN文件夹，可能是一个bug吧。网上有人说将zh_Hans目录全部复制一份并命名为zh_CN，就可以解决这个问题，我试了下，再次运行确实可行了，在admin界面显示了中文。至于这种比较山寨的方法有没有隐患，现在还不知道，以后遇到再说吧。</p>
-<p>不过话说回来，其实还有正统的方式去生成国际化文件，如下命令：</p>
-<p><code>django-admin.py makemessages -l zh_CN</code><br>
-不过这个需要gettext组件，如果你是在windows上开发，那么你需要自己安装这个组件，</p>
-<p>在http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/下载gettext-runtime-X.zip以及gettext-tools-X.zip的最新版（注：X为版本号）并解压后，将两个bin目录可以合并后放入系统环境变量中。不过该方法我没有验证，感兴趣的可以试试。</p>
-<p>后来我又想，django之前的老版本是有zh_CN的，要说这个一个bug，估计也比较低级，按理不应该的。于是又查，发现貌似zh_Hans可能已经替代zh_CN了。Han表示汉字，s表示Simplified简体，反正我设置为LANGUAGE_CODE = 'zh-hans'也是正常显示中文。</p>
-<p>zh-cn will expired in Django1.9, the new format is zh-hans, but drf3.1.0 does not support this type of language.</p>
-<p>上面的意思是在django1.9中，zh-cn过期了，可以用zh-hans替代，不过可能有些django的第三方模块还没有跟上这个变化。</p>
-<p>总之，仁者见仁智者见智了，其实大可不必如此研究，只是突然对这个比较感兴趣所以多研究了一会。</p>
-<p>ps：网上很多地方对于LANGUAGE_CODE = 'zh-cn'有各种不同写法，包括zh_CN，zh-CN等，有的人还说只能用某某写法等，反正我是没看出来区别，我也都试了，都没发现问题。</p>
-<p>另外说个题外话，之前一直都不知道settings.py中的USE_I18N和USE_L10N是什么意思，直到看到了下面的一段话：</p>
-<p>当 Web 服务搭建好以后，可以接收来自全球不同国家用户访问。这样就要求开发人员调整软件，使之能适用于不同的语言，即国际化和本地化。国际化</p>
-<p>-- Internationalization，i 和 n 之间有 18 个字母，简称 I18N,。本地化 -- localization， l 和 n 之间有 10 个字母，简称 L10N。国际化意味着 Web</p>
-<p>产品有适用于任何地方的潜力，针对程序开发人员；本地化则是指使一个国际化的程序为了在某个特定地区使用而进行实际翻译的过程，针对翻译人员而言</p>
 ]]></content>
     </entry>
 </feed>

@@ -182,118 +182,145 @@
               </figure>
               <span class="fh5co-meta animate-box">
                   
-                      <div class="tag-container">
-                          
-                              <a href="https://yooinn.github.io//tag/QRAqbdG_m" class="tag">django, </a>
-                          
-                      </div>
-                  
               </span>
-              <h2 class="fh5co-article-title animate-box">Django框架静态文件使用/中间件/禁用ip功能实例详解</h2>
-              <span class="fh5co-meta fh5co-date animate-box">2019-09-20</span>
+              <h2 class="fh5co-article-title animate-box">mongo数据库</h2>
+              <span class="fh5co-meta fh5co-date animate-box">2019-10-10</span>
 
               <div class="col-lg-12 col-lg-offset-0 col-md-12 col-md-offset-0 col-sm-12 col-sm-offset-0 col-xs-12 col-xs-offset-0 text-left content-article">
                   <div class="row">
                       <div class="col-md-12 animate-box post-content">
-                          <p> <p>静态文件</p>
-<p>一、静态文件的使用</p>
-<p>静态文件：网页中使用的css，js，图片</p>
-<p>静态文件的使用：</p>
-<p>在项目下创建静态目录，比如：static，导入静态文件（HTML、CSS、js）</p>
-<p>在setting.py中配置静态目录</p>
-<pre><code>
-# 通过此url来引用静态文件，可以隐藏服务器的文件的实际保存目录
-STATIC_URL = '/abc/'
-# 指定静态文件所在的物理目录
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+                          <p> <p><strong>mongo入门命令</strong></p>
+<pre><code>show dbs  查看当前的数据库
+ use databaseName 选库
+show collections 查看当前库下的collection
+
 </code></pre>
-<p>通过setting.py中的STATIC_URL的值来引用静态文件，好处：可以隐藏服务器的文件的实际保存目录。比如：</p>
-<pre><code>&lt;img src=&quot;/abc/image/mm.jpg&quot; /&gt;
-&lt;script src=&quot;/abc/js/jquery-1.12.4.min.js&quot;&gt;&lt;/script&gt;
+<p>如何创建库?<br>
+Mongodb的库是隐式创建,你可以use 一个不存在的库，然后在该库下创建collection,即可创建库<br>
+db.createCollection(‘collectionName’)<br>
+即可创建一个集合。<br>
+其实在MongoDB中，collection也是可以隐身创建的<br>
+db.collectionName.insert(document)<br>
+如何删除数据库和集合？<br>
+db.collectionName.drop()//删除集合<br>
+db.dropDatabase()//删除数据库</p>
+<p>MongoDB基础增删改查操作</p>
+<pre><code>1、增：insert方法
+首先要明确一点，MongoDB存储的时文档，文档其实就是json格式的对象。
+语法：
+db.collectionName.isnert(document)
+增加单篇文档：
+db.collectionName.insert({title:’nice day’})
+增加单个文档,并指定_id
+db.collectionName.insert({_id:8,age:78,name:’lisi’})
+增加多个文档
+db.collectionName.insert(
+[
+{time:'friday',study:'mongodb'},
+{_id:9,gender:'male',name:'QQ'}
+]
+)
+2、删除：remove
+语法:
+ db.collection.remove(查询表达式, 选项)
+选项是指  {justOne:true/false},是否只删一行, 默认为false
+注意：
+1: 查询表达式依然是个json对象 {age:20} where age =20   where age&gt;20
+2: 查询表达式匹配的行,将被删掉.
+3: 如果不写查询表达式,collections中的所有文档将被删掉
+例1:删除stu表中 sn属性值为’001’的文档
+ db.stu.remove({sn:’001’})
+例2: 删除stu表中gender属性为m的文档,只删除1行.
+db.stu.remove({gender:’m’,true});
+
+3、更新：update
+语法: db.collection.update(查询表达式,新值,选项)
+
+改谁? --- 查询表达式
+改成什么样? -- 新值 或 赋值表达式
+操作选项 ----- 可选参数
+例:
+db.news.update({name:'QQ'},{name:'MSN'});
+是指选中news表中,name值为QQ的文档,并把其文档值改为{name:’MSN’},结果: 文档中的其他列也不见了,改后只有_id和name列了，即--新文档直接替换了旧文档,而不是修改
+如果是想修改文档的某列,可以用$set关键字：
+db.collectionName.update(query,{$set:{name:’QQ’}})
+修改时的赋值表达式
+$set 修改某列的值
+$unset 删除某个列
+$rename 重命名某个列
+$inc 增长某个列
+Option的作用:{upsert:true/false,multi:true/false}
+Upsert---是指没有匹配的行,则直接插入该行.
+例:
+db.stu.update({name:'wuyong'},{$set:{name:'junshiwuyong'}},{upsert:true});
+如果有name=’wuyong’的文档,将被修改，如果没有,将添加此新文档
+db.news.update({_id:99},{x:123,y:234},{upsert:true});
+没有_id=99的文档被修改,因此直接插入该文档
+multi: 是指修改多行(即使查询表达式命中多行,默认也只改1行,如果想改多行,可以用此选项)
+db.news.update({age:21},{$set:{age:22}},{multi:true});
+    则把news中所有age=21的文档,都修改
+4、查: find
+语法: db.collection.find(查询表达式,查询的列);
+db.collections.find(表达式,{列1:1,列2:1});
+    在查询的列参数中，1表示显示，0表示不显示
+例1:db.stu.find()
+    查询所有文档 所有内容
+例2: db.stu.find({},{gendre:1})
+    查询所有文档,的gender属性 (_id属性默认总是查出来)
+例3: db.stu.find({},{gender:1, _id:0})
+    查询所有文档的gender属性,且不查询_id属性
+例4: db.stu.find({gender:’male’},{name:1,_id:0});
+    查询所有gender属性值为male的文档中的name属性
+    2. MongoDB AND 条件
+    MongoDB 的 find() 方法可以传入多个键(key)，每个键(key)以逗号隔开，及常规 SQL 的 AND 条件。类似于 WHERE 语句：WHERE by='优就业' AND title='MongoDB 教程。
+    语法格式如下：
+db.col.find({key1:value1， key2:value2}).pretty()
+    3、常用方法：
+limit()
+db.COLLECTION_NAME.find().limit(NUMBER)
+skip()
+db.COLLECTION_NAME.find().limit(NUMBER).skip(NUMBER)
+sort()
+db.COLLECTION_NAME.find().sort({KEY:1})
+count()
+ db.mycol.count()
+5、查询表达式:
+最简单的查询表达式
+    {filed:value} ,是指查询field列的值为value的文档
+$lt小于
+$lte小于等于
+$gt 大于
+$gte大于等于
+$ne --- != 查询表达式
+{field:{$nq:value}} ---作用：查filed列的值 不等于 value 的文档
+db.goods.find({cat_id:{$nq:3}},{cat_id:1,goods_id:1,goods_name:1,_id:0})
+//查询cat_id不等3的数据
+$nin --&gt; not in
+db.stu.find({age:{$nin:[1,16]}})
+$all：指数组所有单元匹配，就是指我指定的内容都要有，通过一个list来指定
+db.stu.insert({name:'xt',age:99,hobby:['aa','bb']})
+db.stu.find({hobby:{$all:['aa','bb']}},{name:1,age:1,_id:0})
+$exists
+        语法: {field:{$exists:1}}
+        作用: 查询出含有field字段的文档
+ db.stu.find({hobby:{$exists:1}})
+$nor
+{$nor,[条件1,条件2]} 是指  所有条件都不满足的文档为真返回
+$and
+        {$and,[条件1,条件2]} 是指  所有条件都满足，就为真
+$or
+        {$or,[条件1,条件2]} 是指  条件1和条件2有一个满足，就为真
 </code></pre>
-<p>二、使用static标签动态引用</p>
-<p>上述写法是硬编码，存在维护问题，可以使用static标签动态引用</p>
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;en&quot;&gt;
-{% load staticfiles %}
-&lt;head&gt;
-...
-&lt;/head&gt;
-&lt;body&gt;
-动态引用：&lt;br/&gt;
-&lt;img src=&quot;{% static 'image/mm.jpg' %}&quot;/&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>中间件</p>
-<p>MIDDLEWARE: 中间件</p>
-<p>一、案例： 禁止指定ip地址的访问</p>
-<p>使用request对象的META属性，可以获取用户访问的ip地址：</p>
-<p>request.META.get('REMOTE_ADDR')</p>
-<p>二、中间件</p>
-<p>中间件： django框架预留的接口，可以控制请求和响应的过程。Django在中间件中预置了6个方法，这些方法会在不同的阶段执行，对输入或输出进行干预。</p>
-<figure data-type="image" tabindex="1"><img src="https://files.jb51.net/file_images/article/201907/2019722114704117.png?2019622114834" alt=""></figure>
-<p>初始化：无需任何参数，服务器响应第一个请求的时候调用一次：</p>
-<p>def <strong>init</strong>():<br>
-pass</p>
-<p>处理请求前(url匹配前)调用： 返回None或HttpResponse对象</p>
-<p>def process_request(self, request):<br>
-pass</p>
-<p>url匹配后视图函数处理前调用： 返回None或HttpResponse对象</p>
-<p>def process_view(self, request, view_func, view_args, view_kwargs):<br>
-pass</p>
-<p>视图函数出异常时调用：返回一个HttpResponse对象</p>
-<p>def process_exception(self, request, exception):<br>
-return response</p>
-<p>视图函数处理后，模板响应处理前调用： 返回实现了render方法的响应对象</p>
-<p>def process_template_response(self, request, response):<br>
-pass</p>
-<p>视图函数返回TemplateReponse时才会调用，返回HttpResponse对象不会调用</p>
-<p>视图函数处理后，返回内容给浏览器前调用：返回HttpResponse对象</p>
-<p>def process_response(self, request, response):<br>
-return response</p>
-<p>禁用ip功能</p>
-<p>在MyMiddleware的process_view方法中，新增代码如下：</p>
-<p>class MyMiddleware(object):<br>
-...<br>
-exclude_ips = ['127.0.0.1']<br>
-def process_view(self, request, view_func, view_args, view_kwargs):<br>
-print('--process_view--')<br>
-# 禁用ip，以下代码也可以添加到process_request方法<br>
-ip = request.META.get('REMOTE_ADDR')<br>
-if ip in exclude_ips:<br>
-return HttpResponse('禁止访问')</p>
-<p>异常处理</p>
-<p>异常处理： 视图函数执行出错之后，会调用中间件的process_exception方法，可以在该方法中执行异常操作。</p>
-<p>在index视图函数中，添加执行出错代码：</p>
-<p>def index(request):<br>
-&quot;&quot;&quot;进入首页&quot;&quot;&quot;<br>
-print('=<mark><mark>index</mark></mark>')</p>
-<h1 id="添加出错代码">添加出错代码</h1>
-<p>aa = None<br>
-print('aa='+ aa)<br>
-return render(request, 'app01/index.html')</p>
-<p>在前面编写的MyMiddleware中： 添加处理异常的中间件方法，并注释前面的拦截ip的拦截：</p>
-<h1 id="middlewarepy">middleware.py</h1>
-<p>class MyMiddleware(object):<br>
-...<br>
-def process_view(self, request, view_func, view_args, view_kwargs):<br>
-print('-------process_view')<br>
-# # 禁止ip访问<br>
-# ip = request.META.get('REMOTE_ADDR')<br>
-# if ip in exclude_ips:<br>
-#   return HttpResponse('禁止访问')<br>
-def process_exception(self, request, exception):<br>
-print('-----process_exception')</p>
-<p>访问首页，查看服务器，发现：处理异常的中间件方法process_exception执行了</p>
-<p>处理出错： 在process_exception方法中返回HttpResponse对象就可以了：</p>
-<h1 id="middlewarepy-2">middleware.py</h1>
-<p>class MyMiddleware(object):<br>
-...<br>
-def process_exception(self, request, exception):<br>
-print('-----process_exception')<br>
-return HttpResponse('运行出错了：%s' % exception)</p>
-<p>希望本文所述对大家基于Django框架的Python程序设计有所帮助。</p>
+<p><strong>例子:</strong></p>
+<h1 id="取出不属于第3栏目且不属于第11栏目的商品and-nin和nor分别实现">//取出不属于第3栏目且不属于第11栏目的商品($and <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>n</mi><mi>i</mi><mi>n</mi><mi mathvariant="normal">和</mi></mrow><annotation encoding="application/x-tex">nin和</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.65952em;vertical-align:0em;"></span><span class="mord mathdefault">n</span><span class="mord mathdefault">i</span><span class="mord mathdefault">n</span><span class="mord cjk_fallback">和</span></span></span></span>nor分别实现)</h1>
+<p>db.goods.find({<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;}&#039;, got &#039;EOF&#039; at end of input: …:[{shop_price:{'>and:[{shop_price:{</span>lt:500}},{shop_price:{<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;}&#039; at position 7: gt:100}̲}]},{_id:0,shop…'>gt:100}}]},{_id:0,shop_price:1})
+db.goods.find({</span>nor:[{cat_id:3},{cat_id:11}]},{cat_id:1})<br>
+db.goods.find({cat_id:{$nin:[3,11]}},{cat_id:1})</p>
+<h1 id="取出价格大于100且小于300或者大于4000且小于5000的商品">//取出价格大于100且小于300,或者大于4000且小于5000的商品()</h1>
+<p>db.goods.find({<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;}&#039;, got &#039;EOF&#039; at end of input: or:[{'>or:[{</span>and:[{shop_price:{<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;}&#039; at position 7: gt:100}̲},{shop_price:{'>gt:100}},{shop_price:{</span>lt:300}}]},{<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;}&#039;, got &#039;EOF&#039; at end of input: …:[{shop_price:{'>and:[{shop_price:{</span>gt:4000}},{shop_price:{$lt:5000}}]}]})</p>
+<h1 id="取出goods_id5-1-即1611这样的商品">取出goods_id%5 == 1, 即,1,6,11,..这样的商品</h1>
+<p>db.goods.find({goods_id:{$mod:[5,1]}},{goods_id:1})</p>
+<p>格式db.表明.find({表内容:值|条件})</p>
  </p>
                       </div>
                   </div>
@@ -303,9 +330,9 @@ return HttpResponse('运行出错了：%s' % exception)</p>
                           
                               <div class="next-post">
                                   <div class="next">下一篇</div>
-                                  <a href="https://yooinn.github.io//post/django-zhong-jian-jian-lan-jie-wei-deng-lu-url-shi-li-xiang-jie">
+                                  <a href="https://yooinn.github.io//post/python-pa-chong-kuang-jia-scrapy-bi-ji">
                                       <h3 class="post-title">
-                                          Django中间件拦截未登录url实例详解
+                                          Python 爬虫框架scrapy笔记
                                       </h3>
                                   </a>
                               </div>

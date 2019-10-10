@@ -314,7 +314,7 @@ $ sudo chmod u+x bin/gunicorn_start
 $ ./bin/gunicorn_start
 如果看到类似下面对输出说明已经成功了:
 </code></pre>
-<p><img src="https://upload-images.jianshu.io/upload_images/8065217-3c31f7eb592d4d59.png" alt=""></p>
+<figure data-type="image" tabindex="1"><img src="https://upload-images.jianshu.io/upload_images/8065217-3c31f7eb592d4d59.png" alt=""></figure>
 <p>如果你在上面的过程中设置了自定义的参数的话，需要将gunicorn_start脚本中对应的参数改过来。其中，worker的数量推荐设置为2 * CPUs + 1，这样的话，在任何时候都有一半的worker在做IO.</p>
 <p>安装Supervisor<br>
 Superviosr是一个进程监管的工具。简而言之，Superviosr可以保证你的程序在服务器开机时自动启动以及程序意外终止时重新启动。通过下面的命令即可安装:</p>
