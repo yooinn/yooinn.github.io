@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yooinn.github.io/</id>
     <title>Jiank</title>
-    <updated>2019-10-12T11:51:15.305Z</updated>
+    <updated>2019-10-16T13:19:57.932Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yooinn.github.io/"/>
     <link rel="self" href="https://yooinn.github.io//atom.xml"/>
@@ -10,6 +10,105 @@
     <logo>https://yooinn.github.io//images/avatar.png</logo>
     <icon>https://yooinn.github.io//favicon.ico</icon>
     <rights>All rights reserved 2019, Jiank</rights>
+    <entry>
+        <title type="html"><![CDATA[[Python2]实现自动化压力测试脚本]]></title>
+        <id>https://yooinn.github.io//post/python2shi-xian-zi-dong-hua-ya-li-ce-shi-jiao-ben</id>
+        <link href="https://yooinn.github.io//post/python2shi-xian-zi-dong-hua-ya-li-ce-shi-jiao-ben">
+        </link>
+        <updated>2019-10-16T13:19:01.000Z</updated>
+        <content type="html"><![CDATA[<p>`<br>
+import sys<br>
+import time<br>
+import thread<br>
+import httplib, urllib<br>
+import random<br>
+import uuid<br>
+import logging<br>
+logging.basicConfig(level=logging.DEBUG,<br>
+format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',<br>
+datefmt='%a, %d %b %Y %H:%M:%S',<br>
+filename='测试脚本日志.log',<br>
+filemode='w')</p>
+<p>def log_uncaught_exceptions(exception_type, exception, tb):<br>
+logging.critical(''.join(traceback.format_tb(tb)))<br>
+logging.critical('{0}: {1}'.format(exception_type, exception))<br>
+sys.excepthook = log_uncaught_exceptions</p>
+<p>#网关地址<br>
+addr=&quot;172.18.2.4&quot;<br>
+port=8080<br>
+thread_count = 15 #单次并发数量<br>
+requst_interval = 10 #请求间隔(秒)<br>
+test_count = sys.maxsize #sys.maxsize  # 指定测试次数</p>
+<p>#字段说明,必须一一对应<br>
+#login为空表示使用随机用户名</p>
+<p>param_list=[<br>
+{&quot;login&quot;:&quot;user1&quot;,&quot;password&quot;:&quot;qweqwe12&quot;},<br>
+]</p>
+<p>now_count = 0<br>
+lock_obj = thread.allocate()<br>
+def send_http():<br>
+global now_count<br>
+httpClient = None<br>
+try:<br>
+for user in user_list:<br>
+tmp_user = user[&quot;login&quot;]<br>
+if tmp_user.strip() =='':<br>
+tmp_user = str(uuid.uuid1()) + str(random.random())<br>
+print tmp_user<br>
+params = urllib.urlencode({&quot;operationData&quot;:<br>
+[{&quot;login&quot;: tmp_user,&quot;password&quot;:user[&quot;password&quot;]}]})<br>
+headers = {&quot;Content-type&quot;: &quot;application/x-www-form-urlencoded&quot;, &quot;Accept&quot;: &quot;text/plain&quot;}</p>
+<pre><code>        httpClient = httplib.HTTPConnection(addr, port, timeout=5)
+        httpClient.request(&quot;POST&quot;, &quot;/simple/spider.task.distribute&quot;, params, headers)
+
+        response = httpClient.getresponse()
+        print '发送数据: ' + params
+        print '返回码: ' + str(response.status)
+        print '返回数据: ' + response.read()
+
+        logging.info('发送数据: ' + params)
+        logging.info('返回码: ' + str(response.status))
+        logging.info('返回数据: ' + response.read())
+        #print response.getheaders() #获取头信息
+        sys.stdout.flush()
+        now_count+=1
+except Exception, e:
+    print e
+    logging.info(e)
+finally:
+    if httpClient:
+        httpClient.close()
+</code></pre>
+<p>def test_func(run_count):<br>
+global now_count<br>
+global requst_interval<br>
+global lock_obj<br>
+cnt = 0<br>
+while cnt &lt; run_count:<br>
+lock_obj.acquire()<br>
+print ''<br>
+print '<em><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong>请求次数:' + str(now_count) + '</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></em>****'<br>
+print 'Thread:(%d) Time:%s\n'%(thread.get_ident(), time.ctime())</p>
+<pre><code>    logging.info(' ')
+    logging.info('***************************请求次数:' + str(now_count) + '*******************************')
+    logging.info('Thread:(%d) Time:%s\n'%(thread.get_ident(), time.ctime()))
+    cnt+=1
+    send_http()
+    sys.stdout.flush()
+    lock_obj.release()
+    time.sleep(requst_interval)
+</code></pre>
+<p>def test(ct):<br>
+global thread_count<br>
+for i in range(thread_count):<br>
+thread.start_new_thread(test_func,(ct,))</p>
+<p>if <strong>name</strong>=='<strong>main</strong>':<br>
+global test_count<br>
+test(test_count)<br>
+while True:<br>
+time.sleep(100)`</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[MongoDB的基本操作之索引]]></title>
         <id>https://yooinn.github.io//post/mongodb-de-ji-ben-cao-zuo-zhi-suo-yin</id>
@@ -944,122 +1043,6 @@ def jarge_captcha(captchaStr, captchaHashkey):
 </code></pre>
 <p>效果<br>
 <img src="https://i.loli.net/2019/09/20/9OueNLHPFosdRyr.png" alt=""></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Django templates 模板的语法]]></title>
-        <id>https://yooinn.github.io//post/django-templates-mo-ban-de-yu-fa</id>
-        <link href="https://yooinn.github.io//post/django-templates-mo-ban-de-yu-fa">
-        </link>
-        <updated>2019-09-20T01:10:22.000Z</updated>
-        <content type="html"><![CDATA[<p>MVC 以及 MTV<br>
-MVC:<br>
-M : model --&gt;&gt; 存取数据(模型)<br>
-V: view --&gt;&gt; 信息的展示(视图)<br>
-C: controller --&gt;&gt; 逻辑的控制(控制器)<br>
-MTV:<br>
-M: model --&gt;&gt; ORM操作(模型)<br>
-T: template --&gt;&gt; 模板(模板)<br>
-V: view --&gt;&gt; 业务逻辑 (视图)<br>
-变量<br>
-取值顺序 : 字典Key ---&gt;&gt; 属性---&gt;&gt;方法---&gt;&gt;索引<br>
-{{ new_name }} ——》 变量 新华出版社 字典或列表用 . 取值<br>
-for循环for 标签带有一个可选的{% empty %} 从句，以便在给出的组是空的或者没有被找到时，可以有所操作。<br>
-{% for person in person_list %}</p>
-<p>{{ person.name }}</p>
-<h1 id="循环取值">循环取值</h1>
-<p>{% empty %}<br>
-<p>sorry,no person here</p>   #  person_list 为空时 显示<br>
-{% endfor %}<br>
-if 标签 ：{% if %}会对一个变量求值，如果它的值是“True”（存在、不为空、且不是boolean类型的false值），对应的内容块会输出。<br>
-{% if i &gt; 300 %}<br>
-大于{{ i }}</p>
-<p>{% elif i == 200 %}<br>
-等于{{ i }}</p>
-<p>{% else %}<br>
-小于{{ i }}</p>
-<p>{% endif %}<br>
-.with：使用一个简单地名字缓存一个复杂的变量，当你需要使用一个“昂贵的”方法（比如访问数据库）很多次的时候是非常有用的<br>
-{% with total=business.employees.count %}<br>
-{{ total }} employee{{ total|pluralize }}<br>
-{% endwith %}<br>
-{{ person_list.2.name }}</p>
-<p>{% with name=person_list.2.name %}<br>
-{{ name }}</p>
-<p>{% endwith %}<br>
-内置过滤器<br>
-{{ str|default:'返回值' }} ----&gt;&gt;&gt;&gt; 默认值<br>
-{{ str|filesizeformat }} ----&gt;&gt;&gt;&gt; 将文件大小转换为 可读的 类型<br>
-{{ str|add:'2' }} ----&gt;&gt;&gt;&gt; 给变量加参数 变量位数字 就加法运算 str 拼接<br>
-{{ str|length }} ----&gt;&gt;&gt;&gt; 返回value 的长度<br>
-{{ time|data:'Y-m-d H:i:s' }} ----&gt;&gt;&gt;&gt; 时间转换<br>
-{{ time|data }} ----&gt;&gt;&gt;&gt; 时间转换 需在 stting 中配置<br>
-{{ str|slice:'2:-1' }} ----&gt;&gt;&gt;&gt; 切片<br>
-{{ list|first }} ----&gt;&gt;&gt;&gt; 取第一个<br>
-{{ list|last }} ----&gt;&gt;&gt;&gt; 取最后一个<br>
-{{ list|join:'//' }} ----&gt;&gt;&gt;&gt; 拼接<br>
-{{ str|truncatechars:10 }} ----&gt;&gt;&gt;&gt; 截断字符串<br>
-{{ html|safa }} ----&gt;&gt;&gt;&gt; 不转义 可写入 html 标签</p>
-<p>自定义<br>
-定义filter 过滤器<br>
-在APP下创建一个叫templatetags的python包； 不能变的，必须是包，名字必须是templatetags<br>
-在包中创建一个py文件 my_filters;<br>
-在py文件中写代码<br>
-from django import template</p>
-<p>register = template.Library()  # register的名字不能改<br>
-写函数<br>
-@register.filter<br>
-def add_dsb(value, arg):<br>
-return &quot;{}<em>{}&quot;.format(value, arg)<br>
-给定义的函数加装饰器<br>
-@register.filter<br>
-def add_dsb(value, arg):<br>
-使用<br>
-在模板中使用：<br>
-导入定义的文件<br>
-{% load my_filter %}<br>
-使用过滤器<br>
-{{ name|add_dsb:'very_dsb' }}<br>
-定义simpletag<br>
-和 定义 filter 一样<br>
-@register.simple_tags<br>
-def add_data(*args,**kwargs):<br>
-return &quot;{}</em>{}&quot;.format(&quot;--&quot;.join(args),&quot;*&quot;.join(kwarg.values()))<br>
-自定义inclusion_tag<br>
-@register.inclusion_tag('show_li.html')<br>
-def show_li(num):<br>
-return {'num':range(1,num+1)}<br>
-写模板 show_li.html</p>
-<p>{% for i in num %}<br>
-{{ i }}<br>
-{% endfor %}</p>
-<p>使用:<br>
-模板中导入 {% load 定义的py文件名 %}<br>
-filter {{ 变量|函数名：参数 }}<br>
-simple_tag {{ 变量|函数名：参数 }}<br>
-inclusion_tag {% inclusion_tag的函数名 %}<br>
-标签<br>
-{% csrf_token %}<br>
-添加在form表单中 就可以提交POST请求<br>
-母版和继承<br>
-母版<br>
-就是一个普通的HTML文本，将多个页面公共部分的内容提取出来，在页面中定义多个block块<br>
-{% block content %}<br>
-{% endblock %}<br>
-继承<br>
-在子页面中，继承母版 {% extends 'base.html' %}<br>
-可以重新书写block块中内容<br>
-注意事项<br>
-{% extends 'base.html' %} 写在第一行，上面不写内容<br>
-要修改的 内容写在block块中，写在外面不显示<br>
-{% extends 'base.html' %} base.html 记得带上引号，不然当做变量去查找<br>
-定义多个block块，一般要定义上 css和js<br>
-组件include<br>
-{% include 'nav.html' %}<br>
-静态文件相关<br>
-{% load static %}<br>
-{% static '静态文件相对路径' %} ——》 获取到别名，跟后面的参数进行拼接<br>
-{% get_static_prefix %} ——》 获取到别名</p>
 ]]></content>
     </entry>
 </feed>
