@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yooinn.github.io/</id>
     <title>Jiank</title>
-    <updated>2019-10-16T13:19:57.932Z</updated>
+    <updated>2019-10-16T13:21:14.401Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yooinn.github.io/"/>
     <link rel="self" href="https://yooinn.github.io//atom.xml"/>
@@ -16,97 +16,106 @@
         <link href="https://yooinn.github.io//post/python2shi-xian-zi-dong-hua-ya-li-ce-shi-jiao-ben">
         </link>
         <updated>2019-10-16T13:19:01.000Z</updated>
-        <content type="html"><![CDATA[<p>`<br>
-import sys<br>
-import time<br>
-import thread<br>
-import httplib, urllib<br>
-import random<br>
-import uuid<br>
-import logging<br>
-logging.basicConfig(level=logging.DEBUG,<br>
-format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',<br>
-datefmt='%a, %d %b %Y %H:%M:%S',<br>
-filename='测试脚本日志.log',<br>
-filemode='w')</p>
-<p>def log_uncaught_exceptions(exception_type, exception, tb):<br>
-logging.critical(''.join(traceback.format_tb(tb)))<br>
-logging.critical('{0}: {1}'.format(exception_type, exception))<br>
-sys.excepthook = log_uncaught_exceptions</p>
-<p>#网关地址<br>
-addr=&quot;172.18.2.4&quot;<br>
-port=8080<br>
-thread_count = 15 #单次并发数量<br>
-requst_interval = 10 #请求间隔(秒)<br>
-test_count = sys.maxsize #sys.maxsize  # 指定测试次数</p>
-<p>#字段说明,必须一一对应<br>
-#login为空表示使用随机用户名</p>
-<p>param_list=[<br>
-{&quot;login&quot;:&quot;user1&quot;,&quot;password&quot;:&quot;qweqwe12&quot;},<br>
-]</p>
-<p>now_count = 0<br>
-lock_obj = thread.allocate()<br>
-def send_http():<br>
-global now_count<br>
-httpClient = None<br>
-try:<br>
-for user in user_list:<br>
-tmp_user = user[&quot;login&quot;]<br>
-if tmp_user.strip() =='':<br>
-tmp_user = str(uuid.uuid1()) + str(random.random())<br>
-print tmp_user<br>
-params = urllib.urlencode({&quot;operationData&quot;:<br>
-[{&quot;login&quot;: tmp_user,&quot;password&quot;:user[&quot;password&quot;]}]})<br>
-headers = {&quot;Content-type&quot;: &quot;application/x-www-form-urlencoded&quot;, &quot;Accept&quot;: &quot;text/plain&quot;}</p>
-<pre><code>        httpClient = httplib.HTTPConnection(addr, port, timeout=5)
-        httpClient.request(&quot;POST&quot;, &quot;/simple/spider.task.distribute&quot;, params, headers)
-
-        response = httpClient.getresponse()
-        print '发送数据: ' + params
-        print '返回码: ' + str(response.status)
-        print '返回数据: ' + response.read()
-
-        logging.info('发送数据: ' + params)
-        logging.info('返回码: ' + str(response.status))
-        logging.info('返回数据: ' + response.read())
-        #print response.getheaders() #获取头信息
+        <content type="html"><![CDATA[<pre><code>import sys
+import time
+import thread
+import httplib, urllib
+import random
+import uuid
+import logging
+logging.basicConfig(level=logging.DEBUG,
+                format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                datefmt='%a, %d %b %Y %H:%M:%S',
+                filename='测试脚本日志.log',
+                filemode='w')
+ 
+def log_uncaught_exceptions(exception_type, exception, tb):
+    logging.critical(''.join(traceback.format_tb(tb)))
+    logging.critical('{0}: {1}'.format(exception_type, exception))
+sys.excepthook = log_uncaught_exceptions
+ 
+#网关地址
+addr=&quot;172.18.2.4&quot;
+port=8080
+thread_count = 15 #单次并发数量
+requst_interval = 10 #请求间隔(秒)
+test_count = sys.maxsize #sys.maxsize  # 指定测试次数
+ 
+ 
+#字段说明,必须一一对应
+#login为空表示使用随机用户名
+ 
+param_list=[
+{&quot;login&quot;:&quot;user1&quot;,&quot;password&quot;:&quot;qweqwe12&quot;},
+]
+ 
+now_count = 0
+lock_obj = thread.allocate()
+def send_http():
+    global now_count
+    httpClient = None
+    try:
+        for user in user_list:
+            tmp_user = user[&quot;login&quot;]
+            if tmp_user.strip() =='':
+                tmp_user = str(uuid.uuid1()) + str(random.random())
+            print tmp_user
+            params = urllib.urlencode({&quot;operationData&quot;:
+                        [{&quot;login&quot;: tmp_user,&quot;password&quot;:user[&quot;password&quot;]}]})
+            headers = {&quot;Content-type&quot;: &quot;application/x-www-form-urlencoded&quot;, &quot;Accept&quot;: &quot;text/plain&quot;}
+ 
+            httpClient = httplib.HTTPConnection(addr, port, timeout=5)
+            httpClient.request(&quot;POST&quot;, &quot;/simple/spider.task.distribute&quot;, params, headers)
+ 
+            response = httpClient.getresponse()
+            print '发送数据: ' + params
+            print '返回码: ' + str(response.status)
+            print '返回数据: ' + response.read()
+ 
+            logging.info('发送数据: ' + params)
+            logging.info('返回码: ' + str(response.status))
+            logging.info('返回数据: ' + response.read())
+            #print response.getheaders() #获取头信息
+            sys.stdout.flush()
+            now_count+=1
+    except Exception, e:
+        print e
+        logging.info(e)
+    finally:
+        if httpClient:
+            httpClient.close()
+ 
+def test_func(run_count):
+    global now_count
+    global requst_interval
+    global lock_obj
+    cnt = 0
+    while cnt &lt; run_count:
+        lock_obj.acquire()
+        print ''
+        print '***************************请求次数:' + str(now_count) + '*******************************'
+        print 'Thread:(%d) Time:%s\n'%(thread.get_ident(), time.ctime())
+ 
+        logging.info(' ')
+        logging.info('***************************请求次数:' + str(now_count) + '*******************************')
+        logging.info('Thread:(%d) Time:%s\n'%(thread.get_ident(), time.ctime()))
+        cnt+=1
+        send_http()
         sys.stdout.flush()
-        now_count+=1
-except Exception, e:
-    print e
-    logging.info(e)
-finally:
-    if httpClient:
-        httpClient.close()
+        lock_obj.release()
+        time.sleep(requst_interval)
+ 
+def test(ct):
+    global thread_count
+    for i in range(thread_count):
+        thread.start_new_thread(test_func,(ct,))
+ 
+if __name__=='__main__':
+    global test_count
+    test(test_count)
+    while True:
+        time.sleep(100)
 </code></pre>
-<p>def test_func(run_count):<br>
-global now_count<br>
-global requst_interval<br>
-global lock_obj<br>
-cnt = 0<br>
-while cnt &lt; run_count:<br>
-lock_obj.acquire()<br>
-print ''<br>
-print '<em><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong>请求次数:' + str(now_count) + '</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></em>****'<br>
-print 'Thread:(%d) Time:%s\n'%(thread.get_ident(), time.ctime())</p>
-<pre><code>    logging.info(' ')
-    logging.info('***************************请求次数:' + str(now_count) + '*******************************')
-    logging.info('Thread:(%d) Time:%s\n'%(thread.get_ident(), time.ctime()))
-    cnt+=1
-    send_http()
-    sys.stdout.flush()
-    lock_obj.release()
-    time.sleep(requst_interval)
-</code></pre>
-<p>def test(ct):<br>
-global thread_count<br>
-for i in range(thread_count):<br>
-thread.start_new_thread(test_func,(ct,))</p>
-<p>if <strong>name</strong>=='<strong>main</strong>':<br>
-global test_count<br>
-test(test_count)<br>
-while True:<br>
-time.sleep(100)`</p>
 ]]></content>
     </entry>
     <entry>
