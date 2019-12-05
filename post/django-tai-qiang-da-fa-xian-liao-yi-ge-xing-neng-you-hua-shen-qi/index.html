@@ -186,157 +186,94 @@
                   
                       <div class="tag-container">
                           
-                              <a href="https://yooinn.github.io//tag/jj-MVXJyc" class="tag">mongodb, </a>
+                              <a href="https://yooinn.github.io//tag/QRAqbdG_m" class="tag">django, </a>
                           
                       </div>
                   
               </span>
-              <h2 class="fh5co-article-title animate-box">mongo数据库</h2>
-              <span class="fh5co-meta fh5co-date animate-box">2019-10-10</span>
+              <h2 class="fh5co-article-title animate-box">Django太强大，发现了一个性能优化神器</h2>
+              <span class="fh5co-meta fh5co-date animate-box">2019-11-21</span>
 
               <div class="col-lg-12 col-lg-offset-0 col-md-12 col-md-offset-0 col-sm-12 col-sm-offset-0 col-xs-12 col-xs-offset-0 text-left content-article">
                   <div class="row">
                       <div class="col-md-12 animate-box post-content">
-                          <p> <p><strong>mongo入门命令</strong></p>
-<pre><code>show dbs  查看当前的数据库
- use databaseName 选库
-show collections 查看当前库下的collection
-
+                          <p> <p>Django很强大，发现了一个很有用的功能<br>
+问题背景：<br>
+百万级数据，做前端页面分页，出现打开网页第一次打开很慢，基本要好几秒，第二次打开速度较快，基本是秒开</p>
+<p>代码写了3个查询语句：<br>
+1、查询表中数据个数，用了count（）方法<br>
+2、根据[start:end]进行切片，实现的为limit查询，每次返回15条数据<br>
+3、遍历range(start,end),通过列表推导式，根据惟一索引进行查询，也是15条数据</p>
+<pre><code>counts = ArticleMmOther.objects.all().count()
+#arts = ArticleMmOther.objects.values(&quot;id&quot;,&quot;title&quot;)[start:end]
+arts = [ArticleMmOther.objects.values(&quot;id&quot;,&quot;title&quot;).get(id=i) for i in range(start, end)]
+paginator = Paginator(range(counts), 15)
 </code></pre>
-<p>如何创建库?<br>
-Mongodb的库是隐式创建,你可以use 一个不存在的库，然后在该库下创建collection,即可创建库<br>
-db.createCollection(‘collectionName’)<br>
-即可创建一个集合。<br>
-其实在MongoDB中，collection也是可以隐身创建的<br>
-db.collectionName.insert(document)<br>
-如何删除数据库和集合？<br>
-db.collectionName.drop()//删除集合<br>
-db.dropDatabase()//删除数据库</p>
-<p>MongoDB基础增删改查操作</p>
-<pre><code>1、增：insert方法
-首先要明确一点，MongoDB存储的时文档，文档其实就是json格式的对象。
-语法：
-db.collectionName.isnert(document)
-增加单篇文档：
-db.collectionName.insert({title:’nice day’})
-增加单个文档,并指定_id
-db.collectionName.insert({_id:8,age:78,name:’lisi’})
-增加多个文档
-db.collectionName.insert(
+<p>我要探索2个问题：<br>
+1、这3条查询语句，中间有一个查询比较耗时，我的前端页面在访问页面的时候，要过好几秒才能打开网页，对用户不友好，但是我现在不知道哪个最耗时，如何把最耗时的查询操作找出来？</p>
+<p>2、对于每次返回15条数据，我用了两种方式来写，一种是[start:end]切片limit查询,一种是从range(start,end)遍历15次，每次都是根据索引进行惟一查询，比较这两种查询谁更快？</p>
+<p>好了，SQL执行时间可以在Navicate中进行查看，不过我这里要获取的是orm查询的执行时间，可以自己在查询执行前和执行后获取时间相减计算执行时间，不过自己计算也比较麻烦了，这最近看相关技术文章发现，django提供了一个能返回orm查询时间的api，我们调用可以直接查看每次查询的耗时,如下方代码所示<br>
+from django.db import connection<br>
+connection.queries</p>
+<pre><code>`from django.db import connection
+if stype=='b_other':
+  counts = ArticleMmOther.objects.all().count()
+  arts = ArticleMmOther.objects.values(&quot;id&quot;,&quot;title&quot;)[start:end]
+  print(connection.queries)
+  # arts = [ArticleMmOther.objects.values(&quot;id&quot;,&quot;title&quot;).get(id=i) for i in range(start, end)]
+  title = a
+  print(arts,type(arts))
+  paginator = Paginator(range(counts), 15)`
+</code></pre>
+<p>下方是打印的查询报告：<br>
+验证一：<br>
+count查询：11.340s<br>
+切片limit查询：0.009s</p>
+<pre><code>`[{'sql': 'SELECT @@SQL_AUTO_IS_NULL', 'time': '0.000'},
+{'sql': 'SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED',
+'time': '0.000'},
+
+# count查询总数量，查询时间11.340s
+{'sql': 'SELECT COUNT(*) AS `__count`
+FROM `articlemmother`', 'time': '11.340'},
+
+# limit查询15条数据，查询时间0.009s
+{'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title`
+FROM `articlemmother` ORDER BY `articlemmother`.`like` DESC,
+`articlemmother`.`read` DESC LIMIT 15 OFFSET 2',
+'time': '0.009'}]`
+</code></pre>
+<p>验证二：<br>
+count查询：0.030s<br>
+惟一索引id查询：0.000s</p>
+<pre><code>`[{'time': '0.000', 'sql': 'SELECT @@SQL_AUTO_IS_NULL'}, {'time': '0.000', 'sql': 'SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED'},
+
+# count查询用时0.030s
+{'time': '0.030', 'sql': 'SELECT COUNT(*) AS `__count` 
+FROM `articlemmother`'},
+# 15条数据全部通过惟一索引id查询,每条数据都是0.000s
+{'time': '0.000', 'sql': 'SELECT VERSION()'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 1'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 2'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 3'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 4'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 5'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 6'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 7'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 8'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 9'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 10'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 11'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 12'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 13'},
+{'time': '0.000', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 14'},
+{'time': '0.001', 'sql': 'SELECT `articlemmother`.`id`, `articlemmother`.`title` FROM `articlemmother` WHERE `articlemmother`.`id` = 15'}]
 [
-{time:'friday',study:'mongodb'},
-{_id:9,gender:'male',name:'QQ'}
-]
-)
-2、删除：remove
-语法:
- db.collection.remove(查询表达式, 选项)
-选项是指  {justOne:true/false},是否只删一行, 默认为false
-注意：
-1: 查询表达式依然是个json对象 {age:20} where age =20   where age&gt;20
-2: 查询表达式匹配的行,将被删掉.
-3: 如果不写查询表达式,collections中的所有文档将被删掉
-例1:删除stu表中 sn属性值为’001’的文档
- db.stu.remove({sn:’001’})
-例2: 删除stu表中gender属性为m的文档,只删除1行.
-db.stu.remove({gender:’m’,true});
-
-3、更新：update
-语法: db.collection.update(查询表达式,新值,选项)
-
-改谁? --- 查询表达式
-改成什么样? -- 新值 或 赋值表达式
-操作选项 ----- 可选参数
-例:
-db.news.update({name:'QQ'},{name:'MSN'});
-是指选中news表中,name值为QQ的文档,并把其文档值改为{name:’MSN’},结果: 文档中的其他列也不见了,改后只有_id和name列了，即--新文档直接替换了旧文档,而不是修改
-如果是想修改文档的某列,可以用$set关键字：
-db.collectionName.update(query,{$set:{name:’QQ’}})
-修改时的赋值表达式
-$set 修改某列的值
-$unset 删除某个列
-$rename 重命名某个列
-$inc 增长某个列
-Option的作用:{upsert:true/false,multi:true/false}
-Upsert---是指没有匹配的行,则直接插入该行.
-例:
-db.stu.update({name:'wuyong'},{$set:{name:'junshiwuyong'}},{upsert:true});
-如果有name=’wuyong’的文档,将被修改，如果没有,将添加此新文档
-db.news.update({_id:99},{x:123,y:234},{upsert:true});
-没有_id=99的文档被修改,因此直接插入该文档
-multi: 是指修改多行(即使查询表达式命中多行,默认也只改1行,如果想改多行,可以用此选项)
-db.news.update({age:21},{$set:{age:22}},{multi:true});
-    则把news中所有age=21的文档,都修改
-4、查: find
-语法: db.collection.find(查询表达式,查询的列);
-db.collections.find(表达式,{列1:1,列2:1});
-    在查询的列参数中，1表示显示，0表示不显示
-例1:db.stu.find()
-    查询所有文档 所有内容
-例2: db.stu.find({},{gendre:1})
-    查询所有文档,的gender属性 (_id属性默认总是查出来)
-例3: db.stu.find({},{gender:1, _id:0})
-    查询所有文档的gender属性,且不查询_id属性
-例4: db.stu.find({gender:’male’},{name:1,_id:0});
-    查询所有gender属性值为male的文档中的name属性
-    2. MongoDB AND 条件
-    MongoDB 的 find() 方法可以传入多个键(key)，每个键(key)以逗号隔开，及常规 SQL 的 AND 条件。类似于 WHERE 语句：WHERE by='优就业' AND title='MongoDB 教程。
-    语法格式如下：
-db.col.find({key1:value1， key2:value2}).pretty()
-    3、常用方法：
-limit()
-db.COLLECTION_NAME.find().limit(NUMBER)
-skip()
-db.COLLECTION_NAME.find().limit(NUMBER).skip(NUMBER)
-sort()
-db.COLLECTION_NAME.find().sort({KEY:1})
-count()
- db.mycol.count()
-5、查询表达式:
-最简单的查询表达式
-| Model| 命令| Model | 命令|
-| --------- | -------- | -----: | --: |
-|  $lt| 小于  |  $lte |   小于等于 |
-| $gt| 大于|   $gte|   大于等于 |
-| $ne --- != | 查询表达式 
-|  |     |    |    |
-
-
-    {filed:value} ,是指查询field列的值为value的文档
-$lt小于
-$lte小于等于
-$gt 大于
-$gte大于等于
-$ne --- != 查询表达式
-{field:{$nq:value}} ---作用：查filed列的值 不等于 value 的文档
-db.goods.find({cat_id:{$nq:3}},{cat_id:1,goods_id:1,goods_name:1,_id:0})
-//查询cat_id不等3的数据
-$nin --&gt; not in
-db.stu.find({age:{$nin:[1,16]}})
-$all：指数组所有单元匹配，就是指我指定的内容都要有，通过一个list来指定
-db.stu.insert({name:'xt',age:99,hobby:['aa','bb']})
-db.stu.find({hobby:{$all:['aa','bb']}},{name:1,age:1,_id:0})
-$exists
-        语法: {field:{$exists:1}}
-        作用: 查询出含有field字段的文档
- db.stu.find({hobby:{$exists:1}})
-$nor
-{$nor,[条件1,条件2]} 是指  所有条件都不满足的文档为真返回
-$and
-        {$and,[条件1,条件2]} 是指  所有条件都满足，就为真
-$or
-        {$or,[条件1,条件2]} 是指  条件1和条件2有一个满足，就为真
 </code></pre>
-<p><strong>例子:</strong></p>
-<h1 id="取出不属于第3栏目且不属于第11栏目的商品and-nin和nor分别实现">//取出不属于第3栏目且不属于第11栏目的商品($and <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>n</mi><mi>i</mi><mi>n</mi><mi mathvariant="normal">和</mi></mrow><annotation encoding="application/x-tex">nin和</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.65952em;vertical-align:0em;"></span><span class="mord mathdefault">n</span><span class="mord mathdefault">i</span><span class="mord mathdefault">n</span><span class="mord cjk_fallback">和</span></span></span></span>nor分别实现)</h1>
-<p>db.goods.find({<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;}&#039;, got &#039;EOF&#039; at end of input: …:[{shop_price:{'>and:[{shop_price:{</span>lt:500}},{shop_price:{<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;}&#039; at position 7: gt:100}̲}]},{_id:0,shop…'>gt:100}}]},{_id:0,shop_price:1})
-db.goods.find({</span>nor:[{cat_id:3},{cat_id:11}]},{cat_id:1})<br>
-db.goods.find({cat_id:{$nin:[3,11]}},{cat_id:1})</p>
-<h1 id="取出价格大于100且小于300或者大于4000且小于5000的商品">//取出价格大于100且小于300,或者大于4000且小于5000的商品()</h1>
-<p>db.goods.find({<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;}&#039;, got &#039;EOF&#039; at end of input: or:[{'>or:[{</span>and:[{shop_price:{<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;}&#039; at position 7: gt:100}̲},{shop_price:{'>gt:100}},{shop_price:{</span>lt:300}}]},{<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;}&#039;, got &#039;EOF&#039; at end of input: …:[{shop_price:{'>and:[{shop_price:{</span>gt:4000}},{shop_price:{$lt:5000}}]}]})</p>
-<h1 id="取出goods_id5-1-即1611这样的商品">取出goods_id%5 == 1, 即,1,6,11,..这样的商品</h1>
-<p>db.goods.find({goods_id:{$mod:[5,1]}},{goods_id:1})</p>
-<p>格式db.表明.find({表内容:值|条件})</p>
+<p>比较分析与结论：<br>
+1、验证一 count查询 11.340秒，验证二count查询耗时0.030秒，明显是耗时最长的查询，其实也不难理解，100万条数据查起来，即使只查了数量，也确实能明显感知到有点慢，对于count查询，第一次11.340秒，第二次0.030秒，原因应该是django查询的缓存作用，所以第二次查的时候就快了很多，随着缓存被清除，再去刷新页面还是有很长的等待时间，那么既然这里count查询很耗时，那我干脆就给一个固定值，1000000，反正数据量也是固定的，我直接看下有多少就行了，省的再去查了，完美解决页面响应慢的问题，所有页面目前已优化统统秒开</p>
+<p>2、验证一的切片limit查询15条数据：0.009s，验证二的遍历15次惟一索引查询，每个都是0.000s，几乎不耗时，相比之下，还是通过id的惟一索引去查更快些，但也不排除15条数据都通过id去查的时间之和会不会被四舍五入后跟limit查询相差不多</p>
+<p>总体来说，通过上面所说的方法，在django性能优化时候，对每个查询的执行时间有个把握，就能更有针对性的优化，而不是去盲目猜测怎么优化</p>
  </p>
                       </div>
                   </div>
@@ -346,9 +283,9 @@ db.goods.find({cat_id:{$nin:[3,11]}},{cat_id:1})</p>
                           
                               <div class="next-post">
                                   <div class="next">下一篇</div>
-                                  <a href="https://yooinn.github.io//post/python-pa-chong-kuang-jia-scrapy-bi-ji">
+                                  <a href="https://yooinn.github.io//post/pythontu-pian-pi-liang-ya-suo">
                                       <h3 class="post-title">
-                                          Python 爬虫框架scrapy笔记
+                                          [Python]图片批量压缩
                                       </h3>
                                   </a>
                               </div>
